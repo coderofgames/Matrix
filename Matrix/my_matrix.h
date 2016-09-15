@@ -139,7 +139,7 @@ public:
 		else return null_return;
 	}
 	// Hadamard element wise product
-	matrix operator | (matrix &b)
+	matrix& operator | (matrix &b)
 	{
 		if (this->NumColumns() == b.NumColumns() && this->NumRows() == b.NumRows())
 		{
@@ -164,7 +164,7 @@ public:
 		return matrix(0, 0);
 	}
 
-	matrix operator*(matrix &b)
+	matrix& operator*(matrix &b)
 	{
 		if (b.NumColumns() == 1 && b.NumRows() == 1)
 		{
@@ -192,7 +192,7 @@ public:
 		return matrix(0, 0);
 	}
 
-	matrix operator*(float s)
+	matrix& operator*(float s)
 	{
 		if (out) delete out;
 		out = new matrix(this->NumRows(), this->NumColumns());
@@ -207,7 +207,7 @@ public:
 		return *out;
 	}
 
-	matrix operator/(float s)
+	matrix& operator/(float s)
 	{
 		if (out) delete out;
 		out = new matrix(this->NumRows(), this->NumColumns());
@@ -221,7 +221,7 @@ public:
 		}
 		return *out;
 	}
-	matrix operator+(float s)
+	matrix& operator+(float s)
 	{
 		if (out) delete out;
 		out = new matrix(this->NumRows(), this->NumColumns());
@@ -235,7 +235,7 @@ public:
 		}
 		return *out;
 	}
-	matrix operator+(matrix &b)
+	matrix& operator+(matrix &b)
 	{
 		if (this->NumColumns() != b.NumColumns() || this->NumRows() != b.NumRows())
 			return matrix(0, 0);
@@ -257,7 +257,7 @@ public:
 		return matrix(0, 0);
 	}
 
-	matrix operator-(matrix &b)
+	matrix& operator-(matrix &b)
 	{
 		if (this->NumColumns() != b.NumColumns() || this->NumRows() != b.NumRows())
 			return matrix(0, 0);
@@ -356,8 +356,10 @@ public:
 
 	bool IsSymmetric()
 	{
-		if (!this->IsSquare()) 
+		if (!this->IsSquare())
+		{
 			return false;
+		}
 		
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -372,7 +374,11 @@ public:
 
 	bool IsPositiveDefinite()
 	{
-		if (!this->IsSquare()) return false;
+		if (!this->IsSquare())
+		{
+			cout << "Error: Positive Definite Matrixces must be square" << endl;
+			return false;
+		}
 
 		matrix X(this->NumRows(), 1);
 
@@ -479,9 +485,21 @@ public:
 
 	matrix& Solve_Lower_TriangularSystem(matrix& L, matrix & y, matrix& b)
 	{
-		if (!L.IsSquare()) return y;
-		if (!y.NumRows() == L.NumRows()) return y;
-		if (!b.NumRows() == y.NumRows()) return y;
+		if (!L.IsSquare())
+		{
+			cout << "Error (Solve_Lower_TriangularSystem): Lower Triangular Matrix should be square" << endl;
+			return y;
+		}
+
+		if (!y.NumRows() == L.NumRows()) {
+			cout << "Error (Solve_Lower_TriangularSystem): vector y should have the same number of rows as L" << endl;
+			return y;
+		}
+		if (!b.NumRows() == y.NumRows())
+		{
+			cout << "Error (Solve_Lower_TriangularSystem): vector y should have the same number of rows as b" << endl;
+			return y;
+		}
 
 		y(0, 0) = b(0, 0) / L(0, 0);
 
@@ -500,9 +518,19 @@ public:
 
 	matrix& Solve_Upper_TriangularSystem(matrix& U, matrix & x, matrix& y)
 	{
-		if (!U.IsSquare()) return y;
-		if (!y.NumRows() == U.NumRows()) return y;
-		if (!x.NumRows() == y.NumRows()) return y;
+		if (!U.IsSquare()) {
+			cout << "Error (Solve_Upper_TriangularSystem): matrix should be square" << endl;
+			return y;
+		}
+		if (!y.NumRows() == U.NumRows())
+		{
+			cout << "Error (Solve_Upper_TriangularSystem): vector y should have same number of rows as matrix" << endl;
+			return y;
+		}
+		if (!x.NumRows() == y.NumRows()) {
+			cout << "Error (Solve_Upper_TriangularSystem): x should be same shape as y" << endl;
+			return y;
+		}
 		
 		int n = x.NumRows();
 
@@ -523,8 +551,15 @@ public:
 
 	matrix& Cholesky(matrix& b)
 	{
-		if (!this->IsSymmetric()) return b;
-		if (!this->IsPositiveDefinite()) return b;
+		if (!this->IsSymmetric()) {
+			cout << "Error (Cholesky): Matrix should be symetric" << endl;
+			return b;
+		}
+		if (!this->IsPositiveDefinite())
+		{
+			cout << "Error (Cholesky): Matrix should be positive definite" << endl;
+			return b;
+		}
 
 		int n = this->NumRows();
 		matrix M(n, n);
