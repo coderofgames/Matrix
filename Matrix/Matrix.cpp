@@ -267,6 +267,135 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "=================================================" << endl;
 
+	matrix G(3, 3);
+	G(0, 0) = -1;
+	G(0, 1) = 1;
+	G(0, 2) = 2;
+
+	G(1, 0) = 3;
+	G(1, 1) = -1;
+	G(1, 2) = 1;
+
+	G(2, 0) = -1;
+	G(2, 1) = 3;
+	G(2, 2) = 4;
+
+	cout << endl;
+	cout << "printing G" << endl;
+	G.print();
+	
+	matrix G2 = G.Gauss_Jordan(b);
+	cout << endl;
+	cout << "printing G2" << endl;
+	G2.print();
+	
+	cout << endl;
+	cout << "printing G" << endl;
+	G.print();
+	cout << endl;
+
+
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing Doolittle LU decomposition" << endl;
+	cout << endl;
+
+	matrix L_2(3, 3);
+	L_2.Identity();
+
+	matrix U_2(3, 3);
+
+	matrix M_(3, 3);
+	M_(0, 0) =3;
+	M_(0, 1) =5;
+	M_(0, 2) =2;
+
+	M_(1, 0) =0;
+	M_(1, 1) =8;
+	M_(1, 2) = 2;
+	M_(2, 0) = 6;
+	M_(2, 1) = 2;
+	M_(2, 2) =8;
+
+	cout << "Prining M_" << endl;
+	M_.print();
+	cout << endl;
+
+	M_.LU_Decomposition_Doolittle(L_2, U_2);
+
+	cout << endl;
+	cout << "Prining L" << endl;
+	L_2.print();
+
+
+	cout << endl;
+	cout << "Prining U" << endl;
+	U_2.print();
+	cout << endl;
+	matrix LU = L_2 * U_2;
+
+	cout << "Printing L * U" << endl;
+	LU.print();
+
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing Doolittle system solver" << endl;
+	cout << endl;
+
+	matrix B_lu(3, 1);
+	B_lu(0, 0) = 8;
+	B_lu(1, 0) = -7;
+	B_lu(2, 0) = 26;
+
+	matrix X_lu = M_.Solve_System_LU(L_2, U_2, B_lu);
+	cout << "1. Using previously computed LU matrices"<< endl;
+	cout << "Prining solution" << endl;
+	X_lu.print();
+
+	B_lu(0, 0) = 8;
+	B_lu(1, 0) = -7;
+	B_lu(2, 0) = 26;
+	matrix X_lu2 = M_.Solve_System_Doolittle(B_lu);
+	cout << endl;
+	cout << "2. Using internally computed LU matrices" << endl;
+	cout << "Prining solution" << endl;
+	X_lu2.print();
+
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing LU Decomposition Crout's Method" << endl;
+	cout << endl;
+	matrix L_3(3, 3);
+	matrix U_3(3, 3);
+	M_.LU_Decomposition_Crout(L_3, U_3);
+
+	cout << "Printing L" << endl;
+	L_3.print();
+
+	cout << endl;
+	cout << "Printing U" << endl;
+	U_3.print();
+
+	cout << endl;
+	cout << "Printing L*U" << endl;
+	matrix crout = L_3 * U_3;
+	crout.print();
+
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing Crout system solver" << endl;
+	cout << endl;
+	cout << "1. Using previously computed LU matrices" << endl;
+
+	matrix X_crout_lu = M_.Solve_System_LU(L_3, U_3, B_lu);
+	cout << "Printing Solution" << endl;
+	X_crout_lu.print();
+	
+	cout << endl;
+	cout << "2. Using internally computed LU matrices" << endl;
+	matrix X_crout_lu2 = M_.Solve_System_Crout(B_lu);
+	cout << "Printing Solution" << endl;
+	X_crout_lu2.print();
 	return 0;
 }
 
