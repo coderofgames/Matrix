@@ -453,7 +453,7 @@ public:
 			for (j = k + 1; j < n; j++)
 			{
 				float mjk = get(j, k) / get(k, k);
-				for (int p = k + 1; p < n; p++)
+				for (int p = k ; p < n; p++)
 				{
 					get(j, p) = get(j, p) - mjk * get(k, p);
 				}
@@ -500,18 +500,16 @@ public:
 			return b;
 		}
 
-		
 
 		unsigned int n = this->NumRows();
 
 		if (out) delete out;
 		out = new matrix(n,n);
 
-		for (int k = 0; k < n; k++)
-		{
-			(*out)(k, k) = 1.0f;
-		}
+		out->Identity();
 
+
+		// this part is almost exactly the same as the section from the Gauss method 
 		for (int k = 0; k < n-1 ; k++)
 		{
 			bool bSolutionExists = false;
@@ -536,7 +534,8 @@ public:
 			for (j = k + 1; j < n; j++)
 			{
 				float mjk = get(j, k) / get(k, k);
-				for (int p = k + 1; p < n; p++)
+				
+				for (int p = k; p < n; p++)
 				{
 					
 					get(j, p) = get(j, p) - mjk * get(k, p);
@@ -545,29 +544,55 @@ public:
 				}
 				//b(j, 0) = b(j, 0) - mjk * b(k, 0);
 			}
+
+
 		}
-		return *out;
-		if (get(n - 1, n - 1) == 0)
+
+		// make sure all the elements on the diagonal are 1 by dividing all 
+		// rows by the elements in the diagonals of that row
+		// need this for the next loop
+		for (int k = 0; k < n; k++)
 		{
-			cout << "No Unique Solution Exists" << endl;
-			return b; // no solution
+			float val = get(k, k);
+			for (int c = 0; c < n; c++)
+			{
+				get(k, c) = get(k, c) / val;
+				(*out)(k, c) = (*out)(k, c) / val;
+			}
 		}
 
-		if (out) delete out;
-		out = new matrix(n, 1);
-
-		(*out)(n - 1, 0) = b(n - 1, 0) / get(n - 1, n - 1);
-
-		for (int i = n - 2; i > -1; i--)
+		// starting at the n-1 th row, we have
+		// a matrix in echelon form with ones on the main diagonal
+		// the 
+		for (int r = n - 2; r >-1; r--) // n-2 here because we index from zero instead of one
 		{
-			float the_sum = 0;
-			for (int j = i + 1; j < n; j++)
-				the_sum += get(i, j)*(*out)(j, 0);
 
-			(*out)(i, 0) = (1 / get(i, i)) * (b(i, 0) - the_sum);
+
+			// the next element after the diagonal is Row+1
+			for (int c = r+1; c < n; c++)
+			{
+				// get the value in the row / column position, we will make the element in (r,c) into zero
+				// by multiplying by the *next* row, elemnts before the diagonal are already zero, and 
+				// the next elements in this row will be handled next ...
+				// ...
+				float val = get(r, c); 
+				for (int p =0; p < n; p++)
+				{
+					// we use c to use a mulitiple of c's row, subtracting a multiple of the 1's on the diagonal
+					get(r, p) = get(r, p) - get(c, p)*val; 
+
+					// all operations are mirrored on the other *output* matrix, or the inverse
+					(*out)(r, p) = (*out)(r, p) - (*out)(c,p)*val; 
+				}
+
+
+			}
+
 		}
+		
 
 		return *out;
+
 	}
 
 	matrix& Solve_Lower_TriangularSystem(matrix& L, matrix & y, matrix& b)

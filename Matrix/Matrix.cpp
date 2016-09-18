@@ -266,6 +266,7 @@ int main(int argc, char* argv[])
 	c.print();
 	cout << endl;
 	cout << "=================================================" << endl;
+	cout << "Testing Matrix Inversion via Gauss-Jordan Elimination " << endl;
 
 	matrix G(3, 3);
 	G(0, 0) = -1;
@@ -284,6 +285,8 @@ int main(int argc, char* argv[])
 	cout << "printing G" << endl;
 	G.print();
 	
+
+	matrix old_G = G;
 	matrix G2 = G.Gauss_Jordan(b);
 	cout << endl;
 	cout << "printing G2" << endl;
@@ -294,6 +297,13 @@ int main(int argc, char* argv[])
 	G.print();
 	cout << endl;
 
+
+	cout << endl;
+	cout << "printing G2 * old_G" << endl;
+	matrix what = old_G * G2 ;
+	what.print();
+	cout << endl;
+	cout << "Close enough ignoring E-008" << endl;
 
 	cout << endl;
 	cout << "=================================================" << endl;
