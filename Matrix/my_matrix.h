@@ -19,46 +19,45 @@ public:
 	void operator=(vector2d b){ v[0] = b.v[0]; v[1] = b.v[1]; }
 };
 
+template<class T>
 class matrix
 {
 public:
-	matrix(){
+	matrix<T>(){
 		this->m_sizeX = 0; m_sizeY = 0;
 		data = 0;
 	}
 
 
-	matrix(matrix *p){
+	matrix<T>(matrix *p){
 		this->m_sizeX = p->m_sizeX; m_sizeY = p->m_sizeY;
 		this->create();
 		for (int i = 0; i < m_sizeX; i++)
 		{
 			for (int j = 0; j < m_sizeY; j++)
 				data[i][j] = (*p)[i][j];
-			//memcpy((void*)&data[i][j], (void*)&((*p)[i][j]), sizeof(float));
 		}
 		is_transposed = false;
 	}
 
-	matrix(matrix &p){
+	matrix<T>(matrix &p){
 		this->m_sizeX = p.m_sizeX; m_sizeY = p.m_sizeY;
 		this->create();
 		for (int i = 0; i < m_sizeX; i++)
 		{
 			for (int j = 0; j < m_sizeY; j++)
 				data[i][j] = p[i][j];
-			//memcpy((void*)&data[i][j], (void*)&((p)[i][j]), sizeof(float));
 		}
 		is_transposed = false;
 	}
 
-	matrix(unsigned int n, unsigned int m)
+	matrix<T>(unsigned int n, unsigned int m)
 	{
 		m_sizeX = n;
 		m_sizeY = m;
 		create();
 	}
-	~matrix()
+	~matrix<T>()
 	{
 		destroy();
 		if (out) delete out;
@@ -81,10 +80,10 @@ public:
 	{
 		if (m_sizeY > 0 && m_sizeX > 0)
 		{
-			data = new float*[m_sizeX];
+			data = new T*[m_sizeX];
 			for (int i = 0; i < m_sizeX; i++)
 			{
-				data[i] = new float[m_sizeY];
+				data[i] = new T[m_sizeY];
 				for (int j = 0; j < m_sizeY; j++)
 					data[i][j] = 0.0f;
 			}
@@ -102,7 +101,6 @@ public:
 		{
 			for (int j = 0; j < m_sizeY; j++)
 				data[i][j] = b(i, j);
-			//memcpy((void*)&data[i][j], (void*)&b[i][j], sizeof(float));
 		}
 
 
@@ -118,7 +116,6 @@ public:
 		{
 			for (int j = 0; j < this->NumColumns(); j++)
 				data[i][j] = (*b)(i, j);
-			//memcpy((void*)&data[i][j], (void*)&((*b)[i][j]), sizeof(float));
 		}
 	}
 
@@ -126,14 +123,14 @@ public:
 
 
 
-	float& operator()(unsigned int i, unsigned int j)
+	T& operator()(unsigned int i, unsigned int j)
 	{
 		return get(i, j);
 	}
 
-	float& get(unsigned int i, unsigned int j)
+	T& get(unsigned int i, unsigned int j)
 	{
-		float null_return = 0.0f;
+		T null_return = 0.0f;
 		if (i < NumRows() && j < NumColumns())
 			return is_transposed ? data[j][i] : data[i][j];
 		else return null_return;
@@ -192,7 +189,7 @@ public:
 		return matrix(0, 0);
 	}
 
-	matrix& operator*(float s)
+	matrix& operator*(T s)
 	{
 		if (out) delete out;
 		out = new matrix(this->NumRows(), this->NumColumns());
@@ -207,7 +204,7 @@ public:
 		return *out;
 	}
 
-	matrix& operator/(float s)
+	matrix& operator/(T s)
 	{
 		if (out) delete out;
 		out = new matrix(this->NumRows(), this->NumColumns());
@@ -221,7 +218,7 @@ public:
 		}
 		return *out;
 	}
-	matrix& operator+(float s)
+	matrix& operator+(T s)
 	{
 		if (out) delete out;
 		out = new matrix(this->NumRows(), this->NumColumns());
@@ -299,9 +296,9 @@ public:
 
 
 
-	float trace()
+	T trace()
 	{
-		float sum = 0.0f;
+		T sum = 0.0f;
 		if (m_sizeX != m_sizeY) return 0.0f;
 
 		for (int i = 0; i < this->NumRows(); i++)
@@ -334,10 +331,10 @@ public:
 	{
 		is_transposed = !is_transposed;
 	}
-	void T()
-	{
-		is_transposed = !is_transposed;
-	}
+	//void T()
+	//{
+	//	is_transposed = !is_transposed;
+	//}
 
 
 	inline unsigned int NumRows()
@@ -400,15 +397,16 @@ public:
 		return true;
 	}
 
-	/*
-	For solution of the system Ax = b, relies on the coondition 
-	that this matrix A is square and that b has the same number of rows as A
-	
-	inputs b, outputs x, 
-	
-	For more information please consult Krezig: Advanced Engineering Mathematics, sec 19.1
-	)
-	*/
+	//============================================================================
+	// For solution of the system Ax = b, 
+	// relies on the condition that this matrix A is square and 
+	// that b has the same number of rows as A
+	//
+	// inputs b, outputs x, 
+	//
+	// For more information please consult Krezig: Advanced Engineering Mathematics, sec 19.1
+	//
+	//============================================================================
 	matrix& Gauss(matrix &b)
 	{
 		if (!this->IsSquare())
@@ -452,7 +450,7 @@ public:
 			}
 			for (j = k + 1; j < n; j++)
 			{
-				float mjk = get(j, k) / get(k, k);
+				T mjk = get(j, k) / get(k, k);
 				for (int p = k ; p < n; p++)
 				{
 					get(j, p) = get(j, p) - mjk * get(k, p);
@@ -473,7 +471,7 @@ public:
 
 		for (int i = n - 2; i > -1; i--)
 		{
-			float the_sum = 0;
+			T the_sum = 0;
 			for (int j = i + 1; j < n; j++) 
 				the_sum += get(i, j)*(*out)(j, 0);
 			
@@ -483,21 +481,69 @@ public:
 		return *out;
 	}
 
-	/*
-	For solution of the system Ax = b, relies on the coondition
-	that this matrix A is square and that b has the same number of rows as A
+	// generalization of the reduction to triangular form above
+	bool ReduceToUpperTriangularForm()
+	{
+		if (!this->IsSquare())
+		{
+			cout << "Error (ReduceToLowerTriangularForm) : System Matrix must be square." << endl;
+			return false;
+		}
 
-	inputs b, outputs x,
+		unsigned int n = this->NumRows();
 
-	For more information please consult Krezig: Advanced Engineering Mathematics, sec 19.1
-	)
-	*/
-	matrix& Gauss_Jordan(matrix &b)
+		// this part is almost exactly the same as the section from the Gauss method 
+		for (int k = 0; k < n - 1; k++)
+		{
+			bool bSolutionExists = false;
+			unsigned int j = n - 1;
+			for (j = k + 1; j < n; j++)
+			{
+				if (get(j, k) != 0)
+				{
+					bSolutionExists = true;
+					break;
+				}
+			}
+
+			if (!bSolutionExists) return false;
+
+			for (int i = 0; i < n; i++)
+			{
+				SWAP(get(j, i), get(k, i));	
+			}
+
+			for (j = k + 1; j < n; j++)
+			{
+				T mjk = get(j, k) / get(k, k);
+				for (int p = k; p < n; p++)
+				{
+					get(j, p) = get(j, p) - mjk * get(k, p);
+				}
+			}
+		}	
+	}
+
+	// interesting way of evaluating the determinant
+	T Determinant()
+	{
+		if( this->ReduceToUpperTriangularForm() )
+			return this->trace();
+		
+		return 0;
+	}
+
+	//============================================================================
+	// Matrix Inversion via Gauss-Jordan elimination
+	// The matrix should be square, returns the inverse
+	//
+	//============================================================================
+	matrix& Gauss_Jordan()
 	{
 		if (!this->IsSquare())
 		{
 			cout << "Error in Gauss calculation: System Matrix must be square." << endl;
-			return b;
+			return (*this);
 		}
 
 
@@ -523,7 +569,11 @@ public:
 				}
 			}
 
-
+			if (!bSolutionExists)
+			{
+				cout << "Error (Gauss_Jordan): No Unique Solution Exists." << endl;
+				return (*this);
+			}
 	
 			for (int i = 0; i < n; i++)
 			{
@@ -533,7 +583,7 @@ public:
 			}
 			for (j = k + 1; j < n; j++)
 			{
-				float mjk = get(j, k) / get(k, k);
+				T mjk = get(j, k) / get(k, k);
 				
 				for (int p = k; p < n; p++)
 				{
@@ -553,7 +603,7 @@ public:
 		// need this for the next loop
 		for (int k = 0; k < n; k++)
 		{
-			float val = get(k, k);
+			T val = get(k, k);
 			for (int c = 0; c < n; c++)
 			{
 				get(k, c) = get(k, c) / val;
@@ -575,7 +625,7 @@ public:
 				// by multiplying by the *next* row, elemnts before the diagonal are already zero, and 
 				// the next elements in this row will be handled next ...
 				// ...
-				float val = get(r, c); 
+				T val = get(r, c); 
 				for (int p =0; p < n; p++)
 				{
 					// we use c to use a mulitiple of c's row, subtracting a multiple of the 1's on the diagonal
@@ -595,6 +645,11 @@ public:
 
 	}
 
+	//============================================================================
+	// Solve a matrix system of the form Ly = b by back substitution
+	// L, is Lower triangular, y is the solution vector, b is the output
+	// inputs L, y, b
+	//============================================================================
 	matrix& Solve_Lower_TriangularSystem(matrix& L, matrix & y, matrix& b)
 	{
 		if (!L.IsSquare())
@@ -617,7 +672,7 @@ public:
 
 		for (int i = 1; i < L.NumRows(); i++)
 		{
-			float sum0 = 0.0f;
+			T sum0 = 0.0f;
 			for (int s = 0; s < i; s++)
 			{
 				sum0 += L(i, s) * y(s,0);
@@ -628,6 +683,11 @@ public:
 		return y;
 	}
 
+	//============================================================================
+	// Solve a system of the form Ux = y by back substitution
+	// U is upper triangular, x is the solution vector, y is the output
+	// inputs U,x,y
+	//============================================================================
 	matrix& Solve_Upper_TriangularSystem(matrix& U, matrix & x, matrix& y)
 	{
 		if (!U.IsSquare()) {
@@ -650,7 +710,7 @@ public:
 
 		for (int i = n - 2; i > -1; i--)
 		{
-			float sum0 = 0;
+			T sum0 = 0;
 			for (int j = i + 1; j < n; j++)
 				sum0 += U(i, j)*x(j, 0);
 
@@ -660,7 +720,12 @@ public:
 		return x;
 	}
 
-
+	//============================================================================
+	// Solves a system Ax = b via the Cholesky method
+	// this matrix must be symmetric and positive definite
+	// inputs b, output vector
+	// returns x, solution vector
+	//============================================================================
 	matrix& Cholesky(matrix& b)
 	{
 		if (!this->IsSymmetric()) {
@@ -690,14 +755,14 @@ public:
 			{
 				if (j == k)
 				{
-					float sum1 = 0;
+					T sum1 = 0;
 					for (int s = 0; s < j ; s++) sum1 += M(j, s) * M(j, s);
 
 					M(j, j) = sqrt(get(j, j) - sum1);
 				}
 				else
 				{
-					float sum2 = 0;
+					T sum2 = 0;
 					for (int s = 0; s < k ; s++) sum2 += M(j, s) * M(k, s);
 
 					M(j, k) = (1 / M(k, k)) * (get(j, k) - sum2);
@@ -743,12 +808,11 @@ public:
 		}
 	}
 
-	/*
-	The LU decomposition using doolittles method, this function
-	does not solve a system, it simple decompses this matrix into two
-	matrices such that A = LU
-	
-	*/
+	//============================================================================
+	// The LU decomposition using doolittles method, this function
+	// does not solve a system, it simple decompses this matrix into two
+	//matrices such that A = LU
+	//============================================================================
 	int LU_Decomposition_Doolittle(matrix& L, matrix& U)
 	{
 		if (!L.EqualSize(U))
@@ -788,14 +852,14 @@ public:
 			{
 				if (k >= j)
 				{
-					float sum0 = 0.0f;
+					T sum0 = 0.0f;
 					for (int s = 0; s < j; s++) sum0 += L(j, s) * U(s, k);
 
 					U(j, k) = get(j, k) - sum0;
   				}
 				else
 				{
-					float sum1 = 0.0f;
+					T sum1 = 0.0f;
 					for (int s = 0; s < k; s++) sum1 += L(j, s) * U(s, k);
 
 					L(j, k) = (1 / U(k, k))*(get(j, k) - sum1);
@@ -807,13 +871,13 @@ public:
 		return 1;
 	}
 
-	/*
-	Solves the system via doolittles method, for the equation Ax = b
-	it first factorizes A into LU such that A=LU, then solves the 
-	lower triangular system Ly = b and then the upper triangular system Ux=y
-	returns x
-
-	*/
+	//============================================================================
+	// Solves the system via doolittles method, for the equation Ax = b
+	// it first factorizes A into LU such that A=LU, then solves the 
+	// lower triangular system Ly = b and then the upper triangular system Ux=y
+	// returns x
+	//
+	//============================================================================
 	matrix& Solve_System_Doolittle(matrix& b)
 	{
 
@@ -849,10 +913,10 @@ public:
 	}
 
 
-	/*
-	Very similar to the Doolittle method, solves A = LU for L and U
-	inputs require L and U to be of the same dimensionality as A
-	*/
+	//============================================================================
+	// Very similar to the Doolittle method, solves A = LU for L and U
+	// inputs require L and U to be of the same dimensionality as A
+	//============================================================================
 	int LU_Decomposition_Crout(matrix& L, matrix& U)
 	{
 		if (!L.EqualSize(U))
@@ -893,14 +957,14 @@ public:
 			{
 				if (j >= k)
 				{
-					float sum0 = 0.0f;
+					T sum0 = 0.0f;
 					for (int s = 0; s < k; s++) sum0 += L(j, s) * U(s, k);
 
 					L(j, k) = get(j, k) - sum0;
   				}
 				else
 				{
-					float sum1 = 0.0f;
+					T sum1 = 0.0f;
 					for (int s = 0; s < j; s++) sum1 += L(j, s) * U(s, k);
 
 					U(j, k) = (1 / L(j,j))*(get(j, k) - sum1);
@@ -911,13 +975,13 @@ public:
 		return 1;
 	}
 
-	/*
-	Solves the system via Crout method, for the equation Ax = b
-	it first factorizes A into LU such that A=LU, then solves the
-	lower triangular system Ly = b and then the upper triangular system Ux=y
-	returns x
-
-	*/
+	//============================================================================
+	// Solves the system via Crout method, for the equation Ax = b
+	// it first factorizes A into LU such that A=LU, then solves the
+	// lower triangular system Ly = b and then the upper triangular system Ux=y
+	// returns x
+	//
+	//============================================================================
 	matrix& Solve_System_Crout(matrix& b)
 	{
 
@@ -952,13 +1016,13 @@ public:
 		return *out;
 	}
 
-	/*
-	Solves the system via Doolittles or Crouts method, for the equation Ax = b
-	If the matrices L and U satisfy A = LU (where A is the system matix)
-	it solves the lower triangular system Ly = b and then the upper triangular system Ux=y
-	returns x
-
-	*/
+	//============================================================================
+	// Solves the system via Doolittles or Crouts method, for the equation Ax = b
+	// If the matrices L and U satisfy A = LU (where A is the system matix)
+	// it solves the lower triangular system Ly = b and then the upper triangular system Ux=y
+	// returns x
+	//
+	//============================================================================
 	matrix& Solve_System_LU(matrix& L, matrix& U, matrix& b)
 	{
 
@@ -992,16 +1056,17 @@ public:
 
 		return *out;
 	}
-	/*
-	For solution of the system Ax = b, relies on the coondition
-	that this matrix A is square and that b has the same number of rows as A
 
-	inputs b, initial estimation x0, tolerance (eps > 0) small number, MAX_ITERATIONS for number of loops,
-	outputs x or reports failure and outputs ,
-
-	For more information please consult Krezig: Advanced Engineering Mathematics, 
-	)
-	*/
+	//============================================================================
+	// For solution of the system Ax = b, relies on the coondition
+	// that this matrix A is square and that b has the same number of rows as A
+	//
+	// inputs b, initial estimation x0, tolerance (eps > 0) small number, MAX_ITERATIONS for number of loops,
+	// outputs x or reports failure and outputs ,
+    //
+	// For more information please consult Krezig: Advanced Engineering Mathematics, 
+	//
+	//============================================================================
 	matrix & Gauss_Seidel(matrix& b, matrix& x0, float tolerance, unsigned int MAX_ITERATIONS)
 	{
 		if (x0.NumRows() != this->NumRows())
@@ -1027,12 +1092,12 @@ public:
 		{
 			for ( int j = 0; j < n; j++)
 			{
-				float sum1 = 0.0f;
+				T sum1 = 0.0f;
 				for (int k = 0; k < j; k++)
 				{
 					sum1 += get(j, k) * (*out)(k, 0);
 				}
-				float sum2 = 0.0f;
+				T sum2 = 0.0f;
 				for (int k = j+1; k < n; k++)
 				{
 					sum2 += get(j, k) * x0(k, 0);
@@ -1056,21 +1121,22 @@ public:
 		return x0;
 	}
 
-
+	
 	bool is_transposed = false;
 	unsigned int m_sizeX = 0;
 	unsigned int m_sizeY = 0;
-	float **data = 0;
+	
+	T** data;
 
 
-private:
-	float* operator[](unsigned int a)
+//private:
+	T* operator[](unsigned int a)
 	{
 		if (a < m_sizeX)
 			return data[a];
 		else return 0;
 	}
-
+	
 
 	matrix *out = 0;
 

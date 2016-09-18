@@ -1,4 +1,4 @@
-// Matrix.cpp : Defines the entry point for the console application.
+// matrix<float>.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
 	cout << "=================================================" << endl;
 	cout << "Testing Gauss Elimination" << endl;
-	matrix m(3, 3);
+	matrix<float> m(3, 3);
 	m(0, 0) = 0;
 	m(0, 1) = 8;
 	m(0, 2) = 2;
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	cout << "Printing A" << endl;
 	m.print();
 	
-	matrix b(3, 1);
+	matrix<float> b(3, 1);
 	b(0, 0) = -7;
 	b(1, 0) = 8;
 	b(2, 0) = 26;
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	cout << "Solvng the system A x = b for x" <<endl;
 	cout << endl;
 
-	matrix sol = m.Gauss(b);
+	matrix<float> sol = m.Gauss(b);
 	
 	cout << "printing solution" << endl;
 	
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	cout << "=================================================" << endl;
 	cout << "Testing Gauss Elimination 2" << endl;
 
-	matrix m2(3, 3);
+	matrix<float> m2(3, 3);
 	m2(0, 0) = 4;
 	m2(0, 1) = 2;
 	m2(0, 2) = 14;
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 
 	m2.print();
 
-	matrix b2(3, 1);
+	matrix<float> b2(3, 1);
 	b2(0, 0) = 14;
 	b2(1, 0) = -101;
 	b2(2, 0) = 155;
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "Solvng the system A x = b" << endl;
 	
-	matrix sol2 = m2.Gauss(b2);
+	matrix<float> sol2 = m2.Gauss(b2);
 	
 	cout << endl;
 	cout << "printing solution (x) " << endl;
@@ -97,8 +97,8 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "=================================================" << endl;
-	cout << "Matrix Multiplication A * A2" << endl;
-	matrix D = m * m2;
+	cout << "matrix<float> Multiplication A * A2" << endl;
+	matrix<float> D = m * m2;
 	D.print();
 
 	cout << endl;
@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 
 	cout << "tesing Gauss Seidel" << endl;
 
-	matrix M(4, 4);
+	matrix<float> M(4, 4);
 	M(0, 0) = 1;
 	M(0, 1) = -0.25;
 	M(0, 2) = -0.25;
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 	if (M.IsSymmetric()) cout << "M is Symmetric" << endl;
 	if (M.IsPositiveDefinite()) cout << "M is positive definite" << endl;
 
-	matrix B(4, 1);
+	matrix<float> B(4, 1);
 
 	B(0, 0) = 50;
 	B(1, 0) = 50;
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "Printing Initial Approximation x0" << endl;
 
-	matrix initial_approx(4, 1);
+	matrix<float> initial_approx(4, 1);
 	initial_approx(0, 0) = 100;
 	initial_approx(1, 0) = 100;
 	initial_approx(2, 0) = 100;
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 	cout << "Solvng the system A x = b with A = M, b = B"<<endl<<" tolerance = 0.1, MAX_ITERATIONS = 200" << endl;
 	M.transpose();
 
-	matrix SOL = M.Gauss_Seidel(B, initial_approx,  0.1, 200);
+	matrix<float> SOL = M.Gauss_Seidel(B, initial_approx,  0.1, 200);
 
 	cout << endl;
 	cout << "solution" << endl;
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 	cout << "=================================================" << endl;
 	cout << "Lower triangular system test." << endl;
 
-	matrix L(3, 3);
+	matrix<float> L(3, 3);
 	L(0, 0) = 2;
 	L(0, 1) = 0;
 	L(0, 2) = 0;
@@ -195,9 +195,9 @@ int main(int argc, char* argv[])
 	cout << endl;
 
 
-	matrix y(3, 1);
+	matrix<float> y(3, 1);
 
-	matrix b3(3, 1);
+	matrix<float> b3(3, 1);
 
 	b3(0, 0) = 14;
 	b3(1, 0) = -101;
@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 	
 	cout << endl;
 	
-	matrix x(3, 1);
+	matrix<float> x(3, 1);
 
 	M.Solve_Upper_TriangularSystem(L, x, y);
 
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
 	cout << "=================================================" << endl;
 	cout << "testing cholesky" << endl;
 
-	matrix A(3, 3);
+	matrix<float> A(3, 3);
 	A(0, 0) = 4;
 	A(0, 1) = 2;
 	A(0, 2) = 14;
@@ -262,13 +262,13 @@ int main(int argc, char* argv[])
 	cout << endl;
 
 	cout << "To Solve Ax = b" << endl;
-	matrix c = A.Cholesky(b3);
+	matrix<float> c = A.Cholesky(b3);
 	c.print();
 	cout << endl;
 	cout << "=================================================" << endl;
-	cout << "Testing Matrix Inversion via Gauss-Jordan Elimination " << endl;
+	cout << "Testing matrix<double> Inversion via Gauss-Jordan Elimination " << endl;
 
-	matrix G(3, 3);
+	matrix<double> G(3, 3);
 	G(0, 0) = -1;
 	G(0, 1) = 1;
 	G(0, 2) = 2;
@@ -286,8 +286,8 @@ int main(int argc, char* argv[])
 	G.print();
 	
 
-	matrix old_G = G;
-	matrix G2 = G.Gauss_Jordan(b);
+	matrix<double> old_G = G;
+	matrix<double> G2 = G.Gauss_Jordan();
 	cout << endl;
 	cout << "printing G2" << endl;
 	G2.print();
@@ -300,22 +300,22 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "printing G2 * old_G" << endl;
-	matrix what = old_G * G2 ;
+	matrix<double> what = old_G * G2;
 	what.print();
 	cout << endl;
-	cout << "Close enough ignoring E-008" << endl;
+	cout << "Close enough ignoring numbers below 1e-010" << endl;
 
 	cout << endl;
 	cout << "=================================================" << endl;
 	cout << "Testing Doolittle LU decomposition" << endl;
 	cout << endl;
 
-	matrix L_2(3, 3);
+	matrix<float> L_2(3, 3);
 	L_2.Identity();
 
-	matrix U_2(3, 3);
+	matrix<float> U_2(3, 3);
 
-	matrix M_(3, 3);
+	matrix<float> M_(3, 3);
 	M_(0, 0) =3;
 	M_(0, 1) =5;
 	M_(0, 2) =2;
@@ -342,7 +342,7 @@ int main(int argc, char* argv[])
 	cout << "Prining U" << endl;
 	U_2.print();
 	cout << endl;
-	matrix LU = L_2 * U_2;
+	matrix<float> LU = L_2 * U_2;
 
 	cout << "Printing L * U" << endl;
 	LU.print();
@@ -352,12 +352,12 @@ int main(int argc, char* argv[])
 	cout << "Testing Doolittle system solver" << endl;
 	cout << endl;
 
-	matrix B_lu(3, 1);
+	matrix<float> B_lu(3, 1);
 	B_lu(0, 0) = 8;
 	B_lu(1, 0) = -7;
 	B_lu(2, 0) = 26;
 
-	matrix X_lu = M_.Solve_System_LU(L_2, U_2, B_lu);
+	matrix<float> X_lu = M_.Solve_System_LU(L_2, U_2, B_lu);
 	cout << "1. Using previously computed LU matrices"<< endl;
 	cout << "Prining solution" << endl;
 	X_lu.print();
@@ -365,7 +365,7 @@ int main(int argc, char* argv[])
 	B_lu(0, 0) = 8;
 	B_lu(1, 0) = -7;
 	B_lu(2, 0) = 26;
-	matrix X_lu2 = M_.Solve_System_Doolittle(B_lu);
+	matrix<float> X_lu2 = M_.Solve_System_Doolittle(B_lu);
 	cout << endl;
 	cout << "2. Using internally computed LU matrices" << endl;
 	cout << "Prining solution" << endl;
@@ -375,8 +375,8 @@ int main(int argc, char* argv[])
 	cout << "=================================================" << endl;
 	cout << "Testing LU Decomposition Crout's Method" << endl;
 	cout << endl;
-	matrix L_3(3, 3);
-	matrix U_3(3, 3);
+	matrix<float> L_3(3, 3);
+	matrix<float> U_3(3, 3);
 	M_.LU_Decomposition_Crout(L_3, U_3);
 
 	cout << "Printing L" << endl;
@@ -388,7 +388,7 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Printing L*U" << endl;
-	matrix crout = L_3 * U_3;
+	matrix<float> crout = L_3 * U_3;
 	crout.print();
 
 	cout << endl;
@@ -397,13 +397,13 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "1. Using previously computed LU matrices" << endl;
 
-	matrix X_crout_lu = M_.Solve_System_LU(L_3, U_3, B_lu);
+	matrix<float> X_crout_lu = M_.Solve_System_LU(L_3, U_3, B_lu);
 	cout << "Printing Solution" << endl;
 	X_crout_lu.print();
 	
 	cout << endl;
 	cout << "2. Using internally computed LU matrices" << endl;
-	matrix X_crout_lu2 = M_.Solve_System_Crout(B_lu);
+	matrix<float> X_crout_lu2 = M_.Solve_System_Crout(B_lu);
 	cout << "Printing Solution" << endl;
 	X_crout_lu2.print();
 	return 0;
