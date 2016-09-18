@@ -327,19 +327,19 @@ int main(int argc, char* argv[])
 	M_(2, 1) = 2;
 	M_(2, 2) =8;
 
-	cout << "Prining M_" << endl;
+	cout << "Printing M_" << endl;
 	M_.print();
 	cout << endl;
 
 	M_.LU_Decomposition_Doolittle(L_2, U_2);
 
 	cout << endl;
-	cout << "Prining L" << endl;
+	cout << "Printing L" << endl;
 	L_2.print();
 
 
 	cout << endl;
-	cout << "Prining U" << endl;
+	cout << "Printing U" << endl;
 	U_2.print();
 	cout << endl;
 	matrix<float> LU = L_2 * U_2;
@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
 
 	matrix<float> X_lu = M_.Solve_System_LU(L_2, U_2, B_lu);
 	cout << "1. Using previously computed LU matrices"<< endl;
-	cout << "Prining solution" << endl;
+	cout << "Printing solution" << endl;
 	X_lu.print();
 
 	B_lu(0, 0) = 8;
@@ -368,7 +368,7 @@ int main(int argc, char* argv[])
 	matrix<float> X_lu2 = M_.Solve_System_Doolittle(B_lu);
 	cout << endl;
 	cout << "2. Using internally computed LU matrices" << endl;
-	cout << "Prining solution" << endl;
+	cout << "Printing solution" << endl;
 	X_lu2.print();
 
 	cout << endl;

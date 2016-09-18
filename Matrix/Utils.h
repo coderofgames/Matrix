@@ -19,25 +19,7 @@ using std::back_inserter;
 using std::ifstream;
 
 
-template< class T >
-inline void SWAP(T &a, T &b)
-{
-	T temp = a;
-	a = b;
-	b = temp;
-}
 
-inline float RandomFloat(float min, float max)
-{
-	float r = (float)rand() / (float)RAND_MAX;
-	return min + r * (max - min);
-}
-
-inline float RandomInt(int min, int max)
-{
-	float r = (float)rand() / (float)RAND_MAX;
-	return (int)((float)min + r * float(max - min));
-}
 
 
 inline int string_to_number(string s)
