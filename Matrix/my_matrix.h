@@ -37,6 +37,11 @@ public:
 	void operator=(vector2d b){ v[0] = b.v[0]; v[1] = b.v[1]; }
 };
 
+
+class LINALG
+{
+
+private:
 template<class T>
 class matrix
 {
@@ -1162,6 +1167,11 @@ public:
 };
 
 
+public:
+
+	typedef matrix<float> matrixf;
+	typedef matrix<double> matrixd;
+};
 
 
 #endif
