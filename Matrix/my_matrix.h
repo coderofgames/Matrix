@@ -27,6 +27,16 @@ inline float RandomInt(int min, int max)
 	return (int)((float)min + r * float(max - min));
 }
 
+inline float sgn(float x)
+{
+	if (x > 0.0f) 
+		return 1.0f;
+	if (x == 0.0f)
+		return 0.0f;
+
+	return -1.0f;
+}
+
 class vector2d
 {
 public:
@@ -300,7 +310,8 @@ public:
 		return matrix(0, 0);
 	}
 
-	void print()
+	// may need to override this for different matrix types
+	void print(int precis)
 	{
 		if (this->NumRows() == 0 || this->NumColumns() == 0 || this->data == 0)
 		{
@@ -311,7 +322,18 @@ public:
 		{
 			for (int j = 0; j < this->NumColumns(); j++)
 			{
-				cout << get(i, j) << "  ";
+				float f = get(i, j);
+				//cout << f.5 << "  ";
+				if ( precis == 2)
+					printf("%8.2f    ", f);
+				else if (precis == 3)
+					printf("%9.3f    ", f);
+				else if(precis == 4)
+					printf("%10.4f    ", f);
+				else if(precis == 5)
+					printf("%11.5f    ", f);
+				else if(precis == 6)
+					printf("%12.6f    ", f);
 			}
 			cout << endl;
 		}
@@ -378,6 +400,7 @@ public:
 	{
 		if (!this->IsSquare())
 		{
+			cout << "Error (IsSymmetric): matrix must be square " << endl;
 			return false;
 		}
 		
@@ -430,7 +453,7 @@ public:
 	// For more information please consult Krezig: Advanced Engineering Mathematics, sec 19.1
 	//
 	//============================================================================
-	matrix& Gauss(matrix &b)
+	matrix& Gauss_Elimination(matrix &b)
 	{
 		if (!this->IsSquare())
 		{
@@ -1145,14 +1168,84 @@ public:
 	}
 
 	
-	bool is_transposed = false;
-	unsigned int m_sizeX = 0;
-	unsigned int m_sizeY = 0;
+
+	void Householder_Tridiagonalize()
+	{
+		if (!this->IsSymmetric())
+		{
+			cout << "Error (Householder_Tridiagonalize): matrix must be symetric" << endl;
+		}
+		int n = this->NumRows();
+
+		matrix<T>  V(n, 1);
+		matrix<T>  VT(1, n);
+		matrix<T>  Inn(n, n);
+		Inn.Identity();
+
+		float S = 0.0f;
+		for (int c = 0; c < n - 2; c++)
+		{
+			S = 0.0f;
+			for (int r = c+1; r < n; r++)
+			{
+				S += get(r, c)*get(r, c);
+			}
+
+			S = sqrt(S);
+			for (int r = 0; r < n; r++)
+			{
+				if (r == c + 1)
+				{
+					V(r, 0) = sqrt(0.5*(1 + abs(get(r, c)) / S));
+					
+				}
+				else if ( r > c+1)
+				{
+					V(r, 0) = get(r, c) * sgn(get(c + 1, c)) / (2 * V(c + 1, 0)*S);
+					
+				}
+
+
+				VT(0, r) = V(r, 0);
+			}
+
+
+
+			// another copy 
+			matrix<T> P = Inn -  V * VT * 2;
 	
-	T** data;
+
+			// more memory flappage
+			(*this) = P * (*this) * P;
+
+			// zero the vectors again
+			V.ToZero();
+			VT.ToZero();
+
+		}
 
 
-//private:
+	}
+
+
+	void ToZero()
+	{
+		for (int i = 0; i < this->NumRows(); i++)
+			for (int j = 0; j < this->NumColumns(); j++)
+				get(i, j) = 0;
+	}
+
+	void ClipToZero(T eps)
+	{
+		for (int i = 0; i < this->NumRows(); i++)
+			for (int j = 0; j < this->NumColumns(); j++)
+				if ((get(i, j) > 0 && get(i, j) < eps) || 
+					(get(i, j) < 0 && get(i, j) > -eps)) 
+					get(i, j) = 0;
+	}
+
+
+private:
 	T* operator[](unsigned int a)
 	{
 		if (a < m_sizeX)
@@ -1160,9 +1253,13 @@ public:
 		else return 0;
 	}
 	
+	bool is_transposed = false;
+	unsigned int m_sizeX = 0;
+	unsigned int m_sizeY = 0;
 
 	matrix *out = 0;
 
+	T** data;
 
 };
 

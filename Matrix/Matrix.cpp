@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Printing A" << endl;
-	m.print();
+	m.print(4);
 	
 	matrixf b(3, 1);
 	b(0, 0) = -7;
@@ -39,17 +39,17 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Printing b" << endl;
-	m.print();
+	m.print(4);
 	
 	cout << endl;
 	cout << "Solvng the system A x = b for x" <<endl;
 	cout << endl;
 
-	matrixf sol = m.Gauss(b);
+	matrixf sol = m.Gauss_Elimination(b);
 	
 	cout << "printing solution" << endl;
 	
-	sol.print();
+	sol.print(4);
 	
 	cout << endl;
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "printing A2" << endl;
 
-	m2.print();
+	m2.print(4);
 
 	matrixf b2(3, 1);
 	b2(0, 0) = 14;
@@ -83,24 +83,24 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "Printing b" << endl;
 
-	b2.print();
+	b2.print(4);
 
 
 	cout << endl;
 	cout << "Solvng the system A x = b" << endl;
 	
-	matrixf sol2 = m2.Gauss(b2);
+	matrixf sol2 = m2.Gauss_Elimination(b2);
 	
 	cout << endl;
 	cout << "printing solution (x) " << endl;
-	sol2.print();
+	sol2.print(4);
 
 
 	cout << endl;
 	cout << "=================================================" << endl;
 	cout << "matrixf Multiplication A * A2" << endl;
 	matrixf D = m * m2;
-	D.print();
+	D.print(4);
 
 	cout << endl;
 	cout << "=================================================" << endl;
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Printing M" << endl;
-	M.print();
+	M.print(4);
 
 	cout << endl;
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Printing B" << endl;
-	B.print();
+	B.print(4);
 
 	cout << endl;
 	cout << "Printing Initial Approximation x0" << endl;
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 	initial_approx(3, 0) = 100;
 	
 	cout << endl;
-	initial_approx.print();
+	initial_approx.print(4);
 	cout << endl;
 	
 	cout << "Solvng the system A x = b with A = M, b = B"<<endl<<" tolerance = 0.1, MAX_ITERATIONS = 200" << endl;
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "solution" << endl;
-	SOL.print();
+	SOL.print(4);
 
 
 	cout << endl;
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Printing L" << endl;
-	L.print();
+	L.print(4);
 
 	cout << endl;
 
@@ -206,14 +206,14 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Printing B" << endl;
-	b3.print();
+	b3.print(4);
 
 	cout << endl;
 
 
 	M.Solve_Lower_TriangularSystem(L, y, b3);
 	cout << "printing solution" << endl;
-	y.print();
+	y.print(4);
 
 
 	cout << endl;
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 	
 	cout << endl;
 	cout << "Printing U" << endl;
-	L.print();
+	L.print(4);
 	
 	cout << endl;
 	
@@ -234,7 +234,7 @@ int main(int argc, char* argv[])
 
 
 	cout << "printing solution" << endl;
-	x.print();
+	x.print(4);
 
 	cout << endl;
 	cout << "=================================================" << endl;
@@ -255,16 +255,16 @@ int main(int argc, char* argv[])
 	
 	cout << endl;
 	cout << "Printing A" << endl;
-	A.print();
+	A.print(4);
 	cout << endl;
 
 	cout << "Printing b" << endl;
-	b3.print();
+	b3.print(4);
 	cout << endl;
 
 	cout << "To Solve Ax = b" << endl;
 	matrixf c = A.Cholesky(b3);
-	c.print();
+	c.print(4);
 	cout << endl;
 	cout << "=================================================" << endl;
 	cout << "Testing matrixd Inversion via Gauss-Jordan Elimination " << endl;
@@ -284,25 +284,25 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "printing G" << endl;
-	G.print();
+	G.print(4);
 	
 
 	matrixd old_G = G;
 	matrixd G2 = G.Gauss_Jordan();
 	cout << endl;
 	cout << "printing G2" << endl;
-	G2.print();
+	G2.print(4);
 	
 	cout << endl;
 	cout << "printing G" << endl;
-	G.print();
+	G.print(4);
 	cout << endl;
 
 
 	cout << endl;
 	cout << "printing G2 * old_G" << endl;
 	matrixd what = old_G * G2;
-	what.print();
+	what.print(4);
 	cout << endl;
 	cout << "Close enough ignoring numbers below 1e-010" << endl;
 
@@ -329,24 +329,24 @@ int main(int argc, char* argv[])
 	M_(2, 2) =8;
 
 	cout << "Printing M_" << endl;
-	M_.print();
+	M_.print(4);
 	cout << endl;
 
 	M_.LU_Decomposition_Doolittle(L_2, U_2);
 
 	cout << endl;
 	cout << "Printing L" << endl;
-	L_2.print();
+	L_2.print(4);
 
 
 	cout << endl;
 	cout << "Printing U" << endl;
-	U_2.print();
+	U_2.print(4);
 	cout << endl;
 	matrixf LU = L_2 * U_2;
 
 	cout << "Printing L * U" << endl;
-	LU.print();
+	LU.print(4);
 
 	cout << endl;
 	cout << "=================================================" << endl;
@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
 	matrixf X_lu = M_.Solve_System_LU(L_2, U_2, B_lu);
 	cout << "1. Using previously computed LU matrices"<< endl;
 	cout << "Printing solution" << endl;
-	X_lu.print();
+	X_lu.print(4);
 
 	B_lu(0, 0) = 8;
 	B_lu(1, 0) = -7;
@@ -370,7 +370,7 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "2. Using internally computed LU matrices" << endl;
 	cout << "Printing solution" << endl;
-	X_lu2.print();
+	X_lu2.print(4);
 
 	cout << endl;
 	cout << "=================================================" << endl;
@@ -381,16 +381,16 @@ int main(int argc, char* argv[])
 	M_.LU_Decomposition_Crout(L_3, U_3);
 
 	cout << "Printing L" << endl;
-	L_3.print();
+	L_3.print(4);
 
 	cout << endl;
 	cout << "Printing U" << endl;
-	U_3.print();
+	U_3.print(4);
 
 	cout << endl;
 	cout << "Printing L*U" << endl;
 	matrixf crout = L_3 * U_3;
-	crout.print();
+	crout.print(4);
 
 	cout << endl;
 	cout << "=================================================" << endl;
@@ -400,13 +400,58 @@ int main(int argc, char* argv[])
 
 	matrixf X_crout_lu = M_.Solve_System_LU(L_3, U_3, B_lu);
 	cout << "Printing Solution" << endl;
-	X_crout_lu.print();
+	X_crout_lu.print(4);
 	
 	cout << endl;
 	cout << "2. Using internally computed LU matrices" << endl;
 	matrixf X_crout_lu2 = M_.Solve_System_Crout(B_lu);
 	cout << "Printing Solution" << endl;
-	X_crout_lu2.print();
+	X_crout_lu2.print(4);
+
+
+	matrixf A_(4,4);
+	A_(0, 0) = 6;
+	A_(0, 1) = 4;
+	A_(0, 2) = 1;
+	A_(0, 3) = 1;
+
+	A_(1, 0) = 4;
+	A_(1, 1) = 6;
+	A_(1, 2) = 1;
+	A_(1, 3) = 1;
+
+	A_(2, 0) = 1;
+	A_(2, 1) = 1;
+	A_(2, 2) = 5;
+	A_(2, 3) = 2;
+
+	A_(3, 0) = 1;
+	A_(3, 1) = 1;
+	A_(3, 2) = 2;
+	A_(3, 3) = 5;
+
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing Housholder Tridiagonalization" << endl;
+	cout << endl;
+	cout << "printing A_" << endl;
+	A_.print(4);
+
+	A_.Householder_Tridiagonalize();
+
+
+	cout << endl;
+	cout << "printing A_ after procedure" << endl;
+	A_.print(4);
+
+
+	cout << endl;
+	cout << "printing A_ after clipping to 2e-06 " << endl;
+	A_.ClipToZero(2e-06);
+	A_.print(4);
+
+
+
 	return 0;
 }
 
