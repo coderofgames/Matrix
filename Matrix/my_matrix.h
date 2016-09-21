@@ -37,6 +37,13 @@ inline float sgn(float x)
 	return -1.0f;
 }
 
+inline double round_to_n_digits(double x, int n)
+{
+	double scale = pow(10.0, ceil(log10(fabs(x))) + n);
+
+	return round(x * scale) / scale;
+}
+
 class vector2d
 {
 public:
@@ -52,6 +59,11 @@ class LINALG
 {
 
 private:
+//	template < class T > class matrix ;
+
+
+
+
 template<class T>
 class matrix
 {
@@ -135,8 +147,6 @@ public:
 			for (int j = 0; j < m_sizeY; j++)
 				data[i][j] = b(i, j);
 		}
-
-
 	}
 
 	void operator=(matrix *b)
@@ -153,7 +163,22 @@ public:
 	}
 
 
-
+	bool operator==(matrix &b)
+	{
+		if (!this->EqualSize(b))
+		{
+			return false;
+		}
+		for (int i = 0; i < NumRows(); i++)
+		{
+			for (int j = 0; j < NumColumns(); j++)
+			{
+				if (get(i, j) != b(i, j))
+					return false;
+			}
+		}
+		return true;
+	}
 
 
 	T& operator()(unsigned int i, unsigned int j)
@@ -327,7 +352,7 @@ public:
 				if ( precis == 2)
 					printf("%8.2f    ", f);
 				else if (precis == 3)
-					printf("%9.3f    ", f);
+					printf("%9.3f ", f);
 				else if(precis == 4)
 					printf("%10.4f    ", f);
 				else if(precis == 5)
@@ -1228,6 +1253,231 @@ public:
 	}
 
 
+	matrix& Eigenvalues_PowerMethod(int max_iterations)
+	{
+		if (!this->IsSquare())
+		{
+			cout << "Error (Eigenvalues_PowerMethod): matrix must be square" << endl;
+			return *this;
+		}
+
+		int n = this->NumColumns();
+
+		if (out) delete out;
+		out = new matrix(n, 1);
+
+		matrix V(n, 1);
+		V(0, 0) = 1;
+
+		for (int i = 0; i < n; i++)
+		{
+			if (i == 0)
+			{
+				T last_value = 0;
+				for (int k = 0; k < max_iterations; k++)
+				{
+					V = (*this) * V;
+
+					T max_value = 0;
+					for (int j = 0; j < n; j++)
+						if (V(j, 0) > max_value)
+							max_value = V(j, 0);
+
+					for (int j = 0; j < n; j++)
+						V(j, 0) = V(j, 0) / max_value;
+
+					if (max_value == last_value)
+					{
+						out(0, 0) = max_value;
+						break;
+					}
+				}
+			}
+
+		/*	else if ( i b  )
+			{
+
+			}*/
+		}
+		return *out;
+	}
+
+
+	inline int max_row_of_column(int row_start, int c)
+	{
+		if (row_start > this->NumRows())
+		{
+			cout << "Error (max_row_of_column): row start exceeds bounds" << endl;
+			return -1;
+		}
+
+		if (c >= this->NumColumns())
+		{
+			cout << "Error (max_row_of_column): column index exceeds bounds" << endl;
+			return -1;
+		}
+
+
+		T max_val = get( row_start, c );
+		int max_int = row_start;
+		for (int r = row_start+1; r < NumRows(); r++)
+		{
+			if (get(r, c) > max_val)
+			{
+				max_val = get(r, c);
+				max_int = r;
+			}
+		}
+		return max_int;
+	}
+
+	inline void SwapRow(int r1, int r2)
+	{
+		if (r1 >= this->NumRows() || r2 >= this->NumRows())
+		{
+			cout << "Error (SwapRow): index out of bounds" << endl;
+			return;
+		}
+
+		for (int c = 0; c < this->NumColumns(); c++)
+		{
+			SWAP<T>(get(r1, c), get(r2, c));
+		}
+	}
+
+	inline void SwapColumn(int c1, int c2)
+	{
+		if (c1 >= this->NumColumns() || c2 >= this->NumColumns())
+		{
+			cout << "Error (SwapColumn): index out of bounds" << endl;
+			return;
+		}
+
+		for (int r = 0; r < this->NumRows(); r++)
+		{
+			SWAP<T>(get(r, c1), get(r, c2));
+		}
+	}
+
+	inline void CopyVector_from_SubMatrix_to_SubMatrix(matrix<T>& Source, int r1, int r2, int n)
+	{
+		if ( n > this->NumColumns() ||  n > Source.NumColumns())
+		{
+			cout << "Error (CopyVector_from_SubMatrix_to_SubMatrix): columns overflow" << endl;
+			return;
+		}
+		for (int i = 0; i < n; i++)
+		{
+			get(r1, i) = Source(r2, i);
+		}
+	}
+
+	// thanks to http://www.mymathlib.com/matrices/eigen/hessenberg.html for this algorithm
+	// conversion to C++ by coderofgames
+	// 
+	// Convert (this) matrix to a Hessenburg form matrix H, storing the similar matrix S 
+	// so (*this) * S == S * H
+	// this matrix will change 
+	//
+	int Hessenberg_Form_Elementary( matrix<T>& S )
+	{
+		int n = this->NumColumns();
+
+		if (n <= 1)
+		{
+			S(0, 0) = 1.0f;
+			return 0;
+		}
+		if (n == 2) 
+		{ 
+			S.Identity();
+			return 0; 
+		}
+		
+
+		// Allocate working memory
+		matrix<int> perm(n, 1);
+
+		// For each column use Elementary transformations 
+		//   to zero the entries below the subdiagonal.
+		int Row = 1;
+
+		for (int col = 0; col < (n - 2);  Row++, col++) {
+
+			// Find the row in column "col" with maximum magnitude where 
+			// row >= col + 1.   
+
+			int row = col + 1;
+			perm(row, 0) = row;
+			perm(row, 0) = max_row_of_column(row, col);
+
+			// exchange and columns rows if needed
+			if (perm(row, 0) != row) 
+			{
+				SwapRow(row, perm(row, 0));
+				SwapColumn(row, perm(row, 0));
+			}
+
+			// set components below first subdiagonal to zero
+			int r = Row +1;
+			for( int i = col +2; i < n; i++, r++ ) 
+			{
+				T s = get( r, col ) / get( Row, col );
+
+				for (int j = 0; j < n; j++)
+				{
+					get(r, j) = get(r, j) - get(Row, j) * s;
+				}
+				
+				S(r, col) = s;
+				
+				for (int j = 0; j < n; j++)
+				{
+					get(j, col + 1) = get(j, col + 1) + get(j, i) * s;
+				}
+			}
+		}
+
+		int row_index = 2;
+		
+		for (int i = 2; i < n; row_index++, i++)
+		{
+			this->CopyVector_from_SubMatrix_to_SubMatrix(S, row_index, row_index, i-1 );
+		}
+
+		Hessenberg_Elementary_Transform( S, perm, n);
+
+		return 0;
+	}
+
+	void Hessenberg_Elementary_Transform( matrix<T>& S, matrix<int>& perm, int n)
+	{
+		int i, j;
+
+		S.Identity();
+	
+		for (i = n - 2; i >= 1; i--) 
+		{
+			for (j = i + 1; j < n; j++)
+			{
+				S(j, i) = get(j, i - 1);
+				get(j, i - 1) = 0;
+			}
+			if (perm(i,0) != i) 
+			{
+				int rS = i;
+				int rA = perm(i, 0);
+
+				for (j = i; j < n; j++) 
+				{
+					S(rS, j) = S(rA, j);
+					S(rA, j) = 0;
+				}
+				S(rA, i) = 1.0;
+			}
+		}
+	}
+
 	void ToZero()
 	{
 		for (int i = 0; i < this->NumRows(); i++)
@@ -1245,6 +1495,12 @@ public:
 	}
 
 
+	void Round_to_N_digits(int N)
+	{
+		for (int i = 0; i < this->NumRows(); i++)
+			for (int j = 0; j < this->NumColumns(); j++)
+				get(i, j) = round_to_n_digits(get(i, j), N);
+	}
 private:
 	T* operator[](unsigned int a)
 	{
@@ -1270,5 +1526,11 @@ public:
 	typedef matrix<double> matrixd;
 };
 
+
+
+inline LINALG::matrixf operator*(float s, LINALG::matrixf a)
+{
+	return a * s;
+}
 
 #endif

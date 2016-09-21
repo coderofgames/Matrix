@@ -11,6 +11,127 @@ using std::endl;
 typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
 
+
+void TestSimilarity()
+{
+	matrixd H_(4, 4);
+
+	H_(0, 0) = RandomFloat(0, 20);// 2.0;
+	H_(0, 1) = RandomFloat(0, 20); //-5.0;
+	H_(0, 2) = RandomFloat(0, 20); //0.0;
+	H_(0, 3) = RandomFloat(0, 20); //3.0;
+
+	H_(1, 0) = RandomFloat(0, 20); //0.0;
+	H_(1, 1) = RandomFloat(0, 20); //2.0;
+	H_(1, 2) = RandomFloat(0, 20); //-3.0;
+	H_(1, 3) = RandomFloat(0, 20); //-5.0;
+
+	H_(2, 0) = RandomFloat(0, 20); //5.0;
+	H_(2, 1) = RandomFloat(0, 20); //-3.0;
+	H_(2, 2) = RandomFloat(0, 20); //2.0;
+	H_(2, 3) = RandomFloat(0, 20); //0.0;
+
+	H_(3, 0) = RandomFloat(0, 20); //3.0;
+	H_(3, 1) = RandomFloat(0, 20); //0.0;
+	H_(3, 2) = RandomFloat(0, 20); //5.0;
+	H_(3, 3) = RandomFloat(0, 20); //2.0;
+
+	matrixd H_2 = H_;
+
+
+	matrixd S_(4, 4);
+	S_.Identity();
+
+	H_.Hessenberg_Form_Elementary(S_);
+
+
+	//A S = S H
+
+	matrixd H_3 = H_2 * S_;
+
+	H_3.Round_to_N_digits(4);
+
+	matrixd H_4 = S_ * H_;
+
+	H_4.Round_to_N_digits(4);
+	//	H_4.print(2);
+
+
+	//	cout << endl;
+
+	if (H_3 == H_4)
+	{
+		cout << "Similarity Transform worked!" << endl;
+	}
+	else
+	{
+		cout << endl;
+		cout << endl;
+		cout << "similarity transform failed ..." << endl;
+		H_3.print(2);
+		cout << endl;
+		H_4.print(2);
+		cout << endl;
+		cout << endl;
+
+	}
+}
+
+void TestHessenburg()
+{
+
+	matrixd H_(12, 12);
+	for (int i = 0; i < 12; i++)
+	{
+		for (int j = 0; j < 12; j++)
+			H_(i, j) = RandomFloat(0, 20);
+	}
+
+	
+
+	matrixd H_2 = H_;
+
+	cout <<"Printing Start Matrix A (you may need to maximize the terminal window."<< endl;
+
+	H_2.print(3);
+
+
+	matrixd S_(12,12);
+	S_.Identity();
+
+	H_.Hessenberg_Form_Elementary(S_);
+	cout << endl << endl; 
+	cout << "Printing Similar Matrix S" << endl;
+	S_.print(3);
+	cout << endl;
+	cout << "Printing Hessenburg form Matrix H" << endl;
+	H_.print(3);
+	cout << endl << endl;
+	//A S = S H
+
+	matrixd H_3 = H_2 * S_;
+
+	H_3.Round_to_N_digits(4);
+	
+	cout << endl << endl;
+	cout << " printing A * S (verifying A * S = S * H) " << endl;
+	H_3.print(3);
+	cout << endl << endl;
+
+	matrixd H_4 = S_ * H_;
+	cout << " printing  S * H (verifying A * S = S * H) " << endl;
+	H_4.Round_to_N_digits(4);
+		H_4.print(3);
+
+
+	//	cout << endl;
+
+	if (H_3 == H_4)
+	{
+		cout << "Similarity Transform worked!" << endl;
+	}
+
+}
 int main(int argc, char* argv[])
 {
 	cout << "=================================================" << endl;
@@ -451,7 +572,15 @@ int main(int argc, char* argv[])
 	A_.print(4);
 
 
+	for (int i = 0; i < 20; i++)
+	{
+		TestSimilarity();
 
+	
+	}
+
+
+	TestHessenburg();
 	return 0;
 }
 
