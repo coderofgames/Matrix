@@ -80,14 +80,54 @@ void TestSimilarity()
 void TestHessenburg()
 {
 
-	matrixd H_(12, 12);
-	for (int i = 0; i < 12; i++)
-	{
-		for (int j = 0; j < 12; j++)
-			H_(i, j) = RandomFloat(0, 20);
-	}
+	matrixd H_(6,6);
 
-	
+	// testing the matrix from
+	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
+	//
+	// this matrix shows the evidence of the stability issue ...
+
+	H_(0, 0) = 0.0;
+	H_(0, 1) = 1.0;
+	H_(0, 2) = 1.0;
+	H_(0, 3) = 1.0;
+	H_(0, 4) = 1.0;
+	H_(0, 5) = 1.0;
+
+	H_(1, 0) = 1.0;
+	H_(1, 1) = 0.0;
+	H_(1, 2) = 0.0;
+	H_(1, 3) = 0.0;
+	H_(1, 4) = 0.0;
+	H_(1, 5) = -1.0;
+
+	H_(2, 0) = -1.0;
+	H_(2, 1) = 1.0;
+	H_(2, 2) = 0.0;
+	H_(2, 3) = 0.0;
+	H_(2, 4) = 0.0;
+	H_(2, 5) = -1.0;
+
+	H_(3, 0) = -1.0;
+	H_(3, 1) = 0.0;
+	H_(3, 2) = 1.0;
+	H_(3, 3) = 0.0;
+	H_(3, 4) = 0.0;
+	H_(3, 5) = -1.0;
+
+	H_(4, 0) = -1.0;
+	H_(4, 1) = 0.0;
+	H_(4, 2) = 0.0;
+	H_(4, 3) = 1.0;
+	H_(4, 4) = 0.0;
+	H_(4, 5) = -1.0;
+
+	H_(5, 0) = 0.0;
+	H_(5, 1) = 0.0;
+	H_(5, 2) = 0.0;
+	H_(5, 3) = -0.5;
+	H_(5, 4) = 0.5;
+	H_(5, 5) = 0.0;
 
 	matrixd H_2 = H_;
 
@@ -96,7 +136,7 @@ void TestHessenburg()
 	H_2.print(3);
 
 
-	matrixd S_(12,12);
+	matrixd S_(6,6);
 	S_.Identity();
 
 	H_.Hessenberg_Form_Elementary(S_);
@@ -131,6 +171,14 @@ void TestHessenburg()
 		cout << "Similarity Transform worked!" << endl;
 	}
 
+
+	cout << "What happens if we housholder tridiagonalize the A matrix (H_2) ?" << endl;
+
+	H_2.Householder_Tridiagonalize();
+
+	H_2.print(2);
+
+	cout << "The matrix must be symetric ..." << endl;
 }
 int main(int argc, char* argv[])
 {
