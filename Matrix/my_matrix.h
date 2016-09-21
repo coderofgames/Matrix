@@ -1196,10 +1196,10 @@ public:
 
 	void Householder_Tridiagonalize()
 	{
-		if (!this->IsSymmetric())
+		/*if (!this->IsSymmetric())
 		{
 			cout << "Error (Householder_Tridiagonalize): matrix must be symetric" << endl;
-		}
+		}*/
 		int n = this->NumRows();
 
 		matrix<T>  V(n, 1);
@@ -1303,6 +1303,8 @@ public:
 	}
 
 
+
+	///// ==============EXPERIEMENTAL
 	inline int max_row_of_column(int row_start, int c)
 	{
 		if (row_start > this->NumRows())
@@ -1477,6 +1479,141 @@ public:
 			}
 		}
 	}
+
+	// This does not produce the same results as the householder algorithm I wrote earlier ...
+	// 
+	int Hessenberg_Form_Orthogonal( matrix<T>& U)
+	{
+		int i, k, col;
+
+		double *p_row, *psubdiag;
+		double *pA, *pU;
+		double sss;                             // signed sqrt of sum of squares
+		T scale;
+		T innerproduct;
+
+		T sum_squared = 0;
+		int n = this->NumColumns();
+		// n x n matrices for which n <= 2 are already in Hessenberg form
+		U.Identity();
+
+		//Identity_Matrix(U, n);
+
+		if (n <= 2) return 0;
+
+		// Reserve auxillary storage, if unavailable, return an error
+		matrix<T> u(n, 1);
+
+
+		// For each column use a Householder transformation 
+		//   to zero all entries below the subdiagonal.
+
+
+		for ( col = 0; col < (n - 2); col++) {
+
+			// Calculate the signed square root of the sum of squares of the
+			// elements below the diagonal.
+
+			int sub_diag_row = col + 1;
+
+
+			sum_squared = 0.0;
+			for (int r = col+1; r < n; r++)
+			{
+				sum_squared = sum_squared + get(r, col)*get(r, col);
+			}
+
+			if (sum_squared == 0.0) continue;
+			sum_squared = sqrt(sum_squared);
+			
+			if (get(sub_diag_row, col) >= 0.0)
+				sum_squared = -sum_squared;
+
+			
+
+			// Calculate the Householder transformation Q = I - 2uu'/u'u.
+
+			u(col + 1, 0) = get(sub_diag_row, col) - sum_squared;
+			
+			get(sub_diag_row, col) = sum_squared;
+
+			
+			for ( int j = sub_diag_row + 1, i = col + 2; i < n, j < n; j++, i++) {
+				u(i, 0) = get(i, col);
+				get(i, col) = 0.0;
+				
+			}
+
+			// Premultiply A by Q
+
+			scale = -1.0 / (sum_squared * u(col+1, 0));
+
+			for (int row = sub_diag_row - col, i = col + 1; i < n; i++)
+			{
+				int rA = col + 1; 
+				
+				innerproduct = 0.0;
+				for ( k = col + 1; k < n; k++, rA++)
+				{
+					innerproduct += u(k, 0) * get(rA, i);
+				}
+
+				innerproduct *= scale;
+
+				for (rA = row, k = col + 1; k < n; rA++, k++)
+				{
+					get(rA, i) = get(rA, i) - u(k, 0) * innerproduct;
+				}
+			}
+			 
+
+			// Postmultiply QA by Q
+
+			for (int row = 0, i = 0; i < n; row++, i++)
+			{
+				innerproduct = 0.0;
+				for ( k = col + 1; k < n; k++)
+				{
+					innerproduct += u(k, 0) * get(row, k);
+				}
+				innerproduct *= scale;
+				for (k = col + 1; k < n; k++)
+				{
+					get(row, k) = get(row, k) - u(k, 0) * innerproduct;
+				}
+			}
+
+
+
+			// Postmultiply U by (I - 2uu')
+
+
+			for (int rU = 0,i = 0; i < n; rU++, i++)
+			{
+				innerproduct = 0.0;
+				for ( k = col + 1; k < n; k++)
+				{
+					innerproduct += u(k, 0) * U(i, k);
+				}
+				innerproduct *= scale;
+				for (k = col + 1; k < n; k++)
+				{
+					U(i, k) = U(i, k) - u(k, 0)*innerproduct;
+				}
+			}
+
+
+			//u.ToZero();
+		}
+
+		
+
+		return 0;
+	}
+
+	///// ==============EXPERIEMENTAL
+
+
 
 	void ToZero()
 	{

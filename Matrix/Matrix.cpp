@@ -12,173 +12,58 @@ typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
 
 
-void TestSimilarity()
-{
-	matrixd H_(4, 4);
-
-	H_(0, 0) = RandomFloat(0, 20);// 2.0;
-	H_(0, 1) = RandomFloat(0, 20); //-5.0;
-	H_(0, 2) = RandomFloat(0, 20); //0.0;
-	H_(0, 3) = RandomFloat(0, 20); //3.0;
-
-	H_(1, 0) = RandomFloat(0, 20); //0.0;
-	H_(1, 1) = RandomFloat(0, 20); //2.0;
-	H_(1, 2) = RandomFloat(0, 20); //-3.0;
-	H_(1, 3) = RandomFloat(0, 20); //-5.0;
-
-	H_(2, 0) = RandomFloat(0, 20); //5.0;
-	H_(2, 1) = RandomFloat(0, 20); //-3.0;
-	H_(2, 2) = RandomFloat(0, 20); //2.0;
-	H_(2, 3) = RandomFloat(0, 20); //0.0;
-
-	H_(3, 0) = RandomFloat(0, 20); //3.0;
-	H_(3, 1) = RandomFloat(0, 20); //0.0;
-	H_(3, 2) = RandomFloat(0, 20); //5.0;
-	H_(3, 3) = RandomFloat(0, 20); //2.0;
-
-	matrixd H_2 = H_;
 
 
-	matrixd S_(4, 4);
-	S_.Identity();
-
-	H_.Hessenberg_Form_Elementary(S_);
-
-
-	//A S = S H
-
-	matrixd H_3 = H_2 * S_;
-
-	H_3.Round_to_N_digits(4);
-
-	matrixd H_4 = S_ * H_;
-
-	H_4.Round_to_N_digits(4);
-	//	H_4.print(2);
-
-
-	//	cout << endl;
-
-	if (H_3 == H_4)
-	{
-		cout << "Similarity Transform worked!" << endl;
-	}
-	else
-	{
-		cout << endl;
-		cout << endl;
-		cout << "similarity transform failed ..." << endl;
-		H_3.print(2);
-		cout << endl;
-		H_4.print(2);
-		cout << endl;
-		cout << endl;
-
-	}
-}
-
-void TestHessenburg()
+void TestHessenburg_2()
 {
 
-	matrixd H_(6,6);
+	matrixf H_(5,5);
 
-	// testing the matrix from
+	// using the wisdom from
 	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
-	//
+	// I have decided to only use Housedholder methods
 	// this matrix shows the evidence of the stability issue ...
 
-	H_(0, 0) = 0.0;
+	H_(0, 0) = 6.0;
 	H_(0, 1) = 1.0;
-	H_(0, 2) = 1.0;
-	H_(0, 3) = 1.0;
-	H_(0, 4) = 1.0;
-	H_(0, 5) = 1.0;
+	H_(0, 2) = -2.0;
+	H_(0, 3) = 19.0;
+	H_(0, 4) = 4.0;
+
 
 	H_(1, 0) = 1.0;
-	H_(1, 1) = 0.0;
-	H_(1, 2) = 0.0;
-	H_(1, 3) = 0.0;
-	H_(1, 4) = 0.0;
-	H_(1, 5) = -1.0;
-
-	H_(2, 0) = -1.0;
-	H_(2, 1) = 1.0;
-	H_(2, 2) = 0.0;
-	H_(2, 3) = 0.0;
-	H_(2, 4) = 0.0;
-	H_(2, 5) = -1.0;
-
-	H_(3, 0) = -1.0;
-	H_(3, 1) = 0.0;
-	H_(3, 2) = 1.0;
-	H_(3, 3) = 0.0;
-	H_(3, 4) = 0.0;
-	H_(3, 5) = -1.0;
-
-	H_(4, 0) = -1.0;
-	H_(4, 1) = 0.0;
-	H_(4, 2) = 0.0;
-	H_(4, 3) = 1.0;
-	H_(4, 4) = 0.0;
-	H_(4, 5) = -1.0;
-
-	H_(5, 0) = 0.0;
-	H_(5, 1) = 0.0;
-	H_(5, 2) = 0.0;
-	H_(5, 3) = -0.5;
-	H_(5, 4) = 0.5;
-	H_(5, 5) = 0.0;
-
-	matrixd H_2 = H_;
-
-	cout <<"Printing Start Matrix A (you may need to maximize the terminal window."<< endl;
-
-	H_2.print(3);
+	H_(1, 1) = 4.0;
+	H_(1, 2) = 2.0;
+	H_(1, 3) = 1.0;
+	H_(1, 4) = 3.0;
 
 
-	matrixd S_(6,6);
-	S_.Identity();
-
-	H_.Hessenberg_Form_Elementary(S_);
-	cout << endl << endl; 
-	cout << "Printing Similar Matrix S" << endl;
-	S_.print(3);
-	cout << endl;
-	cout << "Printing Hessenburg form Matrix H" << endl;
-	H_.print(3);
-	cout << endl << endl;
-	//A S = S H
-
-	matrixd H_3 = H_2 * S_;
-
-	H_3.Round_to_N_digits(4);
-	
-	cout << endl << endl;
-	cout << " printing A * S (verifying A * S = S * H) " << endl;
-	H_3.print(3);
-	cout << endl << endl;
-
-	matrixd H_4 = S_ * H_;
-	cout << " printing  S * H (verifying A * S = S * H) " << endl;
-	H_4.Round_to_N_digits(4);
-		H_4.print(3);
+	H_(2, 0) = 7.0;
+	H_(2, 1) = 12.0;
+	H_(2, 2) = 5.0;
+	H_(2, 3) = 11.0;
+	H_(2, 4) = -1.0;
 
 
-	//	cout << endl;
+	H_(3, 0) = -3.0;
+	H_(3, 1) = 21.0;
+	H_(3, 2) = 4.0;
+	H_(3, 3) = 1.0;
+	H_(3, 4) = 3.0;
 
-	if (H_3 == H_4)
-	{
-		cout << "Similarity Transform worked!" << endl;
-	}
+
+	H_(4, 0) = 4.0;
+	H_(4, 1) = 6.0;
+	H_(4, 2) = -1.0;
+	H_(4, 3) = 3.0;
+	H_(4, 4) = 7.0;
 
 
-	cout << "What happens if we housholder tridiagonalize the A matrix (H_2) ?" << endl;
+	matrixf H__3 = H_;
 
-	H_2.Householder_Tridiagonalize();
+	H__3.Householder_Tridiagonalize();
+	H__3.print(2);
 
-	H_2.print(2);
-
-	cout << "The matrix must be symetric ..." << endl;
 }
 int main(int argc, char* argv[])
 {
@@ -620,15 +505,15 @@ int main(int argc, char* argv[])
 	A_.print(4);
 
 
-	for (int i = 0; i < 20; i++)
-	{
-		TestSimilarity();
+		
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing Housholder algorithm on Non-Symmetric Matrix (Hessenburg)" << endl;
+	TestHessenburg_2();
 
-	
-	}
-
-
-	TestHessenburg();
+	// results are in accordance with 
+	// http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html
+	// so the other procedures for Hessenburg will be kept until I can prove they are useless.
 	return 0;
 }
 
