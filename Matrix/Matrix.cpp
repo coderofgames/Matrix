@@ -64,9 +64,11 @@ void TestHessenburg_2()
 	H__3.Householder_Tridiagonalize();
 	H__3.print(2);
 	cout << endl;
-//	H__3.QR_algorithm();
-//	H__3.print(2);
-
+	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
+	matrixf complex_pair(2, 2);
+	H__3.QR_algorithm(complex_pair);
+	H__3.print(2);
+	complex_pair.print(3);
 }
 
 
@@ -116,8 +118,11 @@ void TestHessenburg_QR_real()
 //	H__3.Householder_Tridiagonalize();
 //	H__3.print(2);
 	cout << endl;
-	H__3.QR_algorithm();
+	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
+	matrixf complex_pair(2, 2);
+	H__3.QR_algorithm(complex_pair);
 	H__3.print(2);
+	complex_pair.print(3);
 
 }
 int main(int argc, char* argv[])

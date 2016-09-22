@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include "Utils.h"
+#include <complex>
+
+using std::complex;
 
 using std::cout;
 using std::endl;
@@ -1356,7 +1359,7 @@ public:
 	}
 
 
-	void QR_algorithm()
+	void QR_algorithm(matrix<T>& complex_pair)
 	{
 		if (!this->IsSquare())
 		{
@@ -1383,7 +1386,7 @@ public:
 
 		// to compute R0 = C
 
-		for (int loop = 0; loop < n-1; loop++)
+		for (int loop = 0; loop < 80; loop++)
 		{
 			for (int j = 0; j < n - 1; j++)
 			{
@@ -1398,12 +1401,13 @@ public:
 				C[j](0, 0) = cos_theta;      C[j](0, 1) = sin_theta;
 				C[j](1, 0) = -sin_theta;      C[j](1, 1) = cos_theta;
 
+				
 				C_n.Overwrite_Submatrix(C[j], j, j);
 
 				(*this) = C_n * (*this);
 
-				cout << endl;
-				(*this).print(4);
+				//cout << endl;
+				//(*this).print(4);
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
 			}
 			//C_n.Identity();
@@ -1415,8 +1419,42 @@ public:
 				C_n.transpose();
 				(*this) = (*this) * C_n;
 
-				cout << endl;
-				(*this).print(4);
+				//cout << endl;
+				//(*this).print(4);
+
+				//cout << endl;
+				//C[j].print(4);
+
+				if (C[j](0,0) <= 0.6)
+				{
+					T trace = C[j](0, 0) + C[j](1, 1);
+					T det = C[j](0, 0)*C[j](1, 1) - C[j](0, 1) * C[j](1, 0);
+					T x1 =  (trace + sqrt(trace *trace + 4 * C[j](0, 1) * C[j](1, 0))) / 2;
+					T x2 =  (trace - sqrt(trace*trace + 4 * C[j](0, 1) * C[j](1, 0))) / 2;
+
+					T p = (C[j](0, 0) - C[j](1, 1) )/2;
+					T q = p * p - C[j](0, 1) * C[j](1, 0);
+
+					
+					if ( p > 0)
+						x1 = C[j](1, 1) + p + sqrt(q);
+					else
+						x1 = C[j](1, 1) + p -sqrt(q);
+
+					x2 = C[j](0, 0) + C[j](1, 1) - x1;
+
+					
+
+					//cout << x1 + x2 << "         " << sqrt(abs(q)) << endl;
+
+					complex_pair(0, 0) = x1 + x2;
+					complex_pair(0, 1) = sqrt(abs(q));	
+					
+					complex_pair(1, 0) = x1 + x2;
+					complex_pair(1, 1) = -sqrt(abs(q));
+					
+				}
+
 
 				C_n.transpose();
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
