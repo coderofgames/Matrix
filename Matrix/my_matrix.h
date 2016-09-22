@@ -1359,7 +1359,7 @@ public:
 	}
 
 
-	void QR_algorithm(matrix<T>& complex_pair)
+	void QR_algorithm(matrix<T>& eigen_values)
 	{
 		if (!this->IsSquare())
 		{
@@ -1406,8 +1406,7 @@ public:
 
 				(*this) = C_n * (*this);
 
-				//cout << endl;
-				//(*this).print(4);
+
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
 			}
 			//C_n.Identity();
@@ -1417,20 +1416,20 @@ public:
 
 				C_n.Overwrite_Submatrix(C[j], j, j);
 				C_n.transpose();
+
+				T sub_diag = get(j-1, j-1);
+				T sub_diag2 = get(j , j);
+
 				(*this) = (*this) * C_n;
 
-				//cout << endl;
-				//(*this).print(4);
+				// set the diagonal by default
+				eigen_values(j, 0) = get(j, j);
+				
 
-				//cout << endl;
-				//C[j].print(4);
-
-				if (C[j](0,0) <= 0.6)
+				if (eigen_values(j, 0) != sub_diag2 )
 				{
-					T trace = C[j](0, 0) + C[j](1, 1);
-					T det = C[j](0, 0)*C[j](1, 1) - C[j](0, 1) * C[j](1, 0);
-					T x1 =  (trace + sqrt(trace *trace + 4 * C[j](0, 1) * C[j](1, 0))) / 2;
-					T x2 =  (trace - sqrt(trace*trace + 4 * C[j](0, 1) * C[j](1, 0))) / 2;
+					T x1;
+					T x2;;
 
 					T p = (C[j](0, 0) - C[j](1, 1) )/2;
 					T q = p * p - C[j](0, 1) * C[j](1, 0);
@@ -1443,342 +1442,52 @@ public:
 
 					x2 = C[j](0, 0) + C[j](1, 1) - x1;
 
-					
 
-					//cout << x1 + x2 << "         " << sqrt(abs(q)) << endl;
-
-					complex_pair(0, 0) = x1 + x2;
-					complex_pair(0, 1) = sqrt(abs(q));	
+						if (j > 0 && eigen_values(j - 1, 0) == x1 + x2)
+						{
+							eigen_values(j + 0, 0) = x1 + x2;
+							eigen_values(j + 0, 1) = -sqrt(abs(q));
+						}
+						else
+						{
+							eigen_values(j , 0) = x1 + x2;
+							eigen_values(j , 1) = sqrt(abs(q));
+							eigen_values(j +1, 0) = x1 + x2;
+							eigen_values(j +1, 1) = -sqrt(abs(q));
+						}
+				}
+				else
+				{
 					
-					complex_pair(1, 0) = x1 + x2;
-					complex_pair(1, 1) = -sqrt(abs(q));
-					
+					eigen_values(j + 1, 0) = get(j + 1, j + 1);
 				}
 
 
 				C_n.transpose();
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
-
-				//C[j].transpose();
 			}
 
 			
 		}
 
-		//delete[]C;
+		for (int i = 0; i < n-1; i++)
+		{
+			if (eigen_values(i, 1) > 0.3)
+			{
+				if ( eigen_values(i + 1,1) == -eigen_values(i,1))
+				{
+					eigen_values(i + 1, 0) = eigen_values(i, 0);
+				}
+			}
+		}
+
+		delete[]C;
 
 		//this->Overwrite_Submatrix(I_b, 0,2);
 
 
 	}
-	///// ==============EXPERIEMENTAL
-	inline int max_row_of_column(int row_start, int c)
-	{
-		if (row_start > this->NumRows())
-		{
-			cout << "Error (max_row_of_column): row start exceeds bounds" << endl;
-			return -1;
-		}
 
-		if (c >= this->NumColumns())
-		{
-			cout << "Error (max_row_of_column): column index exceeds bounds" << endl;
-			return -1;
-		}
-
-
-		T max_val = get( row_start, c );
-		int max_int = row_start;
-		for (int r = row_start+1; r < NumRows(); r++)
-		{
-			if (get(r, c) > max_val)
-			{
-				max_val = get(r, c);
-				max_int = r;
-			}
-		}
-		return max_int;
-	}
-
-	inline void SwapRow(int r1, int r2)
-	{
-		if (r1 >= this->NumRows() || r2 >= this->NumRows())
-		{
-			cout << "Error (SwapRow): index out of bounds" << endl;
-			return;
-		}
-
-		for (int c = 0; c < this->NumColumns(); c++)
-		{
-			SWAP<T>(get(r1, c), get(r2, c));
-		}
-	}
-
-	inline void SwapColumn(int c1, int c2)
-	{
-		if (c1 >= this->NumColumns() || c2 >= this->NumColumns())
-		{
-			cout << "Error (SwapColumn): index out of bounds" << endl;
-			return;
-		}
-
-		for (int r = 0; r < this->NumRows(); r++)
-		{
-			SWAP<T>(get(r, c1), get(r, c2));
-		}
-	}
-
-	inline void CopyVector_from_SubMatrix_to_SubMatrix(matrix<T>& Source, int r1, int r2, int n)
-	{
-		if ( n > this->NumColumns() ||  n > Source.NumColumns())
-		{
-			cout << "Error (CopyVector_from_SubMatrix_to_SubMatrix): columns overflow" << endl;
-			return;
-		}
-		for (int i = 0; i < n; i++)
-		{
-			get(r1, i) = Source(r2, i);
-		}
-	}
-
-	// thanks to http://www.mymathlib.com/matrices/eigen/hessenberg.html for this algorithm
-	// conversion to C++ by coderofgames
-	// 
-	// Convert (this) matrix to a Hessenburg form matrix H, storing the similar matrix S 
-	// so (*this) * S == S * H
-	// this matrix will change 
-	//
-	int Hessenberg_Form_Elementary( matrix<T>& S )
-	{
-		int n = this->NumColumns();
-
-		if (n <= 1)
-		{
-			S(0, 0) = 1.0f;
-			return 0;
-		}
-		if (n == 2) 
-		{ 
-			S.Identity();
-			return 0; 
-		}
-		
-
-		// Allocate working memory
-		matrix<int> perm(n, 1);
-
-		// For each column use Elementary transformations 
-		//   to zero the entries below the subdiagonal.
-		int Row = 1;
-
-		for (int col = 0; col < (n - 2);  Row++, col++) {
-
-			// Find the row in column "col" with maximum magnitude where 
-			// row >= col + 1.   
-
-			int row = col + 1;
-			perm(row, 0) = row;
-			perm(row, 0) = max_row_of_column(row, col);
-
-			// exchange and columns rows if needed
-			if (perm(row, 0) != row) 
-			{
-				SwapRow(row, perm(row, 0));
-				SwapColumn(row, perm(row, 0));
-			}
-
-			// set components below first subdiagonal to zero
-			int r = Row +1;
-			for( int i = col +2; i < n; i++, r++ ) 
-			{
-				T s = get( r, col ) / get( Row, col );
-
-				for (int j = 0; j < n; j++)
-				{
-					get(r, j) = get(r, j) - get(Row, j) * s;
-				}
-				
-				S(r, col) = s;
-				
-				for (int j = 0; j < n; j++)
-				{
-					get(j, col + 1) = get(j, col + 1) + get(j, i) * s;
-				}
-			}
-		}
-
-		int row_index = 2;
-		
-		for (int i = 2; i < n; row_index++, i++)
-		{
-			this->CopyVector_from_SubMatrix_to_SubMatrix(S, row_index, row_index, i-1 );
-		}
-
-		Hessenberg_Elementary_Transform( S, perm, n);
-
-		return 0;
-	}
-
-	void Hessenberg_Elementary_Transform( matrix<T>& S, matrix<int>& perm, int n)
-	{
-		int i, j;
-
-		S.Identity();
-	
-		for (i = n - 2; i >= 1; i--) 
-		{
-			for (j = i + 1; j < n; j++)
-			{
-				S(j, i) = get(j, i - 1);
-				get(j, i - 1) = 0;
-			}
-			if (perm(i,0) != i) 
-			{
-				int rS = i;
-				int rA = perm(i, 0);
-
-				for (j = i; j < n; j++) 
-				{
-					S(rS, j) = S(rA, j);
-					S(rA, j) = 0;
-				}
-				S(rA, i) = 1.0;
-			}
-		}
-	}
-
-	// This does not produce the same results as the householder algorithm I wrote earlier ...
-	// 
-	int Hessenberg_Form_Orthogonal( matrix<T>& U)
-	{
-		int i, k, col;
-
-		double *p_row, *psubdiag;
-		double *pA, *pU;
-		double sss;                             // signed sqrt of sum of squares
-		T scale;
-		T innerproduct;
-
-		T sum_squared = 0;
-		int n = this->NumColumns();
-		// n x n matrices for which n <= 2 are already in Hessenberg form
-		U.Identity();
-
-		//Identity_Matrix(U, n);
-
-		if (n <= 2) return 0;
-
-		// Reserve auxillary storage, if unavailable, return an error
-		matrix<T> u(n, 1);
-
-
-		// For each column use a Householder transformation 
-		//   to zero all entries below the subdiagonal.
-
-
-		for ( col = 0; col < (n - 2); col++) {
-
-			// Calculate the signed square root of the sum of squares of the
-			// elements below the diagonal.
-
-			int sub_diag_row = col + 1;
-
-
-			sum_squared = 0.0;
-			for (int r = col+1; r < n; r++)
-			{
-				sum_squared = sum_squared + get(r, col)*get(r, col);
-			}
-
-			if (sum_squared == 0.0) continue;
-			sum_squared = sqrt(sum_squared);
-			
-			if (get(sub_diag_row, col) >= 0.0)
-				sum_squared = -sum_squared;
-
-			
-
-			// Calculate the Householder transformation Q = I - 2uu'/u'u.
-
-			u(col + 1, 0) = get(sub_diag_row, col) - sum_squared;
-			
-			get(sub_diag_row, col) = sum_squared;
-
-			
-			for ( int j = sub_diag_row + 1, i = col + 2; i < n, j < n; j++, i++) {
-				u(i, 0) = get(i, col);
-				get(i, col) = 0.0;
-				
-			}
-
-			// Premultiply A by Q
-
-			scale = -1.0 / (sum_squared * u(col+1, 0));
-
-			for (int row = sub_diag_row - col, i = col + 1; i < n; i++)
-			{
-				int rA = col + 1; 
-				
-				innerproduct = 0.0;
-				for ( k = col + 1; k < n; k++, rA++)
-				{
-					innerproduct += u(k, 0) * get(rA, i);
-				}
-
-				innerproduct *= scale;
-
-				for (rA = row, k = col + 1; k < n; rA++, k++)
-				{
-					get(rA, i) = get(rA, i) - u(k, 0) * innerproduct;
-				}
-			}
-			 
-
-			// Postmultiply QA by Q
-
-			for (int row = 0, i = 0; i < n; row++, i++)
-			{
-				innerproduct = 0.0;
-				for ( k = col + 1; k < n; k++)
-				{
-					innerproduct += u(k, 0) * get(row, k);
-				}
-				innerproduct *= scale;
-				for (k = col + 1; k < n; k++)
-				{
-					get(row, k) = get(row, k) - u(k, 0) * innerproduct;
-				}
-			}
-
-
-
-			// Postmultiply U by (I - 2uu')
-
-
-			for (int rU = 0,i = 0; i < n; rU++, i++)
-			{
-				innerproduct = 0.0;
-				for ( k = col + 1; k < n; k++)
-				{
-					innerproduct += u(k, 0) * U(i, k);
-				}
-				innerproduct *= scale;
-				for (k = col + 1; k < n; k++)
-				{
-					U(i, k) = U(i, k) - u(k, 0)*innerproduct;
-				}
-			}
-
-
-			//u.ToZero();
-		}
-
-		
-
-		return 0;
-	}
-
-	///// ==============EXPERIEMENTAL
 
 
 
@@ -1828,6 +1537,7 @@ public:
 
 	typedef matrix<float> matrixf;
 	typedef matrix<double> matrixd;
+
 };
 
 
