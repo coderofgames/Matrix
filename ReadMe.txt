@@ -35,3 +35,8 @@ and for more information
 http://mathfaculty.fullerton.edu/mathews/n2003/HessenbergMod.html
 
 
+12) implemented QR algorithm for finding real eigen-values. 
+
+TODO: complex case.
+
+

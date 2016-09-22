@@ -63,6 +63,61 @@ void TestHessenburg_2()
 
 	H__3.Householder_Tridiagonalize();
 	H__3.print(2);
+	cout << endl;
+//	H__3.QR_algorithm();
+//	H__3.print(2);
+
+}
+
+
+void TestHessenburg_QR_real()
+{
+
+	matrixf H_(4,4);
+
+	// using the wisdom from
+	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
+	// I have decided to only use Housedholder methods
+	// this matrix shows the evidence of the stability issue ...
+
+	H_(0, 0) = 6.0;
+	H_(0, 1) = -sqrt(18.0);
+	H_(0, 2) = 0.0;
+	H_(0, 3) = 0.0;
+
+
+
+	H_(1, 0) = -sqrt(18.0);
+	H_(1, 1) = 7.0;
+	H_(1, 2) = sqrt(2.0);
+	H_(1, 3) = 0.0;
+
+
+
+	H_(2, 0) = 0.0;
+	H_(2, 1) = sqrt(2.0);
+	H_(2, 2) = 6.0;
+	H_(2, 3) = 0.0;
+
+
+
+	H_(3, 0) = 0.0;
+	H_(3, 1) = 0.0;
+	H_(3, 2) = 0.0;
+	H_(3, 3) = 3.0;
+
+
+
+
+
+
+	matrixf H__3 = H_;
+
+//	H__3.Householder_Tridiagonalize();
+//	H__3.print(2);
+	cout << endl;
+	H__3.QR_algorithm();
+	H__3.print(2);
 
 }
 int main(int argc, char* argv[])
@@ -510,6 +565,12 @@ int main(int argc, char* argv[])
 	cout << "=================================================" << endl;
 	cout << "Testing Housholder algorithm on Non-Symmetric Matrix (Hessenburg)" << endl;
 	TestHessenburg_2();
+
+	cout << endl;
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing TestHessenburg_QR_real algorithm on Hpuseholder matrix" << endl;
+	TestHessenburg_QR_real();
 
 	// results are in accordance with 
 	// http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html

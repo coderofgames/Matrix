@@ -1303,7 +1303,136 @@ public:
 	}
 
 
+	// note : this needs to be rewritten. 
+	// this should be rewritten for complex types too.
+	// also a tolerance should be built in to all tests for equality.
+	bool IsOrthogonal()
+	{
+		if (!this->IsSquare())
+		{
+			cout << "Error (IsOrthogonal): Matrix should be square" << endl;
+			return false;
+		}
+		matrix<T> AT = (*this);
 
+		AT.transpose();
+
+		matrix<T> I = AT * (*this);
+		for (int i = 0; i < this->NumRows(); i++)
+			for (int j = 0; j < this->NumRows(); j++)
+				if ((i == j && I(i, j) != 1.0) || (i != j && I(i, j) != 0.0)) return false;
+
+		matrix<T> I2 = (*this) * I2;
+		for (int i = 0; i < this->NumRows(); i++)
+			for (int j = 0; j < this->NumRows(); j++)
+				if ((i == j && I2(i, j) != 1.0) || (i != j && I2(i, j) != 0.0)) return false;
+
+		return true;
+
+	}
+
+	void Overwrite_Submatrix(matrix<T> b, int r, int c)
+	{
+		if (b.NumColumns() > this->NumColumns() || b.NumRows() > this->NumRows())
+		{
+			cout << "Error (Overwrite_Submatrix): sub matrix dimensions exceed destination dimensions" << endl;
+			return;
+		}
+
+		if ((r + b.NumRows() > this->NumRows()) || (c + b.NumColumns() > this->NumColumns()))
+		{
+			cout << "Error (Overwrite_Submatrix): sub matrix size plus dimensions exceed destination dimensions" << endl;
+			return;
+		}
+
+		for (int i = 0; i < b.NumRows(); i++)
+		{
+			for (int j = 0; j < b.NumColumns(); j++)
+			{
+				get(r + i, c + j) = b(i, j);
+			}
+		}
+
+	}
+
+
+	void QR_algorithm()
+	{
+		if (!this->IsSquare())
+		{
+			cout << "Error (QR_algorithm): Matrix must be square" << endl;
+			return;
+		}
+
+		int n = this->NumColumns();
+
+		matrix<T> C_n(n, n);
+		C_n.Identity();
+
+		matrix<T> R_n(n, n);
+		R_n.Identity();
+
+		matrix<T> I_b(2, 2);
+		I_b.Identity();
+
+		matrix<T> *C = new matrix<T>[n-1]; // an array of n 4x4 matrices
+		for (int i = 0; i < n-1; i++)
+			C[i] = I_b;
+
+
+
+		// to compute R0 = C
+
+		for (int loop = 0; loop < n-1; loop++)
+		{
+			for (int j = 0; j < n - 1; j++)
+			{
+				T b11 = get(j, j);
+				T b21 = get(j + 1, j);
+
+				T tan_theta = (b21 / b11);
+				
+				T cos_theta = 1 / sqrt(1 + tan_theta*tan_theta);
+				T sin_theta = tan_theta / sqrt(1 + tan_theta*tan_theta);
+
+				C[j](0, 0) = cos_theta;      C[j](0, 1) = sin_theta;
+				C[j](1, 0) = -sin_theta;      C[j](1, 1) = cos_theta;
+
+				C_n.Overwrite_Submatrix(C[j], j, j);
+
+				(*this) = C_n * (*this);
+
+				cout << endl;
+				(*this).print(4);
+				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
+			}
+			//C_n.Identity();
+			for (int j = 0; j < n - 1; j++)
+			{
+				//C[j].transpose();
+
+				C_n.Overwrite_Submatrix(C[j], j, j);
+				C_n.transpose();
+				(*this) = (*this) * C_n;
+
+				cout << endl;
+				(*this).print(4);
+
+				C_n.transpose();
+				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
+
+				//C[j].transpose();
+			}
+
+			
+		}
+
+		//delete[]C;
+
+		//this->Overwrite_Submatrix(I_b, 0,2);
+
+
+	}
 	///// ==============EXPERIEMENTAL
 	inline int max_row_of_column(int row_start, int c)
 	{
