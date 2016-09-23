@@ -557,7 +557,7 @@ public:
 	}
 
 	// generalization of the reduction to triangular form above
-	bool ReduceToUpperTriangularForm()
+	bool ReduceToUpperTriangularForm(T &sign)
 	{
 		if (!this->IsSquare())
 		{
@@ -566,6 +566,8 @@ public:
 		}
 
 		unsigned int n = this->NumRows();
+
+		sign = 1;
 
 		// this part is almost exactly the same as the section from the Gauss method 
 		for (int k = 0; k < n - 1; k++)
@@ -586,6 +588,7 @@ public:
 			for (int i = 0; i < n; i++)
 			{
 				SWAP(get(j, i), get(k, i));	
+				sign = -sign;
 			}
 
 			for (j = k + 1; j < n; j++)
@@ -599,11 +602,24 @@ public:
 		}	
 	}
 
+	T Det_2x2(int r, int c)
+	{
+		if ((r + 1 < NumRows()) && 
+			(c + 1 < NumColumns()))
+		{
+			return get(r, c) * get(r + 1, c + 1) - get(r + 1, c)*get(r, c + 1);
+		}
+		return 0.0;
+	}
+
+
+
 	// interesting way of evaluating the determinant
 	T Determinant()
 	{
-		if( this->ReduceToUpperTriangularForm() )
-			return this->trace();
+		T sign = 1;
+		if (this->ReduceToUpperTriangularForm(sign))
+			return  this->trace();
 		
 		return 0;
 	}
@@ -1387,7 +1403,7 @@ public:
 
 		// to compute R0 = C
 
-		for (int loop = 0; loop < 80; loop++)
+		for (int loop = 0; loop < 100; loop++)
 		{
 			for (int j = 0; j < n - 1; j++)
 			{
@@ -1426,78 +1442,57 @@ public:
 			}
 
 
-			// set the eigen values and continue
-			bool flag_last = false;
-			for (int j = 0; j < n - 1; j++)
-			{
-				T sub_diag2 = get(j+1, j);
 
-				if (sub_diag2 > 0.1 || sub_diag2 < -0.1 /*FLT_EPSILON*/)
-				{
-					T a = get(j, j);
-					T b = get(j, j+1);
-					T c = get(j + 1, j);
-					T d = get(j + 1, j + 1);
-
-					T trace = a + d;
-					T det = a*d - c*b;
-
-					T L1 = trace / 2.0 + sqrt(trace*trace / 4.0 - det);
-					T L2 = trace / 2.0 - sqrt(trace*trace / 4.0 - det);
-					
-					if (L1 != L1)
-						L1 = L2;
-					if (L2 != L2)
-					{
-						L2 = 1;
-						L1 = 1;
-					}
-
-					T p = (d-a) / 2;
-					T q = p * p + c*b;
-
-					T p2 = (C[j](1, 1) - C[j](0, 0)) / 2;
-					T q2 = p2 * p2 - C[j](0, 1)*C[j](1, 0);
-
-					T x1, x2;
-					if (p2> 0)
-						x1 = C[j](1, 1) + p2 + sqrt(q2);
-					else
-						x1 = C[j](1, 1) + p2 -sqrt(q2);
-
-					x2 = C[j](0, 0) + C[j](1, 1) - x1;
-					
-
-					if ( trace < 2.0) //x1 + x2 - 2.0 > 0.1 || x1 + x2 + 2.0 <= 0.1)
-					{
-						eigen_values(j, 0) = -(x1 + x2);
-						eigen_values(j, 1) =  sqrt(abs(q));
-						eigen_values(j + 1, 0) = -(x1 + x2);
-						eigen_values(j + 1, 1) = -sqrt(abs(q));
-						flag_last = true;
-					}
-
-				}
-				else if ((sub_diag2 > DBL_EPSILON) || (sub_diag2 < DBL_EPSILON) )
-				{
-					if ( !flag_last)
-						eigen_values(j, 0) = get(j, j);
-					//if (j > 0 && (get(j, j - 1) < 0.1) || (get(j, j - 1) > -0.1))
-					//	eigen_values(j + 1, 0) = get(j + 1, j + 1);
-
-					flag_last = false;
-				}
 				
-			}
+			
 
-			if (flag_last == false)
-			{
-				eigen_values(n - 1, 0) = get(n - 1, n - 1);
-			}
+
 			
 		}
+	
+	// set the eigen values and continue
+	bool flag_last = false;
+	for (int j = 0; j < n - 1; j++)
+	{
+		T sub_diag2 = get(j + 1, j);
+
+		if (sub_diag2 > FLT_EPSILON || sub_diag2 < -FLT_EPSILON /*FLT_EPSILON*/)
+		{
 
 
+			T trace = get(j, j) + get(j + 1, j + 1);
+			T det = get(j, j)*get(j + 1, j + 1) - get(j + 1, j)*get(j, j + 1);
+
+			
+			//complex<T> L1;// = trace * 0.5 + sqrt();
+			T real_L1 = trace / 2.0;
+			T imag_L1 = sqrt(fabs(trace*trace / 4.0 - det));
+
+			T real_L2 = trace / 2.0;
+			T imag_L2 = -sqrt(fabs(trace*trace / 4.0 - det));
+
+			eigen_values(j, 0) = real_L1;// -(x1 + x2);
+			eigen_values(j, 1) = imag_L1;
+			eigen_values(j + 1, 0) = real_L2;
+			eigen_values(j + 1, 1) = imag_L2;
+			flag_last = true;
+			
+
+		}
+		else if ((sub_diag2 > DBL_EPSILON) || (sub_diag2 < DBL_EPSILON))
+		{
+			if (!flag_last)
+				eigen_values(j, 0) = get(j, j);
+			//if (j > 0 && (get(j, j - 1) < 0.1) || (get(j, j - 1) > -0.1))
+			//	eigen_values(j + 1, 0) = get(j + 1, j + 1);
+
+			flag_last = false;
+		}
+	}
+	if (flag_last == false)
+	{
+		eigen_values(n - 1, 0) = get(n - 1, n - 1);
+	}
 
 		delete[]C;
 

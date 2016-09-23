@@ -898,6 +898,17 @@ int main(int argc, char* argv[])
 
 	TestQR_Method_2();
 
+
+	float test_det[3][3] = { 
+		{ 2, 1, 0 }, 
+		{}, 
+		{ 1, 3 } };
+	matrixf B6 = test_det;
+
+	cout << endl << "Determinant Test:  " << B6.Determinant() << endl;
+
+
+
 	return 0;
 }
 
