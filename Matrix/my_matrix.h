@@ -1455,31 +1455,46 @@ public:
 	for (int j = 0; j < n - 1; j++)
 	{
 		T sub_diag2 = get(j + 1, j);
-
-		if (sub_diag2 > FLT_EPSILON || sub_diag2 < -FLT_EPSILON /*FLT_EPSILON*/)
+		T precision = FLT_EPSILON;
+		if (sub_diag2 > precision || sub_diag2 < -precision /*FLT_EPSILON*/)
 		{
 
-
 			T trace = get(j, j) + get(j + 1, j + 1);
-			T det = get(j, j)*get(j + 1, j + 1) - get(j + 1, j)*get(j, j + 1);
+			T det = this->Det_2x2(j, j);// get(j, j)*get(j + 1, j + 1) - get(j + 1, j)*get(j, j + 1);
 
+			if (trace*trace / 4.0 - det < 0.0)
+			{
+				//complex<T> L1;// = trace * 0.5 + sqrt();
+				T real_L1 = trace / 2.0;
+				T imag_L1 = sqrt(fabs(trace*trace / 4.0 - det));
+
+				T real_L2 = trace / 2.0;
+				T imag_L2 = -sqrt(fabs(trace*trace / 4.0 - det));
+
+				eigen_values(j, 0) = real_L1;// -(x1 + x2);
+				eigen_values(j, 1) = imag_L1;
+				eigen_values(j + 1, 0) = real_L2;
+				eigen_values(j + 1, 1) = imag_L2;
+			}
+			else
+			{
+				//complex<T> L1;// = trace * 0.5 + sqrt();
+				T real_L1 = trace / 2.0 + sqrt(fabs(trace*trace / 4.0 - det));
+
+				T real_L2 = trace / 2.0 - sqrt(fabs(trace*trace / 4.0 - det));
+
+				eigen_values(j, 0) = real_L1;// -(x1 + x2);
+				eigen_values(j, 1) = 0.0;
+				eigen_values(j + 1, 0) = real_L2;
+				eigen_values(j + 1, 1) = 0.0;
+			}
 			
-			//complex<T> L1;// = trace * 0.5 + sqrt();
-			T real_L1 = trace / 2.0;
-			T imag_L1 = sqrt(fabs(trace*trace / 4.0 - det));
 
-			T real_L2 = trace / 2.0;
-			T imag_L2 = -sqrt(fabs(trace*trace / 4.0 - det));
-
-			eigen_values(j, 0) = real_L1;// -(x1 + x2);
-			eigen_values(j, 1) = imag_L1;
-			eigen_values(j + 1, 0) = real_L2;
-			eigen_values(j + 1, 1) = imag_L2;
 			flag_last = true;
 			
 
 		}
-		else if ((sub_diag2 > DBL_EPSILON) || (sub_diag2 < DBL_EPSILON))
+		else 
 		{
 			if (!flag_last)
 				eigen_values(j, 0) = get(j, j);
