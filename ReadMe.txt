@@ -36,7 +36,17 @@ http://mathfaculty.fullerton.edu/mathews/n2003/HessenbergMod.html
 
 
 12) implemented QR algorithm for finding real eigen-values. 
+13) the QR procedure is working well for real valued solutions and especially symmetric matrices
+14) implemented good contigious memory model
+15) There are now constructors for various static initializer types 
+(see examples at top for information, the max is a 6x6 matrix)
 
-TODO: improve complex case, print eigen values as list, find eigen-vectors
+TODO: use a C++ 11 style static initializer 
 
-
+TODO: Improve solution to complex case ...
+I believe the problem matrix 
+http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html
+is almost solved, however the computation of the real part in the complex pair is a hack
+(using the calculation from 
+http://www.math.harvard.edu/archive/21b_fall_04/exhibits/2dmatrices/index.html on the sub matrix 
+caused indeterminate numbers to appear)

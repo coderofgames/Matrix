@@ -12,7 +12,189 @@ typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
 
 
+class _A
+{
+public:
+	_A()
+	{
 
+		dat = 0;
+	}
+
+	_A( double *p)
+	{
+
+		dat = 0;
+		sx = sizeof(p);
+		sy = sizeof(p[0]);
+		this->create();
+	}
+
+
+	_A( double p[5][5])
+	{
+
+		dat = 0;
+		sx = 5 ;
+		sy = 5 ;
+
+		this->create();
+		for (int i = 0; i < 5; i++)
+		{
+			for (int j = 0; j < 5; j++)
+			{
+				dat[i][j] = p[i][j];
+			}
+		}
+	}
+
+	void print()
+	{
+		for (int i = 0; i < 5; i++)
+		{
+			for (int j = 0; j < 5; j++)
+			{
+				cout<< dat[i][j] << "    ";
+			}
+			cout << endl;
+		}
+	}
+
+	void operator=(const double *p[])
+	{
+		sx = sizeof(p);
+		sy = sizeof(p[0]);
+		this->create();
+
+	}
+	void destroy()
+	{
+		if (dat != 0)
+		{
+			for (int i = 0; i < sx; i++)
+			{
+				delete[] dat[i];
+			}
+			delete[] dat;
+		}
+		dat = 0;
+		
+	}
+	void create()
+	{
+		if (sy > 0 && sx> 0)
+		{
+			dat = new double*[sx];
+			for (int i = 0; i < sx; i++)
+			{
+				dat[i] = new double[sy];
+				for (int j = 0; j < sy; j++)
+					dat[i][j] = 0.0f;
+			}
+		}
+		
+	}
+
+	int sx = 4;
+	int sy = 4;
+	double **dat;
+};
+
+void TestQR_Method_1()
+{
+	float mat[4][4] = {
+		{1,3,0,0},
+		{3,2,1,0},
+		{0,1,3,4},
+		{0,0,4,1}
+	};
+
+	matrixf A = mat;
+
+	matrixf sol(4, 1);
+	A.QR_algorithm(sol);
+
+	cout << endl;
+	cout << "Printing eigenvalue solution" << endl;
+
+	sol.print(3);
+
+	cout << "printing the matrix " << endl;
+
+	A.print(2);
+
+}
+
+
+void TestQR_Method_2()
+{
+	float mat[4][4] = {
+		{ 4, 2, 2, 1 },
+		{ 2, -3, 1, 1 },
+		{ 2, 1, 3, 1 },
+		{ 1, 1, 1, 2 }
+	};
+
+	matrixf A = mat;
+
+	matrixf sol(4, 1);
+	A.Householder_Tridiagonalize();
+	cout << endl;
+	cout << "printing the matrix after Householder reduction" << endl;
+
+	A.print(2);
+	A.QR_algorithm(sol);
+
+	cout << endl;
+	cout << "Printing eigenvalue solution" << endl;
+
+	sol.print(3);
+
+	cout << "printing the matrix " << endl;
+
+	A.print(2);
+
+}
+void TestHessenburg_0()
+{
+
+	matrixf H_(4,4);
+
+	// using the wisdom from
+	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
+	// I have decided to only use Housedholder methods
+	// this matrix shows the evidence of the stability issue ...
+
+	H_(0, 0) = 4.0;
+	H_(0, 1) = 1.0;
+	H_(0, 2) = -1.0;
+	H_(0, 3) = 2.0;
+
+	H_(1, 0) = 1.0;
+	H_(1, 1) = 4.0;
+	H_(1, 2) = 1.0;
+	H_(1, 3) = -1.0;
+
+	H_(2, 0) = -1.0;
+	H_(2, 1) = 1.0;
+	H_(2, 2) = 4.0;
+	H_(2, 3) = 1.0;
+
+	H_(3, 0) = 2.0;
+	H_(3, 1) = -1.0;
+	H_(3, 2) = 1.0;
+	H_(3, 3) = 4.0;
+	matrixf H__3 = H_;
+	H__3.print(2);
+	 H__3.Householder_Tridiagonalize();
+	H__3.print(2);
+	cout << endl;
+	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
+	matrixf eigen_values(H__3.NumColumns(), 2);
+	H__3.QR_algorithm(eigen_values);
+	H__3.print(2);
+	eigen_values.print(3);
+}
 
 void TestHessenburg_2()
 {
@@ -70,7 +252,63 @@ void TestHessenburg_2()
 	H__3.print(2);
 	eigen_values.print(3);
 }
+void TestHessenburg_3()
+{
 
+	matrixf H_(5, 5);
+
+	// using the wisdom from
+	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
+	// I have decided to only use Housedholder methods
+	// this matrix shows the evidence of the stability issue ...
+
+	H_(0, 0) = 5.0;
+	H_(0, 1) = 4.0;
+	H_(0, 2) = 3.0;
+	H_(0, 3) = 2.0;
+	H_(0, 4) = 1.0;
+
+
+	H_(1, 0) = 1.0;
+	H_(1, 1) = 4.0;
+	H_(1, 2) = 0.0;
+	H_(1, 3) = 3.0;
+	H_(1, 4) = 3.0;
+
+
+	H_(2, 0) = 2.0;
+	H_(2, 1) = 0.0;
+	H_(2, 2) = 3.0;
+	H_(2, 3) = 0.0;
+	H_(2, 4) = 0.0;
+
+
+	H_(3, 0) = 3.0;
+	H_(3, 1) = 2.0;
+	H_(3, 2) = 1.0;
+	H_(3, 3) = 2.0;
+	H_(3, 4) = 5.0;
+
+
+	H_(4, 0) = 4.0;
+	H_(4, 1) = 2.0;
+	H_(4, 2) = 1.0;
+	H_(4, 3) = 2.0;
+	H_(4, 4) = 1.0;
+
+
+	matrixf H__3 = H_;
+
+	//H__3.Hessenberg_Form_Elementary(H_);
+	H__3.Householder_Tridiagonalize();
+	H__3.print(2);
+	cout << endl;
+	cout << "Eigenvalues are on the diagonal or in complex conjugate pair ^^" << endl;
+	matrixf eigen_values(H__3.NumColumns(), 2);
+	H__3.QR_algorithm(eigen_values);
+	H__3.print(2);
+	eigen_values.print(3);
+}
 
 void TestHessenburg_QR_real()
 {
@@ -117,6 +355,64 @@ void TestHessenburg_QR_real()
 
 //	H__3.Householder_Tridiagonalize();
 //	H__3.print(2);
+	cout << endl;
+	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
+	matrixf eigen_values(H__3.NumColumns(), 2);
+	H__3.QR_algorithm(eigen_values);
+	H__3.print(2);
+	eigen_values.print(3);
+
+}
+
+void TestHessenburg_QR_real_2()
+{
+
+	matrixf H_(5,5);
+
+	// using the wisdom from
+	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
+	// I have decided to only use Housedholder methods
+	// this matrix shows the evidence of the stability issue ...
+
+	H_(0, 0) = 5.0;
+	H_(0, 1) = 1.0;
+	H_(0, 2) = 0.0;
+	H_(0, 3) = 4.0;
+	H_(0, 4) = 0.0;
+
+
+	H_(1, 0) = 1.0;
+	H_(1, 1) = 4.0;
+	H_(1, 2) = 2;
+	H_(1, 3) = 1.0;
+	H_(1, 4) = 3.0;
+
+
+	H_(2, 0) = 2.0;
+	H_(2, 1) = (2.0);
+	H_(2, 2) = 5.0;
+	H_(2, 3) = 4.0;
+	H_(2, 4) = 0.0;
+
+
+	H_(3, 0) = 0.0;
+	H_(3, 1) = 1.0;
+	H_(3, 2) = 4.0;
+	H_(3, 3) = 1.0;
+	H_(3, 4) = 3.0;
+
+	H_(4, 0) = 4.0;
+	H_(4, 1) = 3.0;
+	H_(4, 2) = 0.0;
+	H_(4, 3) = 3.0;
+	H_(4, 4) = 4.0;
+
+
+
+	matrixf H__3 = H_;
+
+		H__3.Householder_Tridiagonalize();
+		H__3.print(2);
 	cout << endl;
 	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
 	matrixf eigen_values(H__3.NumColumns(), 2);
@@ -571,15 +867,37 @@ int main(int argc, char* argv[])
 	cout << "Testing Housholder algorithm on Non-Symmetric Matrix (Hessenburg)" << endl;
 	TestHessenburg_2();
 
+	TestHessenburg_3();
+
 	cout << endl;
 	cout << endl;
 	cout << "=================================================" << endl;
 	cout << "Testing TestHessenburg_QR_real algorithm on Hpuseholder matrix" << endl;
 	TestHessenburg_QR_real();
-
+	TestHessenburg_QR_real_2();
 	// results are in accordance with 
 	// http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html
 	// so the other procedures for Hessenburg will be kept until I can prove they are useless.
+
+	TestHessenburg_0();
+
+
+	 double test_init[5][5] = { 
+	{ 1.0, 1.0, -1.0, 0.0, 4.0 },
+	{ 1.0, 2.0, -1.0, 1.0, 3.0 },
+	{ -1.0, 9.0, 1.0, 0.0, 5.0 },
+	{ 3.0, 2.0, -1.0, 4.0, 3.0 },
+	{ 7.0, 5.0, 1.0, 0.0, 6.0 }};
+
+	_A the_A = test_init;
+	cout << endl;
+	cout << the_A.sx << "   " << the_A.sy << endl;
+	cout << the_A.dat[2][2] << endl;
+
+	TestQR_Method_1();
+
+	TestQR_Method_2();
+
 	return 0;
 }
 
