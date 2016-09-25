@@ -583,6 +583,10 @@ int main(int argc, char* argv[])
 	cout << "Printing solution" << endl;
 	X_lu2.print(4);
 
+	cout << "Testing Eigenvalues 3x3" << endl;
+	complex<float> L1, L2, L3;
+	M_.EigenValues3x3(L1, L2, L3);
+	cout << L1 << " ,  " << L2 << " ,  " << L3 << endl;
 	cout << endl;
 	cout << "=================================================" << endl;
 	cout << "Testing LU Decomposition Crout's Method" << endl;

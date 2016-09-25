@@ -1,6 +1,7 @@
 #ifndef MY_MATRIX_H
 #define MY_MATRIX_H
-
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <iostream>
 #include "Utils.h"
 #include <complex>
@@ -631,6 +632,20 @@ public:
 		return 0.0;
 	}
 
+	T DiagonalEntryProduct()
+	{
+		if (!this->IsSquare())
+		{
+			cout << "Error (DiagonalEntryProduct): error matrix should be square" << endl;
+			return 0.0;
+		}
+		T prod = 0.0;
+		for (int r = 0; r < this->NumRows(); r++)
+			prod *= get(r, r);
+
+		return prod;
+	}
+
 
 
 	// interesting way of evaluating the determinant
@@ -638,7 +653,7 @@ public:
 	{
 		T sign = 1;
 		if (this->ReduceToUpperTriangularForm(sign))
-			return  this->trace();
+			return this->DiagonalEntryProduct();
 		
 		return 0;
 	}
@@ -1403,6 +1418,80 @@ public:
 	}
 
 
+
+	T Det3x3( int r, int c)
+	{
+		if (r + 2 >= NumRows() || c + 2 >= NumColumns())
+		{
+			cout << "Error (Det3x3): Out of bounds error" << endl;
+			return 0.0;
+		}
+
+		T c1 = get(r, c);
+		T c2 = -get(r, c+1);
+		T c3 = get(r, c+2);
+
+		return  c1 * (get(r + 1, c + 1) * get(r + 2, c + 2) - get(r + 1, c + 2)*get(r + 2, c + 1)) +
+				c2 * (get(r + 1, c) * get(r + 2, c + 2) - get(r+1, c + 2) * get(r + 2, c)) +
+			    c3 * (get(r + 1, c) * get(r + 2, c + 1) - get(r + 2,c) * get(r + 1, c + 1));
+
+ 	}
+
+
+	// anayltic solution from wikipedias
+	void EigenValues3x3(complex<T> &L1, complex<T> &L2, complex<T> &L3)
+	{
+		if (!this->IsSymmetric())
+		{
+			cout << "Error (EigenValues3x3): Matrix must be symmetric" << endl;
+			return;
+		}
+#define A (*this)
+		T p1 = A(0, 1) *A(0, 1) + A(0, 2) *A(0, 2) + A(1, 2) *A(1, 2);
+
+		if (p1 == 0)
+		{
+			
+			L1 = A(0, 0);
+			L2 = A(1, 1);
+			L3 = A(2, 2);
+		}
+		else
+		{
+			T q = trace() / 3.0;
+			T p2 = (A(0, 0) - q) *(A(0, 0) - q) + (A(1, 1) - q)*(A(1, 1) - q) + (A(2, 2) - q)*(A(2, 2) - q) + 2 * p1;
+			T p = std::sqrt(p2 / 6.0);
+
+			matrix<T> I_3(3, 3);
+			I_3.Identity();
+
+			matrix<T> B = (A - I_3*q)*(1 / p); 
+			T r = B.Det3x3(0, 0) /2.0;
+			
+			T phi;
+
+			if (r <= -1)
+			{
+				phi = M_PI / 3.0;
+			}
+			else if (r >= 1)
+			{
+				phi = 0;
+			}
+		
+			else
+			{
+				phi = std::acos(r) / 3.0;
+			}
+			
+			L1 = q + 2 * p * std::cos(phi);
+			L2 = q + 2 * p * std::cos(phi + (2 * M_PI / 3));
+			L3 = 3 * q - L1 - L2;
+
+		}
+#undef A
+	}
+
 	void QR_algorithm(matrix<T>& eigen_values)
 	{
 		if (!this->IsSquare())
@@ -1475,7 +1564,7 @@ public:
 		for (int j = 0; j < n - 1; j++)
 		{
 			T sub_diag2 = get(j + 1, j);
-			T precision = FLT_EPSILON;
+			//precision = FLT_EPSILON;
 			if (sub_diag2 > precision || sub_diag2 < -precision /*FLT_EPSILON*/)
 			{
 				complex<T> L1, L2;
@@ -1534,7 +1623,7 @@ public:
 				get(i, j) = round_to_n_digits(get(i, j), N);
 	}
 
-	///// ==============EXPERIEMENTAL
+
 	inline int max_row_of_column(int row_start, int c)
 	{
 		if (row_start > this->NumRows())
@@ -1604,244 +1693,7 @@ public:
 		}
 	}
 
-	// thanks to http://www.mymathlib.com/matrices/eigen/hessenberg.html for this algorithm
-	// conversion to C++ by coderofgames
-	// 
-	// Convert (this) matrix to a Hessenburg form matrix H, storing the similar matrix S 
-	// so (*this) * S == S * H
-	// this matrix will change 
-	//
-	int Hessenberg_Form_Elementary(matrix<T>& S)
-	{
-		int n = this->NumColumns();
 
-		if (n <= 1)
-		{
-			S(0, 0) = 1.0f;
-			return 0;
-		}
-		if (n == 2)
-		{
-			S.Identity();
-			return 0;
-		}
-
-
-		// Allocate working memory
-		matrix<int> perm(n, 1);
-
-		// For each column use Elementary transformations 
-		//   to zero the entries below the subdiagonal.
-		int Row = 1;
-
-		for (int col = 0; col < (n - 2); Row++, col++) {
-
-			// Find the row in column "col" with maximum magnitude where 
-			// row >= col + 1.   
-
-			int row = col + 1;
-			perm(row, 0) = row;
-			perm(row, 0) = max_row_of_column(row, col);
-
-			// exchange and columns rows if needed
-			if (perm(row, 0) != row)
-			{
-				SwapRow(row, perm(row, 0));
-				SwapColumn(row, perm(row, 0));
-			}
-
-			// set components below first subdiagonal to zero
-			int r = Row + 1;
-			for (int i = col + 2; i < n; i++, r++)
-			{
-				T s = get(r, col) / get(Row, col);
-
-				for (int j = 0; j < n; j++)
-				{
-					get(r, j) = get(r, j) - get(Row, j) * s;
-				}
-
-				S(r, col) = s;
-
-				for (int j = 0; j < n; j++)
-				{
-					get(j, col + 1) = get(j, col + 1) + get(j, i) * s;
-				}
-			}
-		}
-
-		int row_index = 2;
-
-		for (int i = 2; i < n; row_index++, i++)
-		{
-			this->CopyVector_from_SubMatrix_to_SubMatrix(S, row_index, row_index, i - 1);
-		}
-
-		Hessenberg_Elementary_Transform(S, perm, n);
-
-		return 0;
-	}
-
-	void Hessenberg_Elementary_Transform(matrix<T>& S, matrix<int>& perm, int n)
-	{
-		int i, j;
-
-		S.Identity();
-
-		for (i = n - 2; i >= 1; i--)
-		{
-			for (j = i + 1; j < n; j++)
-			{
-				S(j, i) = get(j, i - 1);
-				get(j, i - 1) = 0;
-			}
-			if (perm(i, 0) != i)
-			{
-				int rS = i;
-				int rA = perm(i, 0);
-
-				for (j = i; j < n; j++)
-				{
-					S(rS, j) = S(rA, j);
-					S(rA, j) = 0;
-				}
-				S(rA, i) = 1.0;
-			}
-		}
-	}
-
-	// This does not produce the same results as the householder algorithm I wrote earlier ...
-	// 
-	int Hessenberg_Form_Orthogonal(matrix<T>& U)
-	{
-		int i, k, col;
-
-		double *p_row, *psubdiag;
-		double *pA, *pU;
-		double sss;                             // signed sqrt of sum of squares
-		T scale;
-		T innerproduct;
-
-		T sum_squared = 0;
-		int n = this->NumColumns();
-		// n x n matrices for which n <= 2 are already in Hessenberg form
-		U.Identity();
-
-		//Identity_Matrix(U, n);
-
-		if (n <= 2) return 0;
-
-		// Reserve auxillary storage, if unavailable, return an error
-		matrix<T> u(n, 1);
-
-
-		// For each column use a Householder transformation 
-		//   to zero all entries below the subdiagonal.
-
-
-		for (col = 0; col < (n - 2); col++) {
-
-			// Calculate the signed square root of the sum of squares of the
-			// elements below the diagonal.
-
-			int sub_diag_row = col + 1;
-
-
-			sum_squared = 0.0;
-			for (int r = col + 1; r < n; r++)
-			{
-				sum_squared = sum_squared + get(r, col)*get(r, col);
-			}
-
-			if (sum_squared == 0.0) continue;
-			sum_squared = sqrt(sum_squared);
-
-			if (get(sub_diag_row, col) >= 0.0)
-				sum_squared = -sum_squared;
-
-
-
-			// Calculate the Householder transformation Q = I - 2uu'/u'u.
-
-			u(col + 1, 0) = get(sub_diag_row, col) - sum_squared;
-
-			get(sub_diag_row, col) = sum_squared;
-
-
-			for (int j = sub_diag_row + 1, i = col + 2; i < n, j < n; j++, i++) {
-				u(i, 0) = get(i, col);
-				get(i, col) = 0.0;
-
-			}
-
-			// Premultiply A by Q
-
-			scale = -1.0 / (sum_squared * u(col + 1, 0));
-
-			for (int row = sub_diag_row - col, i = col + 1; i < n; i++)
-			{
-				int rA = col + 1;
-
-				innerproduct = 0.0;
-				for (k = col + 1; k < n; k++, rA++)
-				{
-					innerproduct += u(k, 0) * get(rA, i);
-				}
-
-				innerproduct *= scale;
-
-				for (rA = row, k = col + 1; k < n; rA++, k++)
-				{
-					get(rA, i) = get(rA, i) - u(k, 0) * innerproduct;
-				}
-			}
-
-
-			// Postmultiply QA by Q
-
-			for (int row = 0, i = 0; i < n; row++, i++)
-			{
-				innerproduct = 0.0;
-				for (k = col + 1; k < n; k++)
-				{
-					innerproduct += u(k, 0) * get(row, k);
-				}
-				innerproduct *= scale;
-				for (k = col + 1; k < n; k++)
-				{
-					get(row, k) = get(row, k) - u(k, 0) * innerproduct;
-				}
-			}
-
-
-
-			// Postmultiply U by (I - 2uu')
-
-
-			for (int rU = 0, i = 0; i < n; rU++, i++)
-			{
-				innerproduct = 0.0;
-				for (k = col + 1; k < n; k++)
-				{
-					innerproduct += u(k, 0) * U(i, k);
-				}
-				innerproduct *= scale;
-				for (k = col + 1; k < n; k++)
-				{
-					U(i, k) = U(i, k) - u(k, 0)*innerproduct;
-				}
-			}
-
-
-			//u.ToZero();
-		}
-
-
-
-		return 0;
-	}
-
-	///// ==============EXPERIEMENTAL
 
 	matrix<T>(T p[6][6])
 	{
@@ -1923,6 +1775,9 @@ public:
 		}
 	}
 
+//	virtual void Set_Zero_Epsilon() = 0;
+
+	T precision = FLT_EPSILON; // defaults to float eps
 
 private:
 
@@ -1940,8 +1795,12 @@ private:
 
 public:
 
-	typedef matrix<float> matrixf;
-	typedef matrix<double> matrixd;
+	typedef matrix < float >  matrixf;
+	typedef  matrix < double > matrixd;
+
+
+
+
 
 };
 
