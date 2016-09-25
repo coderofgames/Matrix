@@ -19,6 +19,9 @@ inline void SWAP(T &a, T &b)
 	b = temp;
 }
 
+
+
+
 inline float RandomFloat(float min, float max)
 {
 	float r = (float)rand() / (float)RAND_MAX;
@@ -153,6 +156,11 @@ public:
 		}
 	}
 
+	inline bool NotEqual(T test_value, T compare)
+	{
+		return ((test_value > compare + this->precision) || (test_value < compare - this->precision));
+	}
+
 	void operator=(matrix *b)
 	{
 		this->destroy();
@@ -178,7 +186,7 @@ public:
 		{
 			for (int j = 0; j < NumColumns(); j++)
 			{
-				if (get(i, j) != b(i, j))
+				if ( NotEqual(get(i, j) , b(i, j)) )
 					return false;
 			}
 		}
@@ -464,6 +472,27 @@ public:
 		return true;
 	}
 
+	bool IsSkewSymmetric()
+	{
+		if (!this->IsSquare())
+		{
+			cout << "Error (IsSymmetric): matrix must be square " << endl;
+			return false;
+		}
+
+		for (int i = 0; i < this->NumRows(); i++)
+		{
+			for (int j = 0; j <= i; j++)
+			{
+				if (i != j)
+					if (get(i, j) != -get(j, i))
+						return false;
+			}
+		}
+
+		return true;
+	}
+
 	bool IsPositiveDefinite()
 	{
 		if (!this->IsSquare())
@@ -639,8 +668,8 @@ public:
 			cout << "Error (DiagonalEntryProduct): error matrix should be square" << endl;
 			return 0.0;
 		}
-		T prod = 0.0;
-		for (int r = 0; r < this->NumRows(); r++)
+		T prod = get(0,0);
+		for (int r = 1; r < this->NumRows(); r++)
 			prod *= get(r, r);
 
 		return prod;
@@ -653,7 +682,7 @@ public:
 	{
 		T sign = 1;
 		if (this->ReduceToUpperTriangularForm(sign))
-			return sign * this->DiagonalEntryProduct();
+			return this->DiagonalEntryProduct();
 		
 		return 0;
 	}
@@ -1232,7 +1261,7 @@ public:
 			for (int j = 0; j < n; j++)
 			{
 				float magnitude = abs((*out)(j, 0) - x0(j, 0));
-				if (magnitude > max_magnitude) max_magnitude = magnitude;
+				if ( magnitude > max_magnitude ) max_magnitude = magnitude;
 
 				x0(j, 0) = (*out)(j, 0);
 			}
@@ -1349,6 +1378,7 @@ public:
 	}
 
 
+
 	// note : this needs to be rewritten. 
 	// this should be rewritten for complex types too.
 	// also a tolerance should be built in to all tests for equality.
@@ -1364,14 +1394,21 @@ public:
 		AT.transpose();
 
 		matrix<T> I = AT * (*this);
-		for (int i = 0; i < this->NumRows(); i++)
-			for (int j = 0; j < this->NumRows(); j++)
-				if ((i == j && I(i, j) != 1.0) || (i != j && I(i, j) != 0.0)) return false;
 
-		matrix<T> I2 = (*this) * I2;
 		for (int i = 0; i < this->NumRows(); i++)
 			for (int j = 0; j < this->NumRows(); j++)
-				if ((i == j && I2(i, j) != 1.0) || (i != j && I2(i, j) != 0.0)) return false;
+				if ((i == j && NotEqual( I(i, j), 1.0 )) ||
+					(i != j && NotEqual( I(i, j), 0.0)))
+					return false;
+
+		/*matrix<T> I2 = (*this) * AT;
+
+		for (int i = 0; i < this->NumRows(); i++)
+			for (int j = 0; j < this->NumRows(); j++)
+				if ((i == j && NotEqual( I2(i, j), 1.0)) ||
+					(i != j && NotEqual( I2(i, j), 0.0)))
+					return false;
+					*/
 
 		return true;
 
@@ -1446,12 +1483,13 @@ public:
 			cout << "Error (EigenValues3x3): Matrix must be symmetric" << endl;
 			return;
 		}
+
 #define A (*this)
+
 		T p1 = A(0, 1) *A(0, 1) + A(0, 2) *A(0, 2) + A(1, 2) *A(1, 2);
 
 		if (p1 == 0)
 		{
-			
 			L1 = A(0, 0);
 			L2 = A(1, 1);
 			L3 = A(2, 2);
@@ -1459,13 +1497,16 @@ public:
 		else
 		{
 			T q = trace() / 3.0;
+			
 			T p2 = (A(0, 0) - q) *(A(0, 0) - q) + (A(1, 1) - q)*(A(1, 1) - q) + (A(2, 2) - q)*(A(2, 2) - q) + 2 * p1;
+			
 			T p = std::sqrt(p2 / 6.0);
 
 			matrix<T> I_3(3, 3);
 			I_3.Identity();
 
 			matrix<T> B = (A - I_3*q)*(1 / p); 
+
 			T r = B.Det3x3(0, 0) /2.0;
 			
 			T phi;
