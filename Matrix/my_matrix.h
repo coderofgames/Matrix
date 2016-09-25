@@ -653,7 +653,7 @@ public:
 	{
 		T sign = 1;
 		if (this->ReduceToUpperTriangularForm(sign))
-			return this->DiagonalEntryProduct();
+			return sign * this->DiagonalEntryProduct();
 		
 		return 0;
 	}
