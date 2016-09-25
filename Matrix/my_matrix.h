@@ -1389,7 +1389,7 @@ public:
 
 	void Eigenvalues_2x2( int r, int c, complex<T> &L1, complex<T> &L2)
 	{
-		if (r + 1 > this->NumRows() || c + 1 > this->NumColumns())
+		if (r + 1 >= this->NumRows() || c + 1 >= this->NumColumns())
 		{
 			cout << "Error (Eigenvalues_2x2): index out of bounds" << endl;
 			return;// false;
