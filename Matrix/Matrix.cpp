@@ -12,93 +12,7 @@ typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
 
 
-class _A
-{
-public:
-	_A()
-	{
 
-		dat = 0;
-	}
-
-	_A( double *p)
-	{
-
-		dat = 0;
-		sx = sizeof(p);
-		sy = sizeof(p[0]);
-		this->create();
-	}
-
-
-	_A( double p[5][5])
-	{
-
-		dat = 0;
-		sx = 5 ;
-		sy = 5 ;
-
-		this->create();
-		for (int i = 0; i < 5; i++)
-		{
-			for (int j = 0; j < 5; j++)
-			{
-				dat[i][j] = p[i][j];
-			}
-		}
-	}
-
-	void print()
-	{
-		for (int i = 0; i < 5; i++)
-		{
-			for (int j = 0; j < 5; j++)
-			{
-				cout<< dat[i][j] << "    ";
-			}
-			cout << endl;
-		}
-	}
-
-	void operator=(const double *p[])
-	{
-		sx = sizeof(p);
-		sy = sizeof(p[0]);
-		this->create();
-
-	}
-	void destroy()
-	{
-		if (dat != 0)
-		{
-			for (int i = 0; i < sx; i++)
-			{
-				delete[] dat[i];
-			}
-			delete[] dat;
-		}
-		dat = 0;
-		
-	}
-	void create()
-	{
-		if (sy > 0 && sx> 0)
-		{
-			dat = new double*[sx];
-			for (int i = 0; i < sx; i++)
-			{
-				dat[i] = new double[sy];
-				for (int j = 0; j < sy; j++)
-					dat[i][j] = 0.0f;
-			}
-		}
-		
-	}
-
-	int sx = 4;
-	int sy = 4;
-	double **dat;
-};
 
 void TestQR_Method_1()
 {
@@ -157,33 +71,14 @@ void TestQR_Method_2()
 }
 void TestHessenburg_0()
 {
+	float dat[4][4] = {
+		{ 4.0, 1.0, -1.0, 2.0 },
+		{ 1.0, 4.0, 1.0, -1.0 },
+		{ -1.0, 1.0, 4.0f, 1.0f },
+		{ 2.0f, -1.0, 1.0f, 4.0f }
+	};
+	matrixf H_ = dat;
 
-	matrixf H_(4,4);
-
-	// using the wisdom from
-	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
-	// I have decided to only use Housedholder methods
-	// this matrix shows the evidence of the stability issue ...
-
-	H_(0, 0) = 4.0;
-	H_(0, 1) = 1.0;
-	H_(0, 2) = -1.0;
-	H_(0, 3) = 2.0;
-
-	H_(1, 0) = 1.0;
-	H_(1, 1) = 4.0;
-	H_(1, 2) = 1.0;
-	H_(1, 3) = -1.0;
-
-	H_(2, 0) = -1.0;
-	H_(2, 1) = 1.0;
-	H_(2, 2) = 4.0;
-	H_(2, 3) = 1.0;
-
-	H_(3, 0) = 2.0;
-	H_(3, 1) = -1.0;
-	H_(3, 2) = 1.0;
-	H_(3, 3) = 4.0;
 	matrixf H__3 = H_;
 	H__3.print(2);
 	 H__3.Householder_Tridiagonalize();
@@ -199,46 +94,15 @@ void TestHessenburg_0()
 void TestHessenburg_2()
 {
 
-	matrixf H_(5,5);
+	float dat[5][5] = {
+		{ 6.0, 1.0, -2.0, 19.0, 4.0 },
+		{ 1.0, 4.0, 2.0, 1.0, 3.0 },
+		{ 7.0, 12.0, 5.0, 11.0, -1.0 },
+		{ -3.0, 21.0, 4.0, 1.0, 3.0 },
+		{ 4.0, 6.0, -1.0, 3.0, 7.0 }
+	};
 
-	// using the wisdom from
-	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
-	// I have decided to only use Housedholder methods
-	// this matrix shows the evidence of the stability issue ...
-
-	H_(0, 0) = 6.0;
-	H_(0, 1) = 1.0;
-	H_(0, 2) = -2.0;
-	H_(0, 3) = 19.0;
-	H_(0, 4) = 4.0;
-
-
-	H_(1, 0) = 1.0;
-	H_(1, 1) = 4.0;
-	H_(1, 2) = 2.0;
-	H_(1, 3) = 1.0;
-	H_(1, 4) = 3.0;
-
-
-	H_(2, 0) = 7.0;
-	H_(2, 1) = 12.0;
-	H_(2, 2) = 5.0;
-	H_(2, 3) = 11.0;
-	H_(2, 4) = -1.0;
-
-
-	H_(3, 0) = -3.0;
-	H_(3, 1) = 21.0;
-	H_(3, 2) = 4.0;
-	H_(3, 3) = 1.0;
-	H_(3, 4) = 3.0;
-
-
-	H_(4, 0) = 4.0;
-	H_(4, 1) = 6.0;
-	H_(4, 2) = -1.0;
-	H_(4, 3) = 3.0;
-	H_(4, 4) = 7.0;
+	matrixf H_ = dat;
 
 
 	matrixf H__3 = H_;
@@ -254,48 +118,19 @@ void TestHessenburg_2()
 }
 void TestHessenburg_3()
 {
-
-	matrixf H_(5, 5);
-
 	// using the wisdom from
 	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
 	// I have decided to only use Housedholder methods
 	// this matrix shows the evidence of the stability issue ...
+	float dat[5][5]= {
+		{ 5.0, 4.0, 3.0, 2.0, 1.0},
+		{ 1.0, 4.0, 0.0, 3.0, 3.0 },
+		{ 2.0, 0.0, 3.0, 0.0, 0.0},
+		{ 3.0, 2.0, 1.0, 2.0, 5.0 },
+		{ 4.0, 2.0, 1.0, 2.0, 1.0 }
+	};
 
-	H_(0, 0) = 5.0;
-	H_(0, 1) = 4.0;
-	H_(0, 2) = 3.0;
-	H_(0, 3) = 2.0;
-	H_(0, 4) = 1.0;
-
-
-	H_(1, 0) = 1.0;
-	H_(1, 1) = 4.0;
-	H_(1, 2) = 0.0;
-	H_(1, 3) = 3.0;
-	H_(1, 4) = 3.0;
-
-
-	H_(2, 0) = 2.0;
-	H_(2, 1) = 0.0;
-	H_(2, 2) = 3.0;
-	H_(2, 3) = 0.0;
-	H_(2, 4) = 0.0;
-
-
-	H_(3, 0) = 3.0;
-	H_(3, 1) = 2.0;
-	H_(3, 2) = 1.0;
-	H_(3, 3) = 2.0;
-	H_(3, 4) = 5.0;
-
-
-	H_(4, 0) = 4.0;
-	H_(4, 1) = 2.0;
-	H_(4, 2) = 1.0;
-	H_(4, 3) = 2.0;
-	H_(4, 4) = 1.0;
-
+	matrixf H_ = dat;
 
 	matrixf H__3 = H_;
 
@@ -313,44 +148,16 @@ void TestHessenburg_3()
 void TestHessenburg_QR_real()
 {
 
-	matrixf H_(4,4);
 
-	// using the wisdom from
-	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
-	// I have decided to only use Housedholder methods
-	// this matrix shows the evidence of the stability issue ...
+	float dat[4][4] = {
+		{ 6.0f,      -sqrt(18.0), 0.0f,       0.0f },
+		{ -sqrt(18), 7.0,         sqrt(2.0),  0.0f },
+		{ 0.0f,      sqrt(2.0),   6.0f,       0.0f },
+		{ 0.0f,      0.0,         0.0f,       3.0f } 
+	};
 
-	H_(0, 0) = 6.0;
-	H_(0, 1) = -sqrt(18.0);
-	H_(0, 2) = 0.0;
-	H_(0, 3) = 0.0;
-
-
-
-	H_(1, 0) = -sqrt(18.0);
-	H_(1, 1) = 7.0;
-	H_(1, 2) = sqrt(2.0);
-	H_(1, 3) = 0.0;
-
-
-
-	H_(2, 0) = 0.0;
-	H_(2, 1) = sqrt(2.0);
-	H_(2, 2) = 6.0;
-	H_(2, 3) = 0.0;
-
-
-
-	H_(3, 0) = 0.0;
-	H_(3, 1) = 0.0;
-	H_(3, 2) = 0.0;
-	H_(3, 3) = 3.0;
-
-
-
-
-
-
+	matrixf H_ = dat;
+		
 	matrixf H__3 = H_;
 
 //	H__3.Householder_Tridiagonalize();
@@ -366,62 +173,39 @@ void TestHessenburg_QR_real()
 
 void TestHessenburg_QR_real_2()
 {
-
-	matrixf H_(5,5);
-
 	// using the wisdom from
 	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
 	// I have decided to only use Housedholder methods
 	// this matrix shows the evidence of the stability issue ...
 
-	H_(0, 0) = 5.0;
-	H_(0, 1) = 1.0;
-	H_(0, 2) = 0.0;
-	H_(0, 3) = 4.0;
-	H_(0, 4) = 0.0;
+	float dat[5][5] = {
+		{ 5.0f ,1.0f, 0.0f, 4.0f, 0.0f}, 
+		{ 1.0f, 4.0f, 2.0f, 1.0f, 3.0f },
+		{ 2.0f, 2.0f, 5.0f, 4.0f, 0.0f }, 
+		{ 0.0, 1.0, 4.0 ,1.0,3.0 }, 
+		{ 4.0 ,3.0, 0.0, 3.0, 4.0}
+	};
 
 
-	H_(1, 0) = 1.0;
-	H_(1, 1) = 4.0;
-	H_(1, 2) = 2;
-	H_(1, 3) = 1.0;
-	H_(1, 4) = 3.0;
-
-
-	H_(2, 0) = 2.0;
-	H_(2, 1) = (2.0);
-	H_(2, 2) = 5.0;
-	H_(2, 3) = 4.0;
-	H_(2, 4) = 0.0;
-
-
-	H_(3, 0) = 0.0;
-	H_(3, 1) = 1.0;
-	H_(3, 2) = 4.0;
-	H_(3, 3) = 1.0;
-	H_(3, 4) = 3.0;
-
-	H_(4, 0) = 4.0;
-	H_(4, 1) = 3.0;
-	H_(4, 2) = 0.0;
-	H_(4, 3) = 3.0;
-	H_(4, 4) = 4.0;
-
-
+	matrixf H_ = dat;
 
 	matrixf H__3 = H_;
 
-		H__3.Householder_Tridiagonalize();
-		H__3.print(2);
+	H__3.Householder_Tridiagonalize();
+	H__3.print(2);
 	cout << endl;
 	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
 	matrixf eigen_values(H__3.NumColumns(), 2);
+	
 	H__3.QR_algorithm(eigen_values);
 	H__3.print(2);
+	
 	eigen_values.print(3);
-
 }
-int main(int argc, char* argv[])
+
+
+
+void TestGaussElimination_1()
 {
 	cout << "=================================================" << endl;
 	cout << "Testing Gauss Elimination" << endl;
@@ -429,7 +213,7 @@ int main(int argc, char* argv[])
 	m(0, 0) = 0;
 	m(0, 1) = 8;
 	m(0, 2) = 2;
-	
+
 	m(1, 0) = 3;
 	m(1, 1) = 5;
 	m(1, 2) = 2;
@@ -441,7 +225,7 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "Printing A" << endl;
 	m.print(4);
-	
+
 	matrixf b(3, 1);
 	b(0, 0) = -7;
 	b(1, 0) = 8;
@@ -450,20 +234,21 @@ int main(int argc, char* argv[])
 	cout << endl;
 	cout << "Printing b" << endl;
 	m.print(4);
-	
+
 	cout << endl;
-	cout << "Solvng the system A x = b for x" <<endl;
+	cout << "Solvng the system A x = b for x" << endl;
 	cout << endl;
 
 	matrixf sol = m.Gauss_Elimination(b);
-	
+
 	cout << "printing solution" << endl;
-	
+
 	sol.print(4);
-	
+
 	cout << endl;
-
-
+}
+void TestGaussElimination_2()
+{
 	cout << "=================================================" << endl;
 	cout << "Testing Gauss Elimination 2" << endl;
 
@@ -498,20 +283,16 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 	cout << "Solvng the system A x = b" << endl;
-	
+
 	matrixf sol2 = m2.Gauss_Elimination(b2);
-	
+
 	cout << endl;
 	cout << "printing solution (x) " << endl;
 	sol2.print(4);
+}
 
-
-	cout << endl;
-	cout << "=================================================" << endl;
-	cout << "matrixf Multiplication A * A2" << endl;
-	matrixf D = m * m2;
-	D.print(4);
-
+void TestGaussSeidel()
+{
 	cout << endl;
 	cout << "=================================================" << endl;
 	cout << endl;
@@ -567,21 +348,22 @@ int main(int argc, char* argv[])
 	initial_approx(1, 0) = 100;
 	initial_approx(2, 0) = 100;
 	initial_approx(3, 0) = 100;
-	
+
 	cout << endl;
 	initial_approx.print(4);
 	cout << endl;
-	
-	cout << "Solvng the system A x = b with A = M, b = B"<<endl<<" tolerance = 0.1, MAX_ITERATIONS = 200" << endl;
+
+	cout << "Solvng the system A x = b with A = M, b = B" << endl << " tolerance = 0.1, MAX_ITERATIONS = 200" << endl;
 	M.transpose();
 
-	matrixf SOL = M.Gauss_Seidel(B, initial_approx,  0.1, 200);
+	matrixf SOL = M.Gauss_Seidel(B, initial_approx, 0.1, 200);
 
 	cout << endl;
 	cout << "solution" << endl;
 	SOL.print(4);
-
-
+}
+int main(int argc, char* argv[])
+{
 	cout << endl;
 	cout << "=================================================" << endl;
 	cout << "Lower triangular system test." << endl;
@@ -620,7 +402,26 @@ int main(int argc, char* argv[])
 
 	cout << endl;
 
+	matrixf M(4, 4);
+	M(0, 0) = 1;
+	M(0, 1) = -0.25;
+	M(0, 2) = -0.25;
+	M(0, 3) = 0;
 
+	M(1, 0) = -0.25;
+	M(1, 1) = 1;
+	M(1, 2) = 0;
+	M(1, 3) = -0.25;
+
+	M(2, 0) = -0.25;
+	M(2, 1) = 0;
+	M(2, 2) = 1;
+	M(2, 3) = -0.25;
+
+	M(3, 0) = 0;
+	M(3, 1) = -0.25;
+	M(3, 2) = -0.25;
+	M(3, 3) = 1;
 	M.Solve_Lower_TriangularSystem(L, y, b3);
 	cout << "printing solution" << endl;
 	y.print(4);
@@ -882,30 +683,18 @@ int main(int argc, char* argv[])
 	TestHessenburg_0();
 
 
-	 double test_init[5][5] = { 
-	{ 1.0, 1.0, -1.0, 0.0, 4.0 },
-	{ 1.0, 2.0, -1.0, 1.0, 3.0 },
-	{ -1.0, 9.0, 1.0, 0.0, 5.0 },
-	{ 3.0, 2.0, -1.0, 4.0, 3.0 },
-	{ 7.0, 5.0, 1.0, 0.0, 6.0 }};
 
-	_A the_A = test_init;
-	cout << endl;
-	cout << the_A.sx << "   " << the_A.sy << endl;
-	cout << the_A.dat[2][2] << endl;
+
 
 	TestQR_Method_1();
 
 	TestQR_Method_2();
 
 
-	float test_det[3][3] = { 
-		{ 2, 1, 0 }, 
-		{}, 
-		{ 1, 3 } };
-	matrixf B6 = test_det;
 
-	cout << endl << "Determinant Test:  " << B6.Determinant() << endl;
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "matrixf Multiplication A * A2" << endl;
 
 
 

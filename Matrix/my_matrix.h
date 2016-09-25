@@ -63,10 +63,9 @@ class LINALG
 {
 
 private:
-//	template < class T > class matrix ;
+	template < class T > class matrix ;
 
-
-
+	
 
 template<class T>
 class matrix
@@ -159,6 +158,7 @@ public:
 		this->m_sizeX = b->NumRows();
 		this->m_sizeY = b->NumColumns();
 		this->create();
+		
 		for (int i = 0; i < this->NumRows(); i++)
 		{
 			for (int j = 0; j < this->NumColumns(); j++)
@@ -184,19 +184,28 @@ public:
 		return true;
 	}
 
+	inline bool operator!=(matrix& b)
+	{
+		return !((*this) == b);
+	}
 
-	T& operator()(unsigned int i, unsigned int j)
+
+	inline T& operator()(unsigned int i, unsigned int j)
 	{
 		return get(i, j);
 	}
 
+	// access without bounds ... checking ...
+	
+
 	T& get(unsigned int i, unsigned int j)
 	{
-		T null_return = 0.0f;
+		T null_return = 0.0;
 		if (i < NumRows() && j < NumColumns())
 			return is_transposed ? data[j*NumColumns() + i] : data[i * NumColumns() + j];
 		else return null_return;
 	}
+
 	// Hadamard element wise product
 	matrix& operator | (matrix &b)
 	{
@@ -225,10 +234,11 @@ public:
 
 	matrix& operator*(matrix &b)
 	{
-		if (b.NumColumns() == 1 && b.NumRows() == 1)
+		/*if (b.NumColumns() == 1 && b.NumRows() == 1)
 		{
+		//is a 1x1 matrix treated like a scalar?
 			return (*this) * b(0, 0);
-		}
+		}*/
 		if (this->NumColumns() == b.NumRows())
 		{
 			if (out) delete out;
@@ -253,6 +263,13 @@ public:
 
 	matrix& operator*(T s)
 	{
+		// prevent infinity, negative infinity, complex infinity or other NAN's from anihilating our matrix
+		/*if (s != s)
+		{
+			cout << "Error (operator * scalar): attempt to multiply by a NAN" << endl;
+			return (*this);
+		}*/
+
 		if (out) delete out;
 		out = new matrix(this->NumRows(), this->NumColumns());
 
@@ -280,6 +297,7 @@ public:
 		}
 		return *out;
 	}
+
 	matrix& operator+(T s)
 	{
 		if (out) delete out;
@@ -294,10 +312,13 @@ public:
 		}
 		return *out;
 	}
+
 	matrix& operator+(matrix &b)
 	{
 		if (this->NumColumns() != b.NumColumns() || this->NumRows() != b.NumRows())
+		{
 			return matrix(0, 0);
+		}
 		else
 		{
 			if (out) delete out;
@@ -377,11 +398,7 @@ public:
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
-			for (int j = 0; j < this->NumColumns(); j++)
-			{
-				if (i == j) sum += get(i, j);
-			}
-
+			sum += get(i, i);
 		}
 		return sum;
 	}
@@ -394,7 +411,7 @@ public:
 		{
 			for (int j = 0; j < m_sizeY; j++)
 			{
-				if (data[i][j] != data[i][j])
+				if (get(i, j) != get(i, j))
 					return true;
 			}
 		}
@@ -437,7 +454,9 @@ public:
 		{
 			for (int j = 0; j <= i; j++)
 			{
-				if (get(i, j) != get(j, i)) return false;
+				if ( i != j )
+					if (get(i, j) != get(j, i)) 
+						return false;
 			}
 		}
 
@@ -1177,8 +1196,6 @@ public:
 		if (out) delete out;
 		out = new matrix(n, 1);
 
-		//for (int i = 0; i < n; i++) (*out)(i, 0) = x0(i, 0);
-		
 		for ( int m = 0; m < MAX_ITERATIONS; m++)
 		{
 			for ( int j = 0; j < n; j++)
@@ -1206,7 +1223,6 @@ public:
 			}
 			if (max_magnitude < tolerance) return *out;
 
-		//	for (int j = 0; j < n; j++) 
 		}
 		cout << "No output satisfying the tolerance condition obtained after N iteration steps." << endl;
 		return x0;
@@ -1246,20 +1262,15 @@ public:
 				}
 				else if ( r > c+1)
 				{
-					V(r, 0) = get(r, c) * sgn(get(c + 1, c)) / (2.0 * V(c + 1, 0)*S );
-					
+					V(r, 0) = get(r, c) * sgn(get(c + 1, c)) / (2.0 * V(c + 1, 0)*S );	
 				}
-
 
 				VT(0, r) = V(r, 0);
 			}
 
-	
 			// another copy 
 			matrix<T> P = Inn -  V * VT * 2;
-	
-			
-			// 
+
 			(*this) = P * (*this) * P;
 
 			// zero the vectors again
@@ -1376,6 +1387,22 @@ public:
 	}
 
 
+	void Eigenvalues_2x2( int r, int c, complex<T> &L1, complex<T> &L2)
+	{
+		if (r + 1 > this->NumRows() || c + 1 > this->NumColumns())
+		{
+			cout << "Error (Eigenvalues_2x2): index out of bounds" << endl;
+			return;// false;
+		}
+
+		T trace = get(r, c) + get(r + 1, c + 1);
+		T det = get(r, c)*get(r + 1, c + 1) - get(r + 1, c)*get(r, c + 1);
+
+		L1 = complex<T>(trace * 0.5, 0) + std::sqrt(complex<T>(trace*trace / 4.0 - det));
+		L2 = complex<T>(trace * 0.5, 0) - std::sqrt(complex<T>(trace*trace / 4.0 - det));
+	}
+
+
 	void QR_algorithm(matrix<T>& eigen_values)
 	{
 		if (!this->IsSquare())
@@ -1440,79 +1467,43 @@ public:
 				C_n.transpose();
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
 			}
-
-
-
-				
-			
-
-
-			
+	
 		}
 	
-	// set the eigen values and continue
-	bool flag_last = false;
-	for (int j = 0; j < n - 1; j++)
-	{
-		T sub_diag2 = get(j + 1, j);
-		T precision = FLT_EPSILON;
-		if (sub_diag2 > precision || sub_diag2 < -precision /*FLT_EPSILON*/)
+		// set the eigen values and exit
+		bool flag_last = false;
+		for (int j = 0; j < n - 1; j++)
 		{
-
-			T trace = get(j, j) + get(j + 1, j + 1);
-			T det = this->Det_2x2(j, j);// get(j, j)*get(j + 1, j + 1) - get(j + 1, j)*get(j, j + 1);
-
-			if (trace*trace / 4.0 - det < 0.0)
+			T sub_diag2 = get(j + 1, j);
+			T precision = FLT_EPSILON;
+			if (sub_diag2 > precision || sub_diag2 < -precision /*FLT_EPSILON*/)
 			{
-				//complex<T> L1;// = trace * 0.5 + sqrt();
-				T real_L1 = trace / 2.0;
-				T imag_L1 = sqrt(fabs(trace*trace / 4.0 - det));
+				complex<T> L1, L2;
+				Eigenvalues_2x2(j, j, L1, L2);
 
-				T real_L2 = trace / 2.0;
-				T imag_L2 = -sqrt(fabs(trace*trace / 4.0 - det));
+				eigen_values(j, 0) = L1.real();
+				eigen_values(j, 1) = L1.imag();
 
-				eigen_values(j, 0) = real_L1;// -(x1 + x2);
-				eigen_values(j, 1) = imag_L1;
-				eigen_values(j + 1, 0) = real_L2;
-				eigen_values(j + 1, 1) = imag_L2;
+				eigen_values(j + 1, 0) = L2.real();
+				eigen_values(j + 1, 1) = L2.imag();
+
+				flag_last = true;
 			}
-			else
+			else 
 			{
-				//complex<T> L1;// = trace * 0.5 + sqrt();
-				T real_L1 = trace / 2.0 + sqrt(fabs(trace*trace / 4.0 - det));
+				if (!flag_last)
+					eigen_values(j, 0) = get(j, j);
 
-				T real_L2 = trace / 2.0 - sqrt(fabs(trace*trace / 4.0 - det));
-
-				eigen_values(j, 0) = real_L1;// -(x1 + x2);
-				eigen_values(j, 1) = 0.0;
-				eigen_values(j + 1, 0) = real_L2;
-				eigen_values(j + 1, 1) = 0.0;
+				flag_last = false;
 			}
-			
-
-			flag_last = true;
-			
-
 		}
-		else 
+
+		if (flag_last == false)
 		{
-			if (!flag_last)
-				eigen_values(j, 0) = get(j, j);
-			//if (j > 0 && (get(j, j - 1) < 0.1) || (get(j, j - 1) > -0.1))
-			//	eigen_values(j + 1, 0) = get(j + 1, j + 1);
-
-			flag_last = false;
+			eigen_values(n - 1, 0) = get(n - 1, n - 1);
 		}
-	}
-	if (flag_last == false)
-	{
-		eigen_values(n - 1, 0) = get(n - 1, n - 1);
-	}
 
-		delete[]C;
-
-		//this->Overwrite_Submatrix(I_b, 0,2);
-
+		delete [] C;
 
 	}
 
