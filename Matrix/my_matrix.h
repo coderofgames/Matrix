@@ -201,19 +201,23 @@ public:
 
 	inline T& operator()(unsigned int i, unsigned int j)
 	{
-		return get(i, j);
+		if (i < NumRows() && j < NumColumns())
+			return get(i, j);
 	}
 
 	// access without bounds ... checking ...
 	
-
-	T& get(unsigned int i, unsigned int j)
+private:
+	inline T& get(unsigned int i, unsigned int j)
 	{
-		T null_return = 0.0;
+		return data[i * NumColumns() + j];
+		/*T null_return = 0.0;
 		if (i < NumRows() && j < NumColumns())
 			return is_transposed ? data[j*NumColumns() + i] : data[i * NumColumns() + j];
-		else return null_return;
+		else return null_return;*/
 	}
+
+public:
 
 	// Hadamard element wise product
 	matrix& operator | (matrix &b)
@@ -429,21 +433,58 @@ public:
 
 	void transpose()
 	{
-		is_transposed = !is_transposed;
+		if ( this->IsSquare() )
+		{ 
+			for (int i = 0; i < m_sizeX; i++)
+			{
+				for (int j = i; j < m_sizeY; j++)
+				{
+					SWAP<T>(get(i, j), get(j, i));
+					//if (get(i, j) != get(i, j))
+					//	return true;
+				}
+			}
+		}
+		else
+		{
+			if (out) delete out;
+			out = new matrix<T>(this->NumColumns(), this->NumRows());
+
+			for (int i = 0; i < m_sizeX; i++)
+			{
+				for (int j = 0; j < m_sizeY; j++)
+				{
+					(*out)(j,i) = get(i, j);
+				}
+			}
+			this->destroy();
+			this->m_sizeX = out->m_sizeX;
+			this->m_sizeY = out->m_sizeY;
+			this->create();
+
+			for (int i = 0; i < m_sizeX; i++)
+			{
+				for (int j = 0; j < m_sizeY; j++)
+				{
+					get(i, j) = (*out)(i, j);
+				}
+			}
+
+			is_transposed = !is_transposed;
+		}
 	}
-	//void T()
-	//{
-	//	is_transposed = !is_transposed;
-	//}
+
 
 
 	inline unsigned int NumRows()
 	{
-		return  (is_transposed ? m_sizeY : m_sizeX);
+		return m_sizeX;
+		//return  (is_transposed ? m_sizeY : m_sizeX);
 	}
 	inline unsigned int NumColumns()
 	{
-		return (is_transposed ? m_sizeX : m_sizeY);
+		return m_sizeY;
+		//return (is_transposed ? m_sizeX : m_sizeY);
 	}
 
 	inline bool IsSquare()
@@ -1799,6 +1840,8 @@ public:
 			}
 		}
 	}
+
+
 
 	matrix<T>(T p[2][2])
 	{

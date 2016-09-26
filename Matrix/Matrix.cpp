@@ -826,9 +826,13 @@ int main(int argc, char* argv[])
 
 
 
-	
+	TestGaussElimination_1();
+	//TestGaussElimination_2();
 
+	TestCholesky();
+//	TestCrout_LU_Method();
 
+	TestGaussSeidel();
 
 
 
@@ -870,7 +874,46 @@ int main(int argc, char* argv[])
 
 //	Test_LU_System();
 
-	//Test_TriangularSystemSolvers();
-	return 0;
+	Test_TriangularSystemSolvers();
+
+	matrixf m = dat_M_tri;
+	m.print(2);
+	m.transpose();
+	cout << endl << endl;
+	m.print(2);
+	cout << endl << endl;
+
+	float dat__[4][3] = {
+		{2,1,3}, 
+		{4,5,6}, 
+		{6,5,4},
+		{3,2,1}
+	};
+
+	matrixf b(4, 3);// = dat__;
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 3; j++)
+			b(i, j) = dat__[i][j];
+
+	b.print(2);
+	//b.transpose();
+	cout << endl << endl;
+	
+
+//	matrixf c = m * b;
+
+//	c.print(2);
+
+	cout << endl << endl;
+	b.transpose();
+	b.print(2);
+	cout << endl << endl;
+
+	matrixf d = b * m;
+
+	d.print(2);
+	cout << endl << endl;
+	
+		return 0;
 }
 
