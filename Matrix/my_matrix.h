@@ -271,7 +271,7 @@ public:
 
 			return *out;
 		}
-		return matrix(0, 0);
+		return matrix<T>(0, 0);
 	}
 
 	matrix& operator*(T s)
@@ -330,7 +330,7 @@ public:
 	{
 		if (this->NumColumns() != b.NumColumns() || this->NumRows() != b.NumRows())
 		{
-			return matrix(0, 0);
+			return matrix<T>(0, 0);
 		}
 		else
 		{
@@ -504,7 +504,8 @@ public:
 		{
 			for (int j = 0; j <= i; j++)
 			{
-				if ( i != j )
+				// if get(i,j) is a NAN then this will accidently return false
+				if ( i != j ) 
 					if (get(i, j) != get(j, i)) 
 						return false;
 			}
@@ -1872,7 +1873,7 @@ private:
 
 	matrix *out = 0;
 
-	T* data;
+	T* data = 0;
 
 };
 

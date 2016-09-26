@@ -909,7 +909,7 @@ int main(int argc, char* argv[])
 	b.print(2);
 	cout << endl << endl;
 
-	matrixf d = b * m;
+	matrixf d = m*b;
 
 	d.print(2);
 	cout << endl << endl;
