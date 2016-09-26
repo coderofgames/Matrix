@@ -76,37 +76,37 @@ class matrix
 {
 public:
 	matrix<T>(){
-		this->m_sizeX = 0; m_sizeY = 0;
+		this->SX = 0; SY = 0;
 		data = 0;
 	}
 
 
 	matrix<T>(matrix<T> *p){
-		this->m_sizeX = p->m_sizeX; m_sizeY = p->m_sizeY;
+		this->SX = p->SX; SY = p->SY;
 		this->create();
-		for (int i = 0; i < m_sizeX; i++)
+		for (int i = 0; i < SX; i++)
 		{
-			for (int j = 0; j < m_sizeY; j++)
-				data[i * m_sizeY + j] = (*p)(i,j);
+			for (int j = 0; j < SY; j++)
+				data[i * SY + j] = (*p)(i,j);
 		}
 		is_transposed = false;
 	}
 
 	matrix<T>(matrix &p){
-		this->m_sizeX = p.m_sizeX; m_sizeY = p.m_sizeY;
+		this->SX = p.SX; SY = p.SY;
 		this->create();
-		for (int i = 0; i < m_sizeX; i++)
+		for (int i = 0; i < SX; i++)
 		{
-			for (int j = 0; j < m_sizeY; j++)
-				data[i * m_sizeY + j] = p(i, j);
+			for (int j = 0; j < SY; j++)
+				data[i * SY + j] = p(i, j);
 		}
 		is_transposed = false;
 	}
 
 	matrix<T>(unsigned int n, unsigned int m)
 	{
-		m_sizeX = n;
-		m_sizeY = m;
+		SX = n;
+		SY = m;
 		create();
 	}
 	~matrix<T>()
@@ -119,7 +119,7 @@ public:
 	{
 		if (data != 0)
 		{
-			/*for (int i = 0; i < m_sizeX; i++)
+			/*for (int i = 0; i < SX; i++)
 			{
 				delete[] data[i];
 			}*/
@@ -130,14 +130,14 @@ public:
 	}
 	void create()
 	{
-		if (m_sizeY > 0 && m_sizeX > 0)
+		if (SY > 0 && SX > 0)
 		{
-			data = new T[m_sizeX * m_sizeY];
-			for (int i = 0; i < m_sizeX; i++)
+			data = new T[SX * SY];
+			for (int i = 0; i < SX; i++)
 			{
 				
-				for (int j = 0; j < m_sizeY; j++)
-					data[i * m_sizeY + j] = 0.0;
+				for (int j = 0; j < SY; j++)
+					data[i * SY + j] = 0.0;
 			}
 		}
 		is_transposed = false;
@@ -146,13 +146,13 @@ public:
 	void operator=(matrix &b)
 	{
 		this->destroy();
-		this->m_sizeX = b.NumRows();
-		this->m_sizeY = b.NumColumns();
+		this->SX = b.NumRows();
+		this->SY = b.NumColumns();
 		this->create();
-		for (int i = 0; i < m_sizeX; i++)
+		for (int i = 0; i < SX; i++)
 		{
-			for (int j = 0; j < m_sizeY; j++)
-				data[i * m_sizeY + j] = b(i,j);
+			for (int j = 0; j < SY; j++)
+				data[i * SY + j] = b(i,j);
 		}
 	}
 
@@ -164,14 +164,14 @@ public:
 	void operator=(matrix *b)
 	{
 		this->destroy();
-		this->m_sizeX = b->NumRows();
-		this->m_sizeY = b->NumColumns();
+		this->SX = b->NumRows();
+		this->SY = b->NumColumns();
 		this->create();
 		
 		for (int i = 0; i < this->NumRows(); i++)
 		{
 			for (int j = 0; j < this->NumColumns(); j++)
-				data[i * m_sizeY + j] = (*b)(i, j);
+				data[i * SY + j] = (*b)(i, j);
 		}
 	}
 
@@ -407,7 +407,7 @@ public:
 	T trace()
 	{
 		T sum = 0.0f;
-		if (m_sizeX != m_sizeY) return 0.0f;
+		if (SX != SY) return 0.0f;
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -420,9 +420,9 @@ public:
 
 	bool ContainsNAN()
 	{
-		for (int i = 0; i < m_sizeX; i++)
+		for (int i = 0; i < SX; i++)
 		{
-			for (int j = 0; j < m_sizeY; j++)
+			for (int j = 0; j < SY; j++)
 			{
 				if (get(i, j) != get(i, j))
 					return true;
@@ -435,9 +435,9 @@ public:
 	{
 		if ( this->IsSquare() )
 		{ 
-			for (int i = 0; i < m_sizeX; i++)
+			for (int i = 0; i < SX; i++)
 			{
-				for (int j = i; j < m_sizeY; j++)
+				for (int j = i; j < SY; j++)
 				{
 					SWAP<T>(get(i, j), get(j, i));
 					//if (get(i, j) != get(i, j))
@@ -447,26 +447,25 @@ public:
 		}
 		else
 		{
-			if (out) delete out;
-			out = new matrix<T>(this->NumColumns(), this->NumRows());
+			matrix<T> Y(this->NumColumns(), this->NumRows());
 
-			for (int i = 0; i < m_sizeX; i++)
+			for (int i = 0; i < SX; i++)
 			{
-				for (int j = 0; j < m_sizeY; j++)
+				for (int j = 0; j < SY; j++)
 				{
-					(*out)(j,i) = get(i, j);
+					Y(j,i) = get(i, j);
 				}
 			}
 			this->destroy();
-			this->m_sizeX = out->m_sizeX;
-			this->m_sizeY = out->m_sizeY;
+			this->SX = Y.SX;
+			this->SY = Y.SY;
 			this->create();
 
-			for (int i = 0; i < m_sizeX; i++)
+			for (int i = 0; i < SX; i++)
 			{
-				for (int j = 0; j < m_sizeY; j++)
+				for (int j = 0; j < SY; j++)
 				{
-					get(i, j) = (*out)(i, j);
+					get(i, j) = Y(i, j);
 				}
 			}
 
@@ -478,18 +477,18 @@ public:
 
 	inline unsigned int NumRows()
 	{
-		return m_sizeX;
-		//return  (is_transposed ? m_sizeY : m_sizeX);
+		return SX;
+		//return  (is_transposed ? SY : SX);
 	}
 	inline unsigned int NumColumns()
 	{
-		return m_sizeY;
-		//return (is_transposed ? m_sizeX : m_sizeY);
+		return SY;
+		//return (is_transposed ? SX : SY);
 	}
 
 	inline bool IsSquare()
 	{
-		return m_sizeX == m_sizeY;
+		return SX == SY;
 	}
 
 	bool IsSymmetric()
@@ -1364,8 +1363,6 @@ public:
 			VT.ToZero();
 
 		}
-
-
 	}
 
 
@@ -1480,6 +1477,29 @@ public:
 
 	}
 
+	void Overwrite_Submatrix_transposed(matrix<T> b, int r, int c)
+	{
+		if (b.NumColumns() > this->NumColumns() || b.NumRows() > this->NumRows())
+		{
+			cout << "Error (Overwrite_Submatrix): sub matrix dimensions exceed destination dimensions" << endl;
+			return;
+		}
+
+		if ((r + b.NumColumns() > this->NumRows()) || (c + b.NumRows() > this->NumColumns()))
+		{
+			cout << "Error (Overwrite_Submatrix): sub matrix size plus dimensions exceed destination dimensions" << endl;
+			return;
+		}
+
+		for (int i = 0; i < b.NumRows(); i++)
+		{
+			for (int j = 0; j < b.NumColumns(); j++)
+			{
+				get(r + j, c + i) = b(i, j);
+			}
+		}
+
+	}
 
 	void Eigenvalues_2x2( int r, int c, complex<T> &L1, complex<T> &L2)
 	{
@@ -1498,11 +1518,11 @@ public:
 
 
 
-	T Det3x3( int r, int c)
+	T Det_3x3( int r, int c)
 	{
 		if (r + 2 >= NumRows() || c + 2 >= NumColumns())
 		{
-			cout << "Error (Det3x3): Out of bounds error" << endl;
+			cout << "Error (Det_3x3): Out of bounds error" << endl;
 			return 0.0;
 		}
 
@@ -1518,7 +1538,7 @@ public:
 
 
 	// anayltic solution from wikipedias
-	void EigenValues3x3(complex<T> &L1, complex<T> &L2, complex<T> &L3)
+	void EigenValues_3x3(complex<T> &L1, complex<T> &L2, complex<T> &L3)
 	{
 		if (!this->IsSymmetric())
 		{
@@ -1549,7 +1569,7 @@ public:
 
 			matrix<T> B = (A - I_3*q)*(1 / p); 
 
-			T r = B.Det3x3(0, 0) /2.0;
+			T r = B.Det_3x3(0, 0) /2.0;
 			
 			T phi;
 
@@ -1622,21 +1642,16 @@ public:
 
 				(*this) = C_n * (*this);
 
-
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
 			}
 			//C_n.Identity();
 			
 			for (int j = 0; j < n - 1; j++)
 			{
-				//C[j].transpose();
-
-				C_n.Overwrite_Submatrix(C[j], j, j);
-				C_n.transpose();
+				C_n.Overwrite_Submatrix_transposed(C[j], j, j);
 
 				(*this) = (*this) * C_n;
 
-				C_n.transpose();
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
 			}
 	
@@ -1707,6 +1722,8 @@ public:
 	}
 
 
+
+
 	inline int max_row_of_column(int row_start, int c)
 	{
 		if (row_start > this->NumRows())
@@ -1730,6 +1747,31 @@ public:
 			{
 				max_val = get(r, c);
 				max_int = r;
+			}
+		}
+		return max_int;
+	}
+
+	inline int max_off_diagonal_elem_in_row(int r)
+	{
+		if (r >= this->NumRows())
+		{
+			cout << "Error (max_row_of_column): row start exceeds bounds" << endl;
+			return -1;
+		}
+
+		T max_val = 0.0;
+		int max_int = 0;
+		for (int c = 0; c < NumColumns(); c++)
+		{
+			if (r != c)
+			{
+				T val = abs(get(r, c));
+				if (val > max_val)
+				{
+					max_val = val;
+					max_int = c;
+				}
 			}
 		}
 		return max_int;
@@ -1781,8 +1823,8 @@ public:
 	matrix<T>(T p[6][6])
 	{
 
-		m_sizeX = 6;
-		m_sizeY = 6;
+		SX = 6;
+		SY = 6;
 		this->create();
 
 		for (int i = 0; i < 6; i++)
@@ -1797,8 +1839,8 @@ public:
 	matrix<T> (T p[5][5])
 	{
 
-		m_sizeX = 5;
-		m_sizeY = 5;
+		SX = 5;
+		SY = 5;
 		this->create();
 
 		for (int i = 0; i < 5; i++)
@@ -1813,15 +1855,15 @@ public:
 	matrix<T>(T p[4][4])
 	{
 
-		m_sizeX = 4;
-		m_sizeY = 4;
+		SX = 4;
+		SY = 4;
 		this->create();
 
-		for (int i = 0; i < m_sizeX; i++)
+		for (int i = 0; i < SX; i++)
 		{
-			for (int j = 0; j < m_sizeY; j++)
+			for (int j = 0; j < SY; j++)
 			{
-				data[i * m_sizeY + j] = p[i][j];
+				data[i * SY + j] = p[i][j];
 			}
 		}
 	}
@@ -1829,15 +1871,15 @@ public:
 	matrix<T>(T p[3][3])
 	{
 
-		m_sizeX = 3;
-		m_sizeY = 3;
+		SX = 3;
+		SY = 3;
 		this->create();
 
-		for (int i = 0; i < m_sizeX; i++)
+		for (int i = 0; i < SX; i++)
 		{
-			for (int j = 0; j < m_sizeY; j++)
+			for (int j = 0; j < SY; j++)
 			{
-				data[i * m_sizeY + j] = p[i][j];
+				data[i * SY + j] = p[i][j];
 			}
 		}
 	}
@@ -1847,16 +1889,33 @@ public:
 	matrix<T>(T p[2][2])
 	{
 
-		m_sizeX = 2;
-		m_sizeY = 2;
+		SX = 2;
+		SY = 2;
 		this->create();
 
-		for (int i = 0; i < m_sizeX; i++)
+		for (int i = 0; i < SX; i++)
 		{
-			for (int j = 0; j < m_sizeY; j++)
+			for (int j = 0; j < SY; j++)
 			{
-				data[i * m_sizeY + j] = p[i][j];
+				data[i * SY + j] = p[i][j];
 			}
+		}
+	}
+//http://stackoverflow.com/questions/19840213/how-to-read-values-from-a-2d-initializer-list-and-put-them-in-a-2d-vector
+	matrix<T>(const std::initializer_list<std::initializer_list<T>>& list)
+	{
+		
+		this->SX = list.size();
+		this->SY = (*list.begin()).size();
+		this->create();
+
+		int r = 0;
+		for (const auto& l : list) {
+			int c = 0;
+			for (const auto d : l) {
+				get(r, c++) = d;
+			}
+			++r;
 		}
 	}
 
@@ -1868,8 +1927,8 @@ private:
 
 	
 	bool is_transposed = false;
-	unsigned int m_sizeX = 0;
-	unsigned int m_sizeY = 0;
+	unsigned int SX = 0;
+	unsigned int SY = 0;
 
 	matrix *out = 0;
 

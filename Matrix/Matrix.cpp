@@ -12,81 +12,83 @@ typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
 
 
-float dat_M_LU[3][3] = {
+matrixf  dat_M_LU = {
 	{ 3, 5, 2 },
 	{ 0, 8, 2 },
 	{ 6, 2, 8 }
 };
-float dat_M_tri[4][4] = {
+matrixf  dat_M_tri = {
 	{ 1, -0.25, -0.25, 0 },
 	{ -0.25, 1, 0, -0.25 },
 	{ -0.25, 0, 1, -0.25 },
 	{ 0, -0.25, -0.25, 1 }
 };
-float dat_L[3][3] = {
+matrixf  dat_L = {
 	{ 2, 0, 0 },
 	{ 1, 4, 0 },
 	{ 7, -3, 5 }
 };
 
-double dat_G[3][3] = {
+matrixf  dat_G = {
 	{ -1, 1, 2 },
 	{ 3, -1, 1 },
 	{ -1, 3, 4 }
 };
 
-float dat_A_1[4][4] = {
+matrixf  dat_A_1 = {
 	{ 6, 4, 1, 1 },
 	{ 4, 6, 1, 1 },
 	{ 1, 1, 5, 2 },
 	{ 1, 1, 2, 5 }
 };
-float dat_A[3][3] = {
+matrixf  dat_A = {
 	{ 4, 2, 14 },
 	{ 2, 17, -5 },
 	{ 14, -5, 83 }
 };
 
-float dat_Hess_QR2[5][5] = {
+matrixf  dat_Hess_QR2 = {
 	{ 5.0f, 1.0f, 0.0f, 4.0f, 0.0f },
 	{ 1.0f, 4.0f, 2.0f, 1.0f, 3.0f },
 	{ 2.0f, 2.0f, 5.0f, 4.0f, 0.0f },
 	{ 0.0, 1.0, 4.0, 1.0, 3.0 },
 	{ 4.0, 3.0, 0.0, 3.0, 4.0 }
 };
-float dat_Hess_QR1[4][4] = {
+float  dat_Hess_QR1_2[4][4] = {
 	{ 6.0f, -sqrt(18.0), 0.0f, 0.0f },
 	{ -sqrt(18), 7.0, sqrt(2.0), 0.0f },
 	{ 0.0f, sqrt(2.0), 6.0f, 0.0f },
 	{ 0.0f, 0.0, 0.0f, 3.0f }
 };
-float dat_Hess_3[5][5] = {
+matrixf dat_Hess_QR1 = dat_Hess_QR1_2;
+matrixf  dat_Hess_3 = {
 	{ 5.0, 4.0, 3.0, 2.0, 1.0 },
 	{ 1.0, 4.0, 0.0, 3.0, 3.0 },
 	{ 2.0, 0.0, 3.0, 0.0, 0.0 },
 	{ 3.0, 2.0, 1.0, 2.0, 5.0 },
 	{ 4.0, 2.0, 1.0, 2.0, 1.0 }
 };
-float dat_Hess_2[5][5] = {
+matrixf  dat_Hess_2 = {
 	{ 6.0, 1.0, -2.0, 19.0, 4.0 },
 	{ 1.0, 4.0, 2.0, 1.0, 3.0 },
 	{ 7.0, 12.0, 5.0, 11.0, -1.0 },
 	{ -3.0, 21.0, 4.0, 1.0, 3.0 },
 	{ 4.0, 6.0, -1.0, 3.0, 7.0 }
 };
-float dat_Hess_0[4][4] = {
+matrixf  dat_Hess_0 = {
 	{ 4.0, 1.0, -1.0, 2.0 },
 	{ 1.0, 4.0, 1.0, -1.0 },
 	{ -1.0, 1.0, 4.0f, 1.0f },
 	{ 2.0f, -1.0, 1.0f, 4.0f }
 };
-float mat_QR_2[4][4] = {
+matrixf mat_QR_2 = {
 	{ 4, 2, 2, 1 },
 	{ 2, -3, 1, 1 },
 	{ 2, 1, 3, 1 },
 	{ 1, 1, 1, 2 }
 };
-float mat_QR_1[4][4] = {
+
+matrixf mat_QR_1 = {
 	{ 1, 3, 0, 0 },
 	{ 3, 2, 1, 0 },
 	{ 0, 1, 3, 4 },
@@ -94,159 +96,20 @@ float mat_QR_1[4][4] = {
 };
 
 
-
-void TestQR_Method_1()
-{
-	cout << "===================================================" << endl;
-	matrixf A = mat_QR_1;
-
-	cout << endl;
-	cout << "printing the matrix " << endl;
-
-	A.print(2);
-
-	matrixf sol(4, 1);
-	
-	A.QR_algorithm(sol);
-
-	cout << endl;
-	cout << "Printing eigenvalue solution" << endl;
-
-	sol.print(3);
-
-	cout << "printing the matrix after process " << endl;
-
-	A.print(2);
-
-}
-
-void TestQR_Method_2()
-{
-	cout << endl;
-	cout << "===================================================" << endl;
-
-	matrixf A = mat_QR_2;
-
-	cout << endl;
-	cout << "printing the matrix before Householder reduction" << endl;
-
-	A.print(2);
-	
-	matrixf sol(4, 1);
-
-	A.Householder_Tridiagonalize();
-	
-	cout << endl;
-	cout << "printing the matrix after Householder reduction" << endl;
-
-	A.print(2);
-
-	A.QR_algorithm(sol);
-
-	cout << endl;
-	cout << "Printing eigenvalue solution" << endl;
-
-	sol.print(3);
-
-	cout << "printing the matrix after QR process" << endl;
-
-	A.print(2);
-
-}
+matrixf list_of_matrices[] = { mat_QR_1, mat_QR_2, dat_Hess_0, dat_Hess_2, dat_Hess_3, dat_Hess_QR1, dat_Hess_QR2, dat_A, dat_A_1, dat_G, dat_M_tri };
 
 
-void TestHessenburg_0()
-{
-	cout << endl;
-	cout << "===================================================" << endl;
-	
-	matrixf H_ = dat_Hess_0;
-
-	matrixf H__3 = H_;
-
-	cout << endl;
-	
-
-	cout << endl;
-	cout << "Printing the original matrix " << endl;
-	cout << endl;
-	H__3.print(2);
-
-	cout << endl;
-	cout << "Printing the matrix after Householder reduction" << endl;
-	cout << endl;
-
-	H__3.Householder_Tridiagonalize();
-	H__3.print(2);
-	
-	cout << endl;
 
 
-	cout << endl;
-	cout << "Printing the matrix after QR Algorithm" << endl;
-	cout << endl;
-
-	matrixf eigen_values(H__3.NumColumns(), 2);
-	H__3.QR_algorithm(eigen_values);
-	H__3.print(2);
-	cout << endl;
-	
-	cout << endl;
-	cout << "Printing the eigen values" << endl;
-	cout << endl;
-
-	eigen_values.print(3);
-
-	cout << endl;
-	cout << endl;
-}
-
-void TestHessenburg_2()
-{
-	cout << endl;
-	cout << "===================================================" << endl;
 
 
-	matrixf H_ = dat_Hess_2;
-	cout << endl;
-	cout << "Printing the original matrix" << endl;
-	cout << endl;
-	H_.print(3);
-
-	matrixf H__3 = H_;
-
-	H__3.Householder_Tridiagonalize();
-
-	cout << endl;
-	cout << "Printing the matrix after Householder reduction" << endl;
-	cout << endl;
-
-	H__3.print(2);
-	cout << endl;
-
-	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
-	
-	matrixf eigen_values(H__3.NumColumns(), 2);
-	H__3.QR_algorithm(eigen_values);
-
-	cout << endl;
-	cout << "Printing the matrix after QR Algorithm" << endl;
-	cout << endl;
-
-	H__3.print(2);
-	
-	cout << endl;
-	cout << "Printing the eigenvalues" << endl;
-	cout << endl;
-
-	eigen_values.print(3);
-
-	cout << endl;
-	cout << endl;
-}
 
 
-void TestHessenburg_3()
+
+
+
+
+void TestingProcedure_Householder_Hessenburg_QR(matrixf &H_)
 {
 	cout << endl;
 	cout << "===================================================" << endl;
@@ -255,145 +118,69 @@ void TestHessenburg_3()
 	// I have decided to only use Housedholder methods
 	// this matrix shows the evidence of the stability issue ...
 
-
-	matrixf H_ = dat_Hess_3;
-
-	cout << endl;
-	cout << "Printing the original matrix" << endl;
-	cout << endl;
-
-	H_.print(3);
-
-	matrixf H__3 = H_;
-
-	//H__3.Hessenberg_Form_Elementary(H_);
-	H__3.Householder_Tridiagonalize();
-
-	cout << endl;
-	cout << "Printing the matrix after Householder reduction" << endl;
-	cout << endl;
-
-	H__3.print(2);
-	
-	cout << endl;
-	cout << "Eigenvalues are on the diagonal or in complex conjugate pair ^^" << endl;
-	matrixf eigen_values(H__3.NumColumns(), 2);
-	
-	H__3.QR_algorithm(eigen_values);
-
-	cout << endl;
-	cout << "Printing the matrix after QR algorithm" << endl;
-	cout << endl;
-
-	H__3.print(2);
-
-	cout << endl;
-	cout << "Printing the eigen values" << endl;
-	cout << endl;
-	
-
-	eigen_values.print(3);
-
-	cout << endl;
-	cout << endl;
-}
-
-
-void TestHessenburg_QR_real()
-{
-	cout << endl;
-	cout << "===================================================" << endl;
-
-
-	matrixf H_ = dat_Hess_QR1;
-		
-	matrixf H__3 = H_;
-
-	cout << endl;
-	cout << "Printing the original matrix" << endl;
-	cout << endl;
-
-	H__3.print(2);
-
-	//	H__3.Householder_Tridiagonalize();
-//	H__3.print(2);
-	cout << endl;
-	cout << "Eigenvalues are on the diagonal or in complex conjugate pair (avoiding the Householder stage)" << endl;
-	cout << endl;
-
-	matrixf eigen_values(H__3.NumColumns(), 2);
-	H__3.QR_algorithm(eigen_values);
-
-	cout << endl;
-	cout << "Printing the matrix afer QR algorithm" << endl;
-	cout << endl;
-
-	H__3.print(2);
-
-	cout << endl;
-	cout << "Printing the eigen values" << endl;
-
-	cout << endl;
-	eigen_values.print(3);
-
-	cout << endl;
-	cout << endl;
-}
-
-void TestHessenburg_QR_real_2()
-{
-	cout << endl;
-	cout << "===================================================" << endl;
-	// using the wisdom from
-	// http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
-	// I have decided to only use Housedholder methods
-	// this matrix shows the evidence of the stability issue ...
-
-
-
-
-	matrixf H_ = dat_Hess_QR2;
 
 	cout << endl;
 	cout << "Printing the initial matrix" << endl;
 
 	H_.print(3);
-	
+
 	cout << endl;
 
 	matrixf H__3 = H_;
 
-	H__3.Householder_Tridiagonalize();
+	cout << endl;
+	cout << "Applying Householder Algorithm (required before QR algorithm" << endl;
+	cout << endl;
+	
+	std::cin.clear();
+	char sel1;
+	std::cin.get(sel1);
+
+	
+//	if (sel1 == 'y' || sel1 == 'Y')
+//	{
+		H__3.Householder_Tridiagonalize();
+
+		cout << endl;
+		cout << "Printing the matrix afer Householder reduction" << endl;
+		cout << endl;
+
+		H__3.print(4);
+//	}
+
+	cout << endl;
 	
 	cout << endl;
-	cout << "Printing the matrix afer Householder reduction" << endl;
+	cout << "Apply QR Algorithm ? (Y/N) " << endl;
 	cout << endl;
 
-	H__3.print(2);
-	
-	cout << endl;
-	cout << "Eigenvalues are on the diagonal or in complex conjugate pair" << endl;
-	
-	matrixf eigen_values(H__3.NumColumns(), 2);
-	
-	H__3.QR_algorithm(eigen_values);
-	
+	std::cin.clear();
+	char sel;
+	std::cin.get( sel);
 
-	cout << endl;
-	cout << "Printing the matrix afer QR algorithm" << endl;
-	cout << endl;
+	if (sel == 'y' || sel == 'Y')
+	{
+		matrixf eigen_values(H__3.NumColumns(), 2);
 
-	H__3.print(2);
-	
-	cout << endl;
-	cout << "printing the eigen values" << endl;
-	cout << endl;
-	
-	eigen_values.print(3);
-	
+		H__3.QR_algorithm(eigen_values);
+
+		cout << endl;
+		cout << "Printing the matrix afer QR algorithm" << endl;
+		cout << endl;
+
+		H__3.print(4);
+
+		cout << endl;
+		cout << "printing the eigen values" << endl;
+		cout << endl;
+
+		eigen_values.print(3);
+	}
+
 	cout << endl;
 	cout << endl;
 }
+
 
 
 void TestGaussElimination_1()
@@ -640,7 +427,7 @@ void Testing_Determinant()
 	cout << "Testing Det" << endl;
 
 	matrixf M_2 = M_;
-	cout << M_.Det3x3(0, 0) << "    " << M_2.Determinant();
+	cout << M_.Det_3x3(0, 0) << "    " << M_2.Determinant();
 	cout << endl;
 
 }
@@ -767,7 +554,7 @@ void Testing_GaussJordan_Elimination()
 	cout << "Testing matrixd Inversion via Gauss-Jordan Elimination " << endl;
 
 
-	matrixd G = dat_G;
+	matrixf G = dat_G;
 
 
 	cout << endl;
@@ -775,8 +562,8 @@ void Testing_GaussJordan_Elimination()
 	G.print(4);
 
 
-	matrixd old_G = G;
-	matrixd G2 = G.Gauss_Jordan();
+	matrixf old_G = G;
+	matrixf G2 = G.Gauss_Jordan();
 	cout << endl;
 	cout << "printing G2" << endl;
 	G2.print(4);
@@ -789,7 +576,7 @@ void Testing_GaussJordan_Elimination()
 
 	cout << endl;
 	cout << "printing G2 * old_G" << endl;
-	matrixd what = old_G * G2;
+	matrixf what = old_G * G2;
 	what.print(4);
 	cout << endl;
 	cout << "Close enough ignoring numbers below 1e-010" << endl;
@@ -821,60 +608,8 @@ void Testing_Householder_Tridiagonalize()
 
 }
 
-int main(int argc, char* argv[])
+void Test_Transposition()
 {
-
-
-
-	TestGaussElimination_1();
-	//TestGaussElimination_2();
-
-	TestCholesky();
-//	TestCrout_LU_Method();
-
-	TestGaussSeidel();
-
-
-
-
-		
-	cout << endl;
-	cout << "=================================================" << endl;
-	cout << "Testing Housholder algorithm on Non-Symmetric Matrix (Hessenburg)" << endl;
-	TestHessenburg_2();
-
-	TestHessenburg_3();
-
-	cout << endl;
-	cout << endl;
-	cout << "=================================================" << endl;
-	cout << "Testing TestHessenburg_QR_real algorithm on Hpuseholder matrix" << endl;
-	TestHessenburg_QR_real();
-	TestHessenburg_QR_real_2();
-	// results are in accordance with 
-	// http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html
-	// so the other procedures for Hessenburg will be kept until I can prove they are useless.
-
-	TestHessenburg_0();
-
-
-
-
-
-	TestQR_Method_1();
-
-	TestQR_Method_2();
-
-
-
-	cout << endl;
-	cout << "=================================================" << endl;
-	cout << "matrixf Multiplication A * A2" << endl;
-
-
-//	Test_LU_System();
-
-	Test_TriangularSystemSolvers();
 
 	matrixf m = dat_M_tri;
 	m.print(2);
@@ -884,25 +619,30 @@ int main(int argc, char* argv[])
 	cout << endl << endl;
 
 	float dat__[4][3] = {
-		{2,1,3}, 
-		{4,5,6}, 
-		{6,5,4},
-		{3,2,1}
+		{ 2, 1, 3 },
+		{ 4, 5, 6 },
+		{ 6, 5, 4 },
+		{ 3, 2, 1 }
 	};
 
-	matrixf b(4, 3);// = dat__;
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 3; j++)
-			b(i, j) = dat__[i][j];
+	matrixf b = {
+		{ 2, 1, 3 },
+		{ 4, 5, 6 },
+		{ 6, 5, 4 },
+		{ 3, 2, 1 }
+	};
+	//for (int i = 0; i < 4; i++)
+	//	for (int j = 0; j < 3; j++)
+	//		b(i, j) = dat__[i][j];
 
 	b.print(2);
 	//b.transpose();
 	cout << endl << endl;
-	
 
-//	matrixf c = m * b;
 
-//	c.print(2);
+	//	matrixf c = m * b;
+
+	//	c.print(2);
 
 	cout << endl << endl;
 	b.transpose();
@@ -913,7 +653,83 @@ int main(int argc, char* argv[])
 
 	d.print(2);
 	cout << endl << endl;
+}
+
+int main(int argc, char* argv[])
+{
+
+
+
+	//TestGaussElimination_1();
+	//TestGaussElimination_2();
+
+//	TestCholesky();
+//	TestCrout_LU_Method();
+
+//	TestGaussSeidel();
+
+
+
+
+		
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing Housholder algorithm on Non-Symmetric Matrix (Hessenburg)" << endl;
 	
+	Testing_Householder_Tridiagonalize();
+
+	
+
+	int matrix_selection;
+
+	cout << "printing list of matrices " << endl;
+	for (int i = 0; i < 11; i++)
+	{
+		cout << (char)('A' + i) << " = " << endl << endl;
+		
+		list_of_matrices[i].print(2);
+		cout << endl << endl;
+	}
+
+	cout << "Select a matrix from the above (A - K)" << endl;
+
+	char sel;
+	std::cin.clear();
+
+	std::cin.get(sel);
+
+	if (sel >= 'A' && sel <= 'A' + 11)
+	{
+		cout << "You Selected: " << sel << endl;
+		matrix_selection = sel - 'A';
+
+		//list_of_matrices[matrix_selection].print(2);
+		cout << "Testing Housholder algorithm and QR algorithm "<< endl;
+
+		TestingProcedure_Householder_Hessenburg_QR(list_of_matrices[matrix_selection]);
+	}
+
+
+
+
+
+
+
+
+
+//	cout << endl;
+//	cout << "=================================================" << endl;
+//	cout << "matrixf Multiplication A * A2" << endl;
+
+
+//	Test_LU_System();
+
+	//Test_TriangularSystemSolvers();
+
+
+
+
+	//Test_Transposition();
 		return 0;
 }
 
