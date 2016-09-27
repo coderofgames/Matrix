@@ -48,7 +48,7 @@ matrixf  dat_A = {
 };
 
 matrixf  dat_Hess_QR2 = {
-	{ 5.0f, 1.0f, 0.0f, 4.0f, 0.0f },
+	{ 5.0f, 1.0f, 2.0f, 0.0f, 4.0f },
 	{ 1.0f, 4.0f, 2.0f, 1.0f, 3.0f },
 	{ 2.0f, 2.0f, 5.0f, 4.0f, 0.0f },
 	{ 0.0, 1.0, 4.0, 1.0, 3.0 },
@@ -66,7 +66,7 @@ matrixf  dat_Hess_3 = {
 	{ 1.0, 4.0, 0.0, 3.0, 3.0 },
 	{ 2.0, 0.0, 3.0, 0.0, 0.0 },
 	{ 3.0, 2.0, 1.0, 2.0, 5.0 },
-	{ 4.0, 2.0, 1.0, 2.0, 1.0 }
+	{ 4.0, 2.0, 1.0, 4.0, 1.0 }
 };
 matrixf  dat_Hess_2 = {
 	{ 6.0, 1.0, -2.0, 19.0, 4.0 },
@@ -147,6 +147,12 @@ void TestingProcedure_Householder_Hessenburg_QR(matrixf &H_)
 
 		H__3.print(4);
 //	}
+
+	//	float sign = 1;
+		//matrixf test = list_of_matrices[matrix_selection];
+	//	H__3.ReduceToUpperHessenburg(sign);
+	//	cout << endl;
+	//	H__3.print(3);
 
 	cout << endl;
 	
@@ -714,6 +720,7 @@ int main(int argc, char* argv[])
 		cout << "Testing Housholder algorithm and QR algorithm "<< endl;
 
 		TestingProcedure_Householder_Hessenburg_QR(list_of_matrices[matrix_selection]);
+
 
 
 	}

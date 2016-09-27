@@ -792,6 +792,8 @@ public:
 		}	
 	}
 
+
+
 	T Det_2x2(int r, int c)
 	{
 		if ((r + 1 < NumRows()) && 
