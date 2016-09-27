@@ -1945,12 +1945,12 @@ public:
 
 
 
-	T Frobenius_Norm(matrix<T> &M)
+	T Frobenius_Norm()
 	{
 		T sum = 0.0;
-		for (int r = 0; r < M.NumRows(); r++)
+		for (int r = 0; r < NumRows(); r++)
 		{
-			for (int c = 0; c < M.NumColumns(); c++)
+			for (int c = 0; c < NumColumns(); c++)
 			{
 				sum += get(r, c)*get(r, c);
 			}
