@@ -232,9 +232,9 @@ public:
 	{
 		if (this->NumColumns() == b.NumColumns() && this->NumRows() == b.NumRows())
 		{
-			//if (out) delete out;
-			//out = new matrix(this->NumRows(), this->NumColumns());
-			if (out)
+			if (out) delete out;
+			out = new matrix(this->NumRows(), this->NumColumns());
+			/*if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
 					(out->NumColumns() == this->NumColumns())))
@@ -246,7 +246,7 @@ public:
 			else
 			{
 				out = new matrix(this->NumRows(), this->NumColumns());
-			}
+			}*/
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -316,7 +316,7 @@ public:
 			return (*this);
 		}*/
 
-		if (out )
+		/*if (out )
 		{
 			
 			if (!((out->NumRows() == this->NumRows()) && 
@@ -329,7 +329,10 @@ public:
 		else
 		{
 			out = new matrix(this->NumRows(), this->NumColumns());
-		}
+		}*/
+
+		if (out)delete out;
+		out = new matrix(this->NumRows(), this->NumColumns());
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -343,10 +346,10 @@ public:
 
 	matrix& operator/(T s)
 	{
-		//if (out) delete out;
-		//out = new matrix(this->NumRows(), this->NumColumns());
+		if (out) delete out;
+		out = new matrix(this->NumRows(), this->NumColumns());
 
-		if (out)
+		/*if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
 				(out->NumColumns() == this->NumColumns())))
@@ -358,7 +361,7 @@ public:
 		else
 		{
 			out = new matrix(this->NumRows(), this->NumColumns());
-		}
+		}*/
 		for (int i = 0; i < this->NumRows(); i++)
 		{
 			for (int j = 0; j < this->NumColumns(); j++)
@@ -371,7 +374,9 @@ public:
 
 	matrix& operator+(T s)
 	{
-		if (out)
+		if (out)delete out;
+		out = new matrix(this->NumRows(), this->NumColumns());
+		/*if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
 				(out->NumColumns() == this->NumColumns())))
@@ -383,7 +388,7 @@ public:
 		else
 		{
 			out = new matrix(this->NumRows(), this->NumColumns());
-		}
+		}*/
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -403,7 +408,9 @@ public:
 		}
 		else
 		{
-			if (out)
+			if (out)delete out;
+			out = new matrix(this->NumRows(), this->NumColumns());
+			/*if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
 					(out->NumColumns() == this->NumColumns())))
@@ -415,7 +422,8 @@ public:
 			else
 			{
 				out = new matrix(this->NumRows(), this->NumColumns());
-			}
+			}*/
+
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 				for (int j = 0; j < this->NumColumns(); j++)
@@ -435,7 +443,9 @@ public:
 			return matrix(0, 0);
 		else
 		{
-			if (out)
+			if (out)delete out;
+			out = new matrix(this->NumRows(), this->NumColumns());
+			/*if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
 					(out->NumColumns() == this->NumColumns())))
@@ -447,7 +457,7 @@ public:
 			else
 			{
 				out = new matrix(this->NumRows(), this->NumColumns());
-			}
+			}*/
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -834,7 +844,7 @@ public:
 
 		unsigned int n = this->NumRows();
 
-		if (out)
+		/*if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
 				(out->NumColumns() == this->NumColumns())))
@@ -846,8 +856,10 @@ public:
 		else
 		{
 			out = new matrix(this->NumRows(), this->NumColumns());
-		}
-
+		}*/
+		if (out) delete out;
+		out = new matrix<T>(this->NumRows(), this->NumColumns());
+		
 		out->Identity();
 
 
