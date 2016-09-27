@@ -145,10 +145,13 @@ public:
 
 	void operator=(matrix &b)
 	{
-		this->destroy();
-		this->SX = b.NumRows();
-		this->SY = b.NumColumns();
-		this->create();
+		if (!(this->NumRows() == b.NumRows()) && !(this->NumColumns() == b.NumColumns()))
+		{
+			this->destroy();
+			this->SX = b.NumRows();
+			this->SY = b.NumColumns();
+			this->create();
+		}
 		for (int i = 0; i < SX; i++)
 		{
 			for (int j = 0; j < SY; j++)
@@ -161,13 +164,17 @@ public:
 		return ((test_value > compare + this->precision) || (test_value < compare - this->precision));
 	}
 
+
 	void operator=(matrix *b)
 	{
-		this->destroy();
-		this->SX = b->NumRows();
-		this->SY = b->NumColumns();
-		this->create();
-		
+		if (!(this->NumRows() == b->NumRows()) && !(this->NumColumns() == b->NumColumns()))
+		{
+			this->destroy();
+			this->SX = b->NumRows();
+			this->SY = b->NumColumns();
+			this->create();
+		}
+
 		for (int i = 0; i < this->NumRows(); i++)
 		{
 			for (int j = 0; j < this->NumColumns(); j++)
@@ -178,6 +185,7 @@ public:
 
 	bool operator==(matrix &b)
 	{
+		
 		if (!this->EqualSize(b))
 		{
 			return false;
@@ -224,8 +232,21 @@ public:
 	{
 		if (this->NumColumns() == b.NumColumns() && this->NumRows() == b.NumRows())
 		{
-			if (out) delete out;
-			out = new matrix(this->NumRows(), this->NumColumns());
+			//if (out) delete out;
+			//out = new matrix(this->NumRows(), this->NumColumns());
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumColumns() == this->NumColumns())))
+				{
+					delete out;
+					out = new matrix(this->NumRows(), this->NumColumns());
+				}
+			}
+			else
+			{
+				out = new matrix(this->NumRows(), this->NumColumns());
+			}
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -256,7 +277,19 @@ public:
 		{
 			if (out) delete out;
 			out = new matrix(this->NumRows(), b.NumColumns());
-
+		/*	if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumColumns() == b.NumColumns())))
+				{
+					delete out;
+					out = new matrix(this->NumRows(), b.NumColumns());
+				}
+			}
+			else
+			{
+				out = new matrix(this->NumRows(), b.NumColumns());
+			}*/
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 
@@ -283,8 +316,20 @@ public:
 			return (*this);
 		}*/
 
-		if (out) delete out;
-		out = new matrix(this->NumRows(), this->NumColumns());
+		if (out )
+		{
+			
+			if (!((out->NumRows() == this->NumRows()) && 
+					(out->NumColumns() == this->NumColumns())))
+			{
+				delete out;
+				out = new matrix(this->NumRows(), this->NumColumns());
+			}
+		}
+		else
+		{
+			out = new matrix(this->NumRows(), this->NumColumns());
+		}
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -298,9 +343,22 @@ public:
 
 	matrix& operator/(T s)
 	{
-		if (out) delete out;
-		out = new matrix(this->NumRows(), this->NumColumns());
+		//if (out) delete out;
+		//out = new matrix(this->NumRows(), this->NumColumns());
 
+		if (out)
+		{
+			if (!((out->NumRows() == this->NumRows()) &&
+				(out->NumColumns() == this->NumColumns())))
+			{
+				delete out;
+				out = new matrix(this->NumRows(), this->NumColumns());
+			}
+		}
+		else
+		{
+			out = new matrix(this->NumRows(), this->NumColumns());
+		}
 		for (int i = 0; i < this->NumRows(); i++)
 		{
 			for (int j = 0; j < this->NumColumns(); j++)
@@ -313,8 +371,19 @@ public:
 
 	matrix& operator+(T s)
 	{
-		if (out) delete out;
-		out = new matrix(this->NumRows(), this->NumColumns());
+		if (out)
+		{
+			if (!((out->NumRows() == this->NumRows()) &&
+				(out->NumColumns() == this->NumColumns())))
+			{
+				delete out;
+				out = new matrix(this->NumRows(), this->NumColumns());
+			}
+		}
+		else
+		{
+			out = new matrix(this->NumRows(), this->NumColumns());
+		}
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -334,9 +403,19 @@ public:
 		}
 		else
 		{
-			if (out) delete out;
-			out = new matrix(this->NumRows(), this->NumColumns());
-
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumColumns() == this->NumColumns())))
+				{
+					delete out;
+					out = new matrix(this->NumRows(), this->NumColumns());
+				}
+			}
+			else
+			{
+				out = new matrix(this->NumRows(), this->NumColumns());
+			}
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 				for (int j = 0; j < this->NumColumns(); j++)
@@ -356,8 +435,19 @@ public:
 			return matrix(0, 0);
 		else
 		{
-			if (out) delete out;
-			out = new matrix(this->NumRows(), this->NumColumns());
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumColumns() == this->NumColumns())))
+				{
+					delete out;
+					out = new matrix(this->NumRows(), this->NumColumns());
+				}
+			}
+			else
+			{
+				out = new matrix(this->NumRows(), this->NumColumns());
+			}
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -505,7 +595,7 @@ public:
 			{
 				// if get(i,j) is a NAN then this will accidently return false
 				if ( i != j ) 
-					if (get(i, j) != get(j, i)) 
+					if ( NotEqual( get(i, j), get(j, i))) 
 						return false;
 			}
 		}
@@ -526,7 +616,7 @@ public:
 			for (int j = 0; j <= i; j++)
 			{
 				if (i != j)
-					if (get(i, j) != -get(j, i))
+					if (NotEqual( get(i, j), -get(j, i) ))
 						return false;
 			}
 		}
@@ -744,8 +834,19 @@ public:
 
 		unsigned int n = this->NumRows();
 
-		if (out) delete out;
-		out = new matrix(n,n);
+		if (out)
+		{
+			if (!((out->NumRows() == this->NumRows()) &&
+				(out->NumColumns() == this->NumColumns())))
+			{
+				delete out;
+				out = new matrix(this->NumRows(), this->NumColumns());
+			}
+		}
+		else
+		{
+			out = new matrix(this->NumRows(), this->NumColumns());
+		}
 
 		out->Identity();
 
@@ -1301,7 +1402,7 @@ public:
 			float max_magnitude = 0.0f;
 			for (int j = 0; j < n; j++)
 			{
-				float magnitude = abs((*out)(j, 0) - x0(j, 0));
+				float magnitude = abs( (*out)(j, 0) - x0(j, 0) );
 				if ( magnitude > max_magnitude ) max_magnitude = magnitude;
 
 				x0(j, 0) = (*out)(j, 0);
@@ -1328,9 +1429,14 @@ public:
 		matrix<T>  Inn(n, n);
 		Inn.Identity();
 
+		//matrix<T> H = (*this);
+
+
 		T S = 0.0;
 		for (int c = 0; c < n - 2; c++)
 		{
+			//H = (*this);
+
 			S = 0.0;
 			for (int r = c+1; r < n; r++)
 			{
@@ -1340,6 +1446,7 @@ public:
 			S = sqrt(S);
 			for (int r = c + 1; r < n; r++)
 			{
+
 				if (r == c + 1)
 				{
 					V(r, 0) = sqrt(0.5*(1.0 + abs( get(r, c) ) / S));
@@ -1356,6 +1463,9 @@ public:
 			// another copy 
 			matrix<T> P = Inn -  V * VT * 2;
 
+			//H = H * P;
+			//H = P * H;
+
 			(*this) = P * (*this) * P;
 
 			// zero the vectors again
@@ -1363,6 +1473,8 @@ public:
 			VT.ToZero();
 
 		}
+
+
 	}
 
 
@@ -1820,6 +1932,23 @@ public:
 
 
 
+
+	T Frobenius_Norm(matrix<T> &M)
+	{
+		T sum = 0.0;
+		for (int r = 0; r < M.NumRows(); r++)
+		{
+			for (int c = 0; c < M.NumColumns(); c++)
+			{
+				sum += get(r, c)*get(r, c);
+			}
+		}
+
+		return sqrt(sum);
+	}
+
+
+
 	matrix<T>(T p[6][6])
 	{
 
@@ -1913,7 +2042,7 @@ public:
 		for (const auto& l : list) {
 			int c = 0;
 			for (const auto d : l) {
-				get(r, c++) = d;
+				(*this)(r, c++) = d; // rather than get() because of the bounds check
 			}
 			++r;
 		}
@@ -1922,15 +2051,15 @@ public:
 //	virtual void Set_Zero_Epsilon() = 0;
 
 	T precision = FLT_EPSILON; // defaults to float eps
-
+	unsigned int SX = 0;
+	unsigned int SY = 0;
 private:
 
 	
 	bool is_transposed = false;
-	unsigned int SX = 0;
-	unsigned int SY = 0;
 
-	matrix *out = 0;
+
+	matrix<T> *out = 0;
 
 	T* data = 0;
 

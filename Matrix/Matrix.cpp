@@ -660,13 +660,13 @@ int main(int argc, char* argv[])
 
 
 
-	//TestGaussElimination_1();
-	//TestGaussElimination_2();
+	TestGaussElimination_1();
+	TestGaussElimination_2();
 
-//	TestCholesky();
-//	TestCrout_LU_Method();
+	TestCholesky();
+	TestCrout_LU_Method();
 
-//	TestGaussSeidel();
+	TestGaussSeidel();
 
 
 
@@ -678,6 +678,13 @@ int main(int argc, char* argv[])
 	
 	Testing_Householder_Tridiagonalize();
 
+
+	Test_TriangularSystemSolvers();
+
+
+
+
+	Test_Transposition();
 	
 
 	int matrix_selection;
@@ -698,7 +705,7 @@ int main(int argc, char* argv[])
 
 	std::cin.get(sel);
 
-	if (sel >= 'A' && sel <= 'A' + 11)
+	if (sel >= 'A' && sel < 'A' + 11)
 	{
 		cout << "You Selected: " << sel << endl;
 		matrix_selection = sel - 'A';
@@ -707,6 +714,8 @@ int main(int argc, char* argv[])
 		cout << "Testing Housholder algorithm and QR algorithm "<< endl;
 
 		TestingProcedure_Householder_Hessenburg_QR(list_of_matrices[matrix_selection]);
+
+
 	}
 
 
