@@ -26,11 +26,11 @@ http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-571
 that proves numerical instability of the row reduction methods. The methods I used for the 
 Hessenburg showed indeterminate numbers using the example matrix. I implemented both Hessenburg 
 matrix routines from the website however there may be mistakes in the code because the memory
-is accessed differently ...
+is accessed differently.
 
 Anyway I discovered that the Householder method can be used to transform a general N*N matrix
-into the Hessenburg form (with maybe a couple of snag cases) ... The matrix in the example is from
-this page http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html
+into the Hessenburg form ... The matrix in the example is from this page 
+http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html
 and for more information
 http://mathfaculty.fullerton.edu/mathews/n2003/HessenbergMod.html
 
@@ -40,9 +40,5 @@ http://mathfaculty.fullerton.edu/mathews/n2003/HessenbergMod.html
 14) the QR procedure solved for the complex number pairs
 15) There are now constructors for various static initializer types 
 (see examples at top for information, the max is a 6x6 matrix)
-
-TODO: use a C++ 11 style static initializer 
-
-I believe the problem matrix 
-http://mathfaculty.fullerton.edu/mathews/n2003/hessenberg/HessenbergMod/Links/HessenbergMod_lnk_9.html
-is solved, however I need to investigate some snag cases.
+16) memory optimized for real matrices
+17) Implemented a Complex matrix type - still experimental 

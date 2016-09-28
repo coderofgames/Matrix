@@ -3,6 +3,8 @@
 
 #include "stdafx.h"
 #include "my_matrix.h"
+#include "my_complex_matrix.h"
+
 #include <iostream>
 
 using std::cout;
@@ -10,6 +12,7 @@ using std::endl;
 
 typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
+typedef LINALG_COMPLEX::matrix_cf matrix_cf;
 
 
 matrixf  dat_M_LU = {
@@ -104,8 +107,152 @@ matrixf list_of_matrices[] = { mat_QR_1, mat_QR_2, dat_Hess_0, dat_Hess_2, dat_H
 
 
 
+void Test_Complex_Matrix()
+{
+	matrix_cf m(4, 4);
+
+	for (int r = 0; r < 4; r++)
+	{
+		for (int c = 0; c < 4; c++)
+		{
+			m(r, c) = complex<float>( LINALG_COMPLEX::RandomFloat(0.0, 10.0) ,  LINALG_COMPLEX::RandomFloat(0.0, 10.0) );
+		}
+	}
+
+	cout << endl;
+
+	m.print(3);
+
+	matrix_cf m2(4, 4);
+
+	for (int r = 0; r < 4; r++)
+	{
+		for (int c = 0; c < 4; c++)
+		{
+			m2(r, c) = complex<float>(LINALG_COMPLEX::RandomFloat(0.0, 10.0), LINALG_COMPLEX::RandomFloat(0.0, 10.0));
+		}
+	}
+
+	cout << endl;
+
+	m2.print(3);
+
+	matrix_cf m3 = m * m2;
+	matrix_cf m4 = m2 * m;
+
+	matrix_cf m5 = m4 - m3;
+
+	matrix_cf m6 = m5 * (m + m2) - 2 * (m4 * (m3 + m));
+
+	cout << endl;
+	cout << "printing m3 = m * m2" << endl;
+	m3.print(3);
+	cout << endl;
+	cout << "printing m3 / 2" << endl;
+	matrix_cf m7 = m3 / 2.0;
+	m7.print(3);
+
+	cout << endl;
+	cout << "printing m4 = m2 * m" << endl;
+	m4.print(3);
+	
+	cout << endl;
+	cout << "printing m5 = m4 - m3" << endl;
+	m5.print(3);
+
+	cout << endl;
+	cout << "printing m6 = m5 * (m + m2) - 2 * (m4 * (m3 + m))" << endl;
+	m6.print(3);
+
+	cout << endl;
+	cout << "printing m6 transposed" << endl;
+	m6.transpose();
+	m6.print(3);
+
+	cout << endl;
+	cout << "printing m ReduceToUpperTriangularForm" << endl;
+	float sign = 1;
+	m.ReduceToUpperTriangularForm(sign);
+
+	//m.Round_to_N_digits(5);
+	m.print(3);
+	
+	cout << endl;
+	cout << "printing m2 inverted" << endl;
+	matrix_cf Ic1 = m2;
+	matrix_cf m2_inv = Ic1.Gauss_Jordan();
+	m2_inv.print(3);
+
+	cout << endl;
+	cout << "printing leftovers from Gauss Jordan" << endl;
+	Ic1.print(3);
+
+	m2_inv.ClipToZero(0.0000001);
+	m2.ClipToZero(0.0000001);
+
+	cout << endl;
+	cout << "printing m2_inv* m2 " << endl;
+	matrix_cf I_complex = m2_inv * m2;
+	I_complex.print(3);
+
+	cout << endl;
+	cout << "printing  m2 *m2_inv " << endl;
+	matrix_cf I_complex2 = m2 *m2_inv;
+	I_complex2.print(3);
+
+	m2.transpose();
+	m2_inv.transpose();
+
+	//m2_inv.Conjugate();
+
+	cout << endl;
+	cout << "printing m2_inv.transpose() * m2.transpose() " << endl;
+	matrix_cf I_complex3 = m2_inv * m2;
+	I_complex3.print(3);
 
 
+	cout << endl;
+	cout << "=================================================" << endl;
+	cout << "Testing Gauss Elimination" << endl;
+	matrix_cf A(3,3);
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			A(i, j) = complex<float>(dat_M_LU(i, j), LINALG_COMPLEX::RandomFloat(-4, 5));
+		}
+	}
+	
+	;
+
+	m.SwapRow(0, 1); // these were swapped
+
+	cout << endl;
+	cout << "Printing A" << endl;
+	A.print(4);
+
+	matrix_cf b(3, 1);
+	b(0, 0) = complex<float>( -7, 3);
+	b(1, 0) = complex<float>(8, 4);
+	b(2, 0) = complex<float>( 26, 14);
+
+	cout << endl;
+	cout << "Printing b" << endl;
+	b.print(4);
+
+	cout << endl;
+	cout << "Solvng the system A x = b for x" << endl;
+	cout << endl;
+
+	matrix_cf sol = A.Gauss_Elimination(b);
+
+	cout << "printing solution" << endl;
+
+	sol.print(4);
+
+	cout << endl;
+}
 
 
 
@@ -208,7 +355,7 @@ void TestGaussElimination_1()
 
 	cout << endl;
 	cout << "Printing b" << endl;
-	m.print(4);
+	b.print(4);
 
 	cout << endl;
 	cout << "Solvng the system A x = b for x" << endl;
@@ -661,32 +808,16 @@ void Test_Transposition()
 	cout << endl << endl;
 }
 
-int main(int argc, char* argv[])
+
+void Test_QR()
 {
-
-
-
-
-
-
-
-		
-	cout << endl;
-	cout << "=================================================" << endl;
-	cout << "Testing Housholder algorithm on Non-Symmetric Matrix (Hessenburg)" << endl;
-	
-	Testing_Householder_Tridiagonalize();
-
-
-
-
 	int matrix_selection;
 
 	cout << "printing list of matrices " << endl;
 	for (int i = 0; i < 11; i++)
 	{
 		cout << (char)('A' + i) << " = " << endl << endl;
-		
+
 		list_of_matrices[i].print(2);
 		cout << endl << endl;
 	}
@@ -704,13 +835,32 @@ int main(int argc, char* argv[])
 		matrix_selection = sel - 'A';
 
 		//list_of_matrices[matrix_selection].print(2);
-		cout << "Testing Housholder algorithm and QR algorithm "<< endl;
+		cout << "Testing Housholder algorithm and QR algorithm " << endl;
 
 		TestingProcedure_Householder_Hessenburg_QR(list_of_matrices[matrix_selection]);
 
 
 
 	}
+}
+int main(int argc, char* argv[])
+{
+
+
+
+
+
+
+
+		
+
+	
+	//Testing_Householder_Tridiagonalize();
+
+
+
+
+
 
 
 
@@ -743,7 +893,7 @@ int main(int argc, char* argv[])
 
 	*/
 
-
+	Test_Complex_Matrix();
 		return 0;
 }
 

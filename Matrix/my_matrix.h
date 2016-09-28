@@ -11,61 +11,62 @@ using std::complex;
 using std::cout;
 using std::endl;
 
-template< class T >
-inline void SWAP(T &a, T &b)
-{
-	T temp = a;
-	a = b;
-	b = temp;
-}
 
-
-
-
-inline float RandomFloat(float min, float max)
-{
-	float r = (float)rand() / (float)RAND_MAX;
-	return min + r * (max - min);
-}
-
-inline float RandomInt(int min, int max)
-{
-	float r = (float)rand() / (float)RAND_MAX;
-	return (int)((float)min + r * float(max - min));
-}
-
-template<class T>
-inline T sgn(T x)
-{
-	if (x > 0.0 + DBL_EPSILON)
-		return 1.0;
-	if (x < 0.0 - DBL_EPSILON)
-		return -1.0;
-
-	return x;
-}
-
-inline double round_to_n_digits(double x, int n)
-{
-	double scale = pow(10.0, ceil(log10(fabs(x))) + n);
-
-	return round(x * scale) / scale;
-}
-
-class vector2d
-{
-public:
-
-	float v[2];
-
-	float operator[](unsigned int idx) { return (idx < 2 ? v[idx] : 0.0f); }
-	void operator=(vector2d b){ v[0] = b.v[0]; v[1] = b.v[1]; }
-};
 
 
 class LINALG
 {
+public:
+	 template< class T >
+	 static inline void SWAP(T &a, T &b)
+	{
+		T temp = a;
+		a = b;
+		b = temp;
+	}
 
+
+
+
+	 static inline float RandomFloat(float min, float max)
+	{
+		float r = (float)rand() / (float)RAND_MAX;
+		return min + r * (max - min);
+	}
+
+	 static inline float RandomInt(int min, int max)
+	{
+		float r = (float)rand() / (float)RAND_MAX;
+		return (int)((float)min + r * float(max - min));
+	}
+
+	template<class T>
+	static inline T sgn(T x)
+	{
+		if (x > 0.0 + DBL_EPSILON)
+			return 1.0;
+		if (x < 0.0 - DBL_EPSILON)
+			return -1.0;
+
+		return x;
+	}
+
+	static inline double round_to_n_digits(double x, int n)
+	{
+		double scale = pow(10.0, ceil(log10(fabs(x))) + n);
+
+		return round(x * scale) / scale;
+	}
+
+	class vector2d
+	{
+	public:
+
+		float v[2];
+
+		float operator[](unsigned int idx) { return (idx < 2 ? v[idx] : 0.0f); }
+		void operator=(vector2d b){ v[0] = b.v[0]; v[1] = b.v[1]; }
+	};
 private:
 	template < class T > class matrix ;
 
