@@ -145,11 +145,11 @@ public:
 
 	void operator=(matrix &b)
 	{
-		if (!(this->NumRows() == b.NumRows()) && !(this->NumColumns() == b.NumColumns()))
+		if (!(this->NumRows() == b.NumRows()) || !(this->NumCols() == b.NumCols()))
 		{
 			this->destroy();
 			this->SX = b.NumRows();
-			this->SY = b.NumColumns();
+			this->SY = b.NumCols();
 			this->create();
 		}
 		for (int i = 0; i < SX; i++)
@@ -167,17 +167,18 @@ public:
 
 	void operator=(matrix *b)
 	{
-		if (!(this->NumRows() == b->NumRows()) && !(this->NumColumns() == b->NumColumns()))
+		if (!(this->NumRows() == b->NumRows()) || 
+			!(this->NumCols() == b->NumCols()))
 		{
 			this->destroy();
 			this->SX = b->NumRows();
-			this->SY = b->NumColumns();
+			this->SY = b->NumCols();
 			this->create();
 		}
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 				data[i * SY + j] = (*b)(i, j);
 		}
 	}
@@ -192,7 +193,7 @@ public:
 		}
 		for (int i = 0; i < NumRows(); i++)
 		{
-			for (int j = 0; j < NumColumns(); j++)
+			for (int j = 0; j < NumCols(); j++)
 			{
 				if ( NotEqual(get(i, j) , b(i, j)) )
 					return false;
@@ -209,7 +210,7 @@ public:
 
 	inline T& operator()(unsigned int i, unsigned int j)
 	{
-		if (i < NumRows() && j < NumColumns())
+		if (i < NumRows() && j < NumCols())
 			return get(i, j);
 	}
 
@@ -218,10 +219,10 @@ public:
 private:
 	inline T& get(unsigned int i, unsigned int j)
 	{
-		return data[i * NumColumns() + j];
+		return data[i * NumCols() + j];
 		/*T null_return = 0.0;
-		if (i < NumRows() && j < NumColumns())
-			return is_transposed ? data[j*NumColumns() + i] : data[i * NumColumns() + j];
+		if (i < NumRows() && j < NumCols())
+			return is_transposed ? data[j*NumCols() + i] : data[i * NumCols() + j];
 		else return null_return;*/
 	}
 
@@ -230,30 +231,30 @@ public:
 	// Hadamard element wise product
 	matrix& operator | (matrix &b)
 	{
-		if (this->NumColumns() == b.NumColumns() && this->NumRows() == b.NumRows())
+		if ((this->NumCols() == b.NumCols()) && (this->NumRows() == b.NumRows()))
 		{
-			if (out) delete out;
-			out = new matrix(this->NumRows(), this->NumColumns());
-			/*if (out)
+		//	if (out) delete out;
+		//	out = new matrix(this->NumRows(), this->NumCols());
+			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumColumns() == this->NumColumns())))
+					(out->NumCols() == this->NumCols())))
 				{
 					delete out;
-					out = new matrix(this->NumRows(), this->NumColumns());
+					out = new matrix(this->NumRows(), this->NumCols());
 				}
 			}
 			else
 			{
-				out = new matrix(this->NumRows(), this->NumColumns());
-			}*/
+				out = new matrix(this->NumRows(), this->NumCols());
+			}
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 
-				for (int j = 0; j < this->NumColumns(); j++)
+				for (int j = 0; j < this->NumCols(); j++)
 				{
-					//for (int k = 0; k < this->NumColumns(); k++)
+					//for (int k = 0; k < this->NumCols(); k++)
 					{
 						(*out)(i, j) = get(i, j) * b(i, j);
 					}
@@ -268,34 +269,36 @@ public:
 
 	matrix& operator*(matrix &b)
 	{
-		/*if (b.NumColumns() == 1 && b.NumRows() == 1)
+		/*if (b.NumCols() == 1 && b.NumRows() == 1)
 		{
 		//is a 1x1 matrix treated like a scalar?
 			return (*this) * b(0, 0);
 		}*/
-		if (this->NumColumns() == b.NumRows())
+		if (this->NumCols() == b.NumRows())
 		{
-			if (out) delete out;
-			out = new matrix(this->NumRows(), b.NumColumns());
-		/*	if (out)
+			//if (out) delete out;
+			//out = new matrix(this->NumRows(), b.NumCols());
+			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumColumns() == b.NumColumns())))
+					(out->NumCols() == b.NumCols())))
 				{
 					delete out;
-					out = new matrix(this->NumRows(), b.NumColumns());
+					out = new matrix(this->NumRows(), b.NumCols());
 				}
 			}
 			else
 			{
-				out = new matrix(this->NumRows(), b.NumColumns());
-			}*/
+				out = new matrix(this->NumRows(), b.NumCols());
+			}
+
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 
-				for (int j = 0; j < b.NumColumns(); j++)
+				for (int j = 0; j < b.NumCols(); j++)
 				{
-					for (int k = 0; k < this->NumColumns(); k++)
+					(*out)(i, j) = 0.0;
+					for (int k = 0; k < this->NumCols(); k++)
 					{
 						(*out)(i, j) += get(i, k) * b(k, j);
 					}
@@ -316,27 +319,27 @@ public:
 			return (*this);
 		}*/
 
-		/*if (out )
+		if (out )
 		{
 			
 			if (!((out->NumRows() == this->NumRows()) && 
-					(out->NumColumns() == this->NumColumns())))
+					(out->NumCols() == this->NumCols())))
 			{
 				delete out;
-				out = new matrix(this->NumRows(), this->NumColumns());
+				out = new matrix(this->NumRows(), this->NumCols());
 			}
 		}
 		else
 		{
-			out = new matrix(this->NumRows(), this->NumColumns());
-		}*/
+			out = new matrix(this->NumRows(), this->NumCols());
+		}
 
-		if (out)delete out;
-		out = new matrix(this->NumRows(), this->NumColumns());
+		//if (out)delete out;
+		//out = new matrix(this->NumRows(), this->NumCols());
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 			{
 				(*out)(i, j) = get(i, j) * s;
 			}
@@ -346,25 +349,25 @@ public:
 
 	matrix& operator/(T s)
 	{
-		if (out) delete out;
-		out = new matrix(this->NumRows(), this->NumColumns());
+		//if (out) delete out;
+		//out = new matrix(this->NumRows(), this->NumCols());
 
-		/*if (out)
+		if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
-				(out->NumColumns() == this->NumColumns())))
+				(out->NumCols() == this->NumCols())))
 			{
 				delete out;
-				out = new matrix(this->NumRows(), this->NumColumns());
+				out = new matrix(this->NumRows(), this->NumCols());
 			}
 		}
 		else
 		{
-			out = new matrix(this->NumRows(), this->NumColumns());
-		}*/
+			out = new matrix(this->NumRows(), this->NumCols());
+		}
 		for (int i = 0; i < this->NumRows(); i++)
 		{
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 			{
 				(*out)(i, j) = get(i, j) / s;
 			}
@@ -374,25 +377,25 @@ public:
 
 	matrix& operator+(T s)
 	{
-		if (out)delete out;
-		out = new matrix(this->NumRows(), this->NumColumns());
-		/*if (out)
+		//if (out)delete out;
+		//out = new matrix(this->NumRows(), this->NumCols());
+		if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
-				(out->NumColumns() == this->NumColumns())))
+				(out->NumCols() == this->NumCols())))
 			{
 				delete out;
-				out = new matrix(this->NumRows(), this->NumColumns());
+				out = new matrix(this->NumRows(), this->NumCols());
 			}
 		}
 		else
 		{
-			out = new matrix(this->NumRows(), this->NumColumns());
-		}*/
+			out = new matrix(this->NumRows(), this->NumCols());
+		}
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 			{
 				(*out)(i, j) = get(i, j) + s;
 			}
@@ -402,31 +405,31 @@ public:
 
 	matrix& operator+(matrix &b)
 	{
-		if (this->NumColumns() != b.NumColumns() || this->NumRows() != b.NumRows())
+		if (this->NumCols() != b.NumCols() || this->NumRows() != b.NumRows())
 		{
 			return matrix<T>(0, 0);
 		}
 		else
 		{
-			if (out)delete out;
-			out = new matrix(this->NumRows(), this->NumColumns());
-			/*if (out)
+			//if (out)delete out;
+			//out = new matrix(this->NumRows(), this->NumCols());
+			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumColumns() == this->NumColumns())))
+					(out->NumCols() == this->NumCols())))
 				{
 					delete out;
-					out = new matrix(this->NumRows(), this->NumColumns());
+					out = new matrix(this->NumRows(), this->NumCols());
 				}
 			}
 			else
 			{
-				out = new matrix(this->NumRows(), this->NumColumns());
-			}*/
+				out = new matrix(this->NumRows(), this->NumCols());
+			}
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
-				for (int j = 0; j < this->NumColumns(); j++)
+				for (int j = 0; j < this->NumCols(); j++)
 				{
 					(*out)(i, j) = this->get(i, j) + b.get(i, j);
 				}
@@ -439,30 +442,30 @@ public:
 
 	matrix& operator-(matrix &b)
 	{
-		if (this->NumColumns() != b.NumColumns() || this->NumRows() != b.NumRows())
+		if (this->NumCols() != b.NumCols() || this->NumRows() != b.NumRows())
 			return matrix(0, 0);
 		else
 		{
-			if (out)delete out;
-			out = new matrix(this->NumRows(), this->NumColumns());
-			/*if (out)
+		//	if (out)delete out;
+		//	out = new matrix(this->NumRows(), this->NumCols());
+			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumColumns() == this->NumColumns())))
+					(out->NumCols() == this->NumCols())))
 				{
 					delete out;
-					out = new matrix(this->NumRows(), this->NumColumns());
+					out = new matrix(this->NumRows(), this->NumCols());
 				}
 			}
 			else
 			{
-				out = new matrix(this->NumRows(), this->NumColumns());
-			}*/
+				out = new matrix(this->NumRows(), this->NumCols());
+			}
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 
-				for (int j = 0; j < this->NumColumns(); j++)
+				for (int j = 0; j < this->NumCols(); j++)
 				{
 					(*out)(i, j) = this->get(i, j) - b.get(i, j);
 				}
@@ -476,14 +479,14 @@ public:
 	// may need to override this for different matrix types
 	void print(int precis)
 	{
-		if (this->NumRows() == 0 || this->NumColumns() == 0 || this->data == 0)
+		if (this->NumRows() == 0 || this->NumCols() == 0 || this->data == 0)
 		{
 			cout << "Empty Matrix" << endl;
 			return;
 		}
 		for (int i = 0; i < this->NumRows(); i++)
 		{
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 			{
 				float f = get(i, j);
 				//cout << f.5 << "  ";
@@ -547,7 +550,7 @@ public:
 		}
 		else
 		{
-			matrix<T> Y(this->NumColumns(), this->NumRows());
+			matrix<T> Y(this->NumCols(), this->NumRows());
 
 			for (int i = 0; i < SX; i++)
 			{
@@ -580,7 +583,7 @@ public:
 		return SX;
 		//return  (is_transposed ? SY : SX);
 	}
-	inline unsigned int NumColumns()
+	inline unsigned int NumCols()
 	{
 		return SY;
 		//return (is_transposed ? SX : SY);
@@ -652,7 +655,7 @@ public:
 
 		matrix res = XT * (*this) * X;
 
-		for (int i = 0; i < res.NumColumns(); i++)
+		for (int i = 0; i < res.NumCols(); i++)
 		{
 			for (int j = 0; j < res.NumRows(); j++)
 			{
@@ -797,7 +800,7 @@ public:
 	T Det_2x2(int r, int c)
 	{
 		if ((r + 1 < NumRows()) && 
-			(c + 1 < NumColumns()))
+			(c + 1 < NumCols()))
 		{
 			return get(r, c) * get(r + 1, c + 1) - get(r + 1, c)*get(r, c + 1);
 		}
@@ -823,6 +826,9 @@ public:
 	// interesting way of evaluating the determinant
 	T Determinant()
 	{
+	//	if (SX == 2 && SY == 2) return Det_2x2(0, 0);
+	//	if (SX == 3 && SY == 3) return Det_3x3(0, 0);
+
 		T sign = 1;
 		if (this->ReduceToUpperTriangularForm(sign))
 			return sign*this->DiagonalEntryProduct();
@@ -849,18 +855,18 @@ public:
 		/*if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
-				(out->NumColumns() == this->NumColumns())))
+				(out->NumCols() == this->NumCols())))
 			{
 				delete out;
-				out = new matrix(this->NumRows(), this->NumColumns());
+				out = new matrix(this->NumRows(), this->NumCols());
 			}
 		}
 		else
 		{
-			out = new matrix(this->NumRows(), this->NumColumns());
+			out = new matrix(this->NumRows(), this->NumCols());
 		}*/
 		if (out) delete out;
-		out = new matrix<T>(this->NumRows(), this->NumColumns());
+		out = new matrix<T>(this->NumRows(), this->NumCols());
 		
 		out->Identity();
 
@@ -1059,7 +1065,7 @@ public:
 			M(j, 0) = get(j, 0) / M(0, 0);
 		}
 
-		for (int k = 1; k < this->NumColumns(); k++)
+		for (int k = 1; k < this->NumCols(); k++)
 		{
 			for (int j = k; j < n; j++)
 			{
@@ -1092,7 +1098,7 @@ public:
 		return *out;
 	}
 
-	inline bool EqualSize(matrix& b){ return (this->NumRows() == b.NumRows()) && (this->NumColumns() == b.NumColumns());  }
+	inline bool EqualSize(matrix& b){ return (this->NumRows() == b.NumRows()) && (this->NumCols() == b.NumCols());  }
 
 	void Identity()
 	{
@@ -1101,7 +1107,7 @@ public:
 			cout << "Error (Identity): Identity Matrix must be square" << endl;
 			return;
 		}
-		for (int i = 0; i < this->NumColumns(); i++)
+		for (int i = 0; i < this->NumCols(); i++)
 		{
 			for (int j = 0; j < this->NumRows(); j++)
 			{
@@ -1143,7 +1149,7 @@ public:
 
 
 
-		int n = this->NumColumns();
+		int n = this->NumCols();
 
 		L.Identity();
 
@@ -1203,7 +1209,7 @@ public:
 		}
 
 		
-		int n = this->NumColumns();
+		int n = this->NumCols();
 
 		matrix L(n, n);
 		matrix U(n, n);
@@ -1247,7 +1253,7 @@ public:
 
 
 
-		int n = this->NumColumns();
+		int n = this->NumCols();
 
 		U.Identity();
 
@@ -1307,7 +1313,7 @@ public:
 		}
 
 
-		int n = this->NumColumns();
+		int n = this->NumCols();
 
 		matrix L(n, n);
 		matrix U(n, n);
@@ -1352,7 +1358,7 @@ public:
 			return b;
 		}
 
-		int n = this->NumColumns();
+		int n = this->NumCols();
 
 		//this->LU_Decomposition_Crout(L, U);
 
@@ -1443,8 +1449,8 @@ public:
 		matrix<T>  Inn(n, n);
 		Inn.Identity();
 
-		//matrix<T> H = (*this);
-
+		matrix<T> H_ = (*this);
+		matrix<T> P;
 
 		T S = 0.0;
 		for (int c = 0; c < n - 2; c++)
@@ -1454,7 +1460,7 @@ public:
 			S = 0.0;
 			for (int r = c+1; r < n; r++)
 			{
-				S += get(r, c)*get(r, c);
+				S += H_(r, c)*H_(r, c);
 			}
 
 			S = sqrt(S);
@@ -1463,31 +1469,32 @@ public:
 
 				if (r == c + 1)
 				{
-					V(r, 0) = sqrt(0.5*(1.0 + abs( get(r, c) ) / S));
+					V(r, 0) = sqrt(0.5*(1.0 + abs( H_(r, c) ) / S));
 					
 				}
 				else if ( r > c+1)
 				{
-					V(r, 0) = get(r, c) * sgn(get(c + 1, c)) / (2.0 * V(c + 1, 0)*S );	
+					V(r, 0) = H_(r, c) * sgn(H_(c + 1, c)) / (2.0 * V(c + 1, 0)*S );	
 				}
 
 				VT(0, r) = V(r, 0);
 			}
 
-			// another copy 
-			matrix<T> P = Inn -  V * VT * 2;
+			// anotH_er copy 
+			P = Inn -  V * VT * 2;
 
-			//H = H * P;
-			//H = P * H;
+			H_ = H_ * P;
+			H_ = P * H_;
 
-			(*this) = P * (*this) * P;
+			//(*this) = P * (*this) * P;
 
 			// zero the vectors again
 			V.ToZero();
 			VT.ToZero();
 
 		}
-
+		
+		(*this) = H_;
 
 	}
 
@@ -1500,7 +1507,7 @@ public:
 			return *this;
 		}
 
-		int n = this->NumColumns();
+		int n = this->NumCols();
 
 		if (out) delete out;
 		out = new matrix(n, 1);
@@ -1581,13 +1588,13 @@ public:
 
 	void Overwrite_Submatrix(matrix<T> b, int r, int c)
 	{
-		if (b.NumColumns() > this->NumColumns() || b.NumRows() > this->NumRows())
+		if (b.NumCols() > this->NumCols() || b.NumRows() > this->NumRows())
 		{
 			cout << "Error (Overwrite_Submatrix): sub matrix dimensions exceed destination dimensions" << endl;
 			return;
 		}
 
-		if ((r + b.NumRows() > this->NumRows()) || (c + b.NumColumns() > this->NumColumns()))
+		if ((r + b.NumRows() > this->NumRows()) || (c + b.NumCols() > this->NumCols()))
 		{
 			cout << "Error (Overwrite_Submatrix): sub matrix size plus dimensions exceed destination dimensions" << endl;
 			return;
@@ -1595,7 +1602,7 @@ public:
 
 		for (int i = 0; i < b.NumRows(); i++)
 		{
-			for (int j = 0; j < b.NumColumns(); j++)
+			for (int j = 0; j < b.NumCols(); j++)
 			{
 				get(r + i, c + j) = b(i, j);
 			}
@@ -1605,13 +1612,13 @@ public:
 
 	void Overwrite_Submatrix_transposed(matrix<T> b, int r, int c)
 	{
-		if (b.NumColumns() > this->NumColumns() || b.NumRows() > this->NumRows())
+		if (b.NumCols() > this->NumCols() || b.NumRows() > this->NumRows())
 		{
 			cout << "Error (Overwrite_Submatrix): sub matrix dimensions exceed destination dimensions" << endl;
 			return;
 		}
 
-		if ((r + b.NumColumns() > this->NumRows()) || (c + b.NumRows() > this->NumColumns()))
+		if ((r + b.NumCols() > this->NumRows()) || (c + b.NumRows() > this->NumCols()))
 		{
 			cout << "Error (Overwrite_Submatrix): sub matrix size plus dimensions exceed destination dimensions" << endl;
 			return;
@@ -1619,7 +1626,7 @@ public:
 
 		for (int i = 0; i < b.NumRows(); i++)
 		{
-			for (int j = 0; j < b.NumColumns(); j++)
+			for (int j = 0; j < b.NumCols(); j++)
 			{
 				get(r + j, c + i) = b(i, j);
 			}
@@ -1629,7 +1636,7 @@ public:
 
 	void Eigenvalues_2x2( int r, int c, complex<T> &L1, complex<T> &L2)
 	{
-		if (r + 1 >= this->NumRows() || c + 1 >= this->NumColumns())
+		if (r + 1 >= this->NumRows() || c + 1 >= this->NumCols())
 		{
 			cout << "Error (Eigenvalues_2x2): index out of bounds" << endl;
 			return;// false;
@@ -1646,7 +1653,7 @@ public:
 
 	T Det_3x3( int r, int c)
 	{
-		if (r + 2 >= NumRows() || c + 2 >= NumColumns())
+		if (r + 2 >= NumRows() || c + 2 >= NumCols())
 		{
 			cout << "Error (Det_3x3): Out of bounds error" << endl;
 			return 0.0;
@@ -1729,7 +1736,7 @@ public:
 			return;
 		}
 
-		int n = this->NumColumns();
+		int n = this->NumCols();
 
 		matrix<T> C_n(n, n);
 		C_n.Identity();
@@ -1826,14 +1833,14 @@ public:
 	void ToZero()
 	{
 		for (int i = 0; i < this->NumRows(); i++)
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 				get(i, j) = 0;
 	}
 
 	void ClipToZero(T eps)
 	{
 		for (int i = 0; i < this->NumRows(); i++)
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 				if ((get(i, j) > 0 && get(i, j) < eps) || 
 					(get(i, j) < 0 && get(i, j) > -eps)) 
 					get(i, j) = 0;
@@ -1843,7 +1850,7 @@ public:
 	void Round_to_N_digits(int N)
 	{
 		for (int i = 0; i < this->NumRows(); i++)
-			for (int j = 0; j < this->NumColumns(); j++)
+			for (int j = 0; j < this->NumCols(); j++)
 				get(i, j) = round_to_n_digits(get(i, j), N);
 	}
 
@@ -1858,7 +1865,7 @@ public:
 			return -1;
 		}
 
-		if (c >= this->NumColumns())
+		if (c >= this->NumCols())
 		{
 			cout << "Error (max_row_of_column): column index exceeds bounds" << endl;
 			return -1;
@@ -1888,7 +1895,7 @@ public:
 
 		T max_val = 0.0;
 		int max_int = 0;
-		for (int c = 0; c < NumColumns(); c++)
+		for (int c = 0; c < NumCols(); c++)
 		{
 			if (r != c)
 			{
@@ -1911,7 +1918,7 @@ public:
 			return;
 		}
 
-		for (int c = 0; c < this->NumColumns(); c++)
+		for (int c = 0; c < this->NumCols(); c++)
 		{
 			SWAP<T>(get(r1, c), get(r2, c));
 		}
@@ -1919,7 +1926,7 @@ public:
 
 	inline void SwapColumn(int c1, int c2)
 	{
-		if (c1 >= this->NumColumns() || c2 >= this->NumColumns())
+		if (c1 >= this->NumCols() || c2 >= this->NumCols())
 		{
 			cout << "Error (SwapColumn): index out of bounds" << endl;
 			return;
@@ -1933,7 +1940,7 @@ public:
 
 	inline void CopyVector_from_SubMatrix_to_SubMatrix(matrix<T>& Source, int r1, int r2, int n)
 	{
-		if (n > this->NumColumns() || n > Source.NumColumns())
+		if (n > this->NumCols() || n > Source.NumCols())
 		{
 			cout << "Error (CopyVector_from_SubMatrix_to_SubMatrix): columns overflow" << endl;
 			return;
@@ -1952,7 +1959,7 @@ public:
 		T sum = 0.0;
 		for (int r = 0; r < NumRows(); r++)
 		{
-			for (int c = 0; c < NumColumns(); c++)
+			for (int c = 0; c < NumCols(); c++)
 			{
 				sum += get(r, c)*get(r, c);
 			}
@@ -1965,85 +1972,41 @@ public:
 
 	matrix<T>(T p[6][6])
 	{
-
-		SX = 6;
-		SY = 6;
+		SX = 6; SY = 6;
 		this->create();
-
-		for (int i = 0; i < 6; i++)
-		{
-			for (int j = 0; j < 6; j++)
-			{
-				data[i * 6 + j] = p[i][j];
-			}
-		}
+		this->CopyData((T*)p);
 	}
 
 	matrix<T> (T p[5][5])
 	{
-
-		SX = 5;
-		SY = 5;
+		SX = 5; SY = 5;
 		this->create();
-
-		for (int i = 0; i < 5; i++)
-		{
-			for (int j = 0; j < 5; j++)
-			{
-				data[i*5 + j] = p[i][j];
-			}
-		}
+		this->CopyData((T*)p);
 	}
 
 	matrix<T>(T p[4][4])
 	{
-
-		SX = 4;
-		SY = 4;
+		SX = 4;  SY = 4;
 		this->create();
 
-		for (int i = 0; i < SX; i++)
-		{
-			for (int j = 0; j < SY; j++)
-			{
-				data[i * SY + j] = p[i][j];
-			}
-		}
+		this->CopyData((T*)p);
 	}
 
 	matrix<T>(T p[3][3])
 	{
-
-		SX = 3;
-		SY = 3;
+		SX = 3;  SY = 3;
 		this->create();
-
-		for (int i = 0; i < SX; i++)
-		{
-			for (int j = 0; j < SY; j++)
-			{
-				data[i * SY + j] = p[i][j];
-			}
-		}
+		this->CopyData((T*)p);
 	}
-
-
 
 	matrix<T>(T p[2][2])
 	{
-
-		SX = 2;
-		SY = 2;
+		SX = 2; SY = 2;
 		this->create();
-
-		for (int i = 0; i < SX; i++)
-		{
-			for (int j = 0; j < SY; j++)
-			{
-				data[i * SY + j] = p[i][j];
-			}
-		}
+		this->CopyData((T*)p);
 	}
+
+
 //http://stackoverflow.com/questions/19840213/how-to-read-values-from-a-2d-initializer-list-and-put-them-in-a-2d-vector
 	matrix<T>(const std::initializer_list<std::initializer_list<T>>& list)
 	{
@@ -2065,13 +2028,18 @@ public:
 //	virtual void Set_Zero_Epsilon() = 0;
 
 	T precision = FLT_EPSILON; // defaults to float eps
-	unsigned int SX = 0;
-	unsigned int SY = 0;
 private:
+
+	void CopyData(T *p)
+	{ 
+		memcpy(data, p, SX*SY*sizeof(T));
+	}
+
 
 	
 	bool is_transposed = false;
-
+	unsigned int SX = 0;
+	unsigned int SY = 0;
 
 	matrix<T> *out = 0;
 

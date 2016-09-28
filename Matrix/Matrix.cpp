@@ -166,7 +166,7 @@ void TestingProcedure_Householder_Hessenburg_QR(matrixf &H_)
 
 	if (sel == 'y' || sel == 'Y')
 	{
-		matrixf eigen_values(H__3.NumColumns(), 2);
+		matrixf eigen_values(H__3.NumCols(), 2);
 
 		H__3.QR_algorithm(eigen_values);
 
@@ -666,13 +666,6 @@ int main(int argc, char* argv[])
 
 
 
-	TestGaussElimination_1();
-	TestGaussElimination_2();
-
-	TestCholesky();
-	TestCrout_LU_Method();
-
-	TestGaussSeidel();
 
 
 
@@ -685,13 +678,7 @@ int main(int argc, char* argv[])
 	Testing_Householder_Tridiagonalize();
 
 
-	Test_TriangularSystemSolvers();
 
-
-
-
-	Test_Transposition();
-	
 
 	int matrix_selection;
 
@@ -738,14 +725,25 @@ int main(int argc, char* argv[])
 //	cout << "matrixf Multiplication A * A2" << endl;
 
 
-//	Test_LU_System();
-
-	//Test_TriangularSystemSolvers();
 
 
+/*	TestGaussElimination_1();
+	TestGaussElimination_2();
+
+	TestCholesky();
+	TestCrout_LU_Method();
+
+	TestGaussSeidel();
+	Test_TriangularSystemSolvers();
 
 
-	//Test_Transposition();
+
+
+	Test_Transposition();
+
+	*/
+
+
 		return 0;
 }
 
