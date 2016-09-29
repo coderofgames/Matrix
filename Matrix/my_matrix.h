@@ -510,8 +510,8 @@ public:
 
 	T trace()
 	{
-		T sum = 0.0f;
-		if (SX != SY) return 0.0f;
+		T sum = 0.0;
+		if (SX != SY) return 0.0;
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -561,8 +561,8 @@ public:
 				}
 			}
 			this->destroy();
-			this->SX = Y.SX;
-			this->SY = Y.SY;
+			this->SX = Y.NumRows();
+			this->SY = Y.NumCols();
 			this->create();
 
 			for (int i = 0; i < SX; i++)
@@ -989,7 +989,7 @@ public:
 
 		for (int i = 1; i < L.NumRows(); i++)
 		{
-			T sum0 = 0.0f;
+			T sum0 = 0.0;
 			for (int s = 0; s < i; s++)
 			{
 				sum0 += L(i, s) * y(s,0);
@@ -1114,11 +1114,11 @@ public:
 			{
 				if (i == j)
 				{
-					get(j, i) = 1.0f;
+					get(j, i) = 1.0;
 				}
 				else
 				{
-					get(j, i) = 0.0f;
+					get(j, i) = 0.0;
 				}
 				
 			}
@@ -1160,7 +1160,7 @@ public:
 
 			L(k, 0) = get(k, 0) / U(0, 0); // loop 1 with rows indexed with k, ignore cols
 
-			L(k, k) = 1.0f; // loop 1 as L(k,k)
+			L(k, k) = 1.0; // loop 1 as L(k,k)
 		}
 
 		for (int j = 1; j < n; j++)
@@ -1169,14 +1169,14 @@ public:
 			{
 				if (k >= j)
 				{
-					T sum0 = 0.0f;
+					T sum0 = 0.0;
 					for (int s = 0; s < j; s++) sum0 += L(j, s) * U(s, k);
 
 					U(j, k) = get(j, k) - sum0;
   				}
 				else
 				{
-					T sum1 = 0.0f;
+					T sum1 = 0.0;
 					for (int s = 0; s < k; s++) sum1 += L(j, s) * U(s, k);
 
 					L(j, k) = (1 / U(k, k))*(get(j, k) - sum1);
@@ -1264,7 +1264,7 @@ public:
 
 			U(0, j) = get(0, j) / L(0, 0); 
 
-			U(j, j) = 1.0f; 
+			U(j, j) = 1.0; 
 			
 		}
 
@@ -1274,14 +1274,14 @@ public:
 			{
 				if (j >= k)
 				{
-					T sum0 = 0.0f;
+					T sum0 = 0.0;
 					for (int s = 0; s < k; s++) sum0 += L(j, s) * U(s, k);
 
 					L(j, k) = get(j, k) - sum0;
   				}
 				else
 				{
-					T sum1 = 0.0f;
+					T sum1 = 0.0;
 					for (int s = 0; s < j; s++) sum1 += L(j, s) * U(s, k);
 
 					U(j, k) = (1 / L(j,j))*(get(j, k) - sum1);
@@ -1407,12 +1407,12 @@ public:
 		{
 			for ( int j = 0; j < n; j++)
 			{
-				T sum1 = 0.0f;
+				T sum1 = 0.0;
 				for (int k = 0; k < j; k++)
 				{
 					sum1 += get(j, k) * (*out)(k, 0);
 				}
-				T sum2 = 0.0f;
+				T sum2 = 0.0;
 				for (int k = j+1; k < n; k++)
 				{
 					sum2 += get(j, k) * x0(k, 0);
@@ -1420,7 +1420,7 @@ public:
 				
 				(*out)(j, 0) = (-1 / get(j, j))*(sum1 + sum2 - b(j, 0));
 			}
-			float max_magnitude = 0.0f;
+			float max_magnitude = 0.0;
 			for (int j = 0; j < n; j++)
 			{
 				float magnitude = abs( (*out)(j, 0) - x0(j, 0) );

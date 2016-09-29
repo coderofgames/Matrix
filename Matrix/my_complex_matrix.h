@@ -14,7 +14,15 @@ using std::cout;
 using std::endl;
 
 using namespace std;
+/*
+template<class T>
+complex<T> operator / (complex<T> a, complex<T> z)
+{
+	T magnitude = std::abs(z);
+	z = std::conj(z) / magnitude;
+	return a*z;
 
+}*/
 
 class LINALG_COMPLEX
 {
@@ -138,7 +146,7 @@ private:
 			is_transposed = false;
 		}
 
-		void operator=(matrix_complex &b)
+		void operator=(matrix_complex<T> &b)
 		{
 			if (!(this->NumRows() == b.NumRows()) || !(this->NumCols() == b.NumCols()))
 			{
@@ -154,7 +162,7 @@ private:
 			}
 		}
 
-		inline bool NotEqual(T test_value, T compare)
+		inline bool NotEqual(complex<T> test_value, complex<T> compare)
 		{
 			return ((test_value > compare + this->precision) || (test_value < compare - this->precision));
 		}
@@ -262,7 +270,7 @@ private:
 			return matrix_complex(0, 0);
 		}
 
-		matrix_complex& operator*(matrix_complex &b)
+		matrix_complex<T>& operator*(matrix_complex<T> &b)
 		{
 			/*if (b.NumCols() == 1 && b.NumRows() == 1)
 			{
@@ -286,16 +294,17 @@ private:
 				{
 					out = new matrix_complex<T>(this->NumRows(), b.NumCols());
 				}
-
-				for (int i = 0; i < this->NumRows(); i++)
+				
+				for (int r = 0; r < this->NumRows(); r++)
 				{
 
-					for (int j = 0; j < b.NumCols(); j++)
+					for (int c = 0; c < b.NumCols(); c++)
 					{
-						(*out)(i, j) = complex<T>(0.0, 0.0);
+						(*out)(r, c) = complex < T >(0.0, 0.0);
 						for (int k = 0; k < this->NumCols(); k++)
 						{
-							(*out)(i, j) += get(i, k) * b(k, j);
+							//(*out)(r, c) += std::conj(get(r, k)) * b(k, c);
+							(*out)(r, c) += get(r, k) * b(k, c);
 						}
 					}
 				}
@@ -487,7 +496,7 @@ private:
 					T imag = get(r, c).imag();
 					//cout << get(i, j)  << "  ";
 					if (precis == 2)
-						printf("(%8.2f, %8.2f)  ", real, imag);
+						printf("(%8.2f %8.2f)  ", real, imag);
 					else if (precis == 3)
 						printf("(%8.3f, %8.3f)  ", real, imag);
 					else if (precis == 4)
@@ -503,9 +512,9 @@ private:
 
 
 
-		T trace()
+		complex<T> trace()
 		{
-			T sum = 0.0f;
+			complex<T> sum = complex<T>( 0.0, 0.0 );
 			if (SX != SY) return 0.0f;
 
 			for (int i = 0; i < this->NumRows(); i++)
@@ -556,8 +565,8 @@ private:
 					}
 				}
 				this->destroy();
-				this->SX = Y.SX;
-				this->SY = Y.SY;
+				this->SX = Y.NumRows();
+				this->SY = Y.NumCols();
 				this->create();
 
 				for (int i = 0; i < SX; i++)
@@ -655,7 +664,7 @@ private:
 			{
 				for (int j = 0; j < res.NumRows(); j++)
 				{
-					if (res(j, i) <= 0) return false;
+					if (res(j, i).real() <= 0) return false;
 				}
 			}
 			return true;
@@ -736,6 +745,7 @@ private:
 			for (int i = n - 2; i > -1; i--)
 			{
 				complex<T> the_sum = complex<T>(0.0, 0.0);
+
 				for (int j = i + 1; j < n; j++)
 					the_sum += get(i, j)*(*out)(j, 0);
 
@@ -927,7 +937,7 @@ private:
 			{
 				return get(r, c) * get(r + 1, c + 1) - get(r + 1, c)*get(r, c + 1);
 			}
-			return 0.0;
+			return complex<T>(0.0, 0.0);
 		}
 
 		complex< T > DiagonalEntryProduct()
@@ -935,9 +945,9 @@ private:
 			if (!this->IsSquare())
 			{
 				cout << "Error (DiagonalEntryProduct): error matrix should be square" << endl;
-				return 0.0;
+				return complex<T>(0.0, 0.0);
 			}
-			T prod = get(0, 0);
+			complex<T> prod = get(0, 0);
 			for (int r = 1; r < this->NumRows(); r++)
 				prod *= get(r, r);
 
@@ -956,7 +966,7 @@ private:
 			if (this->ReduceToUpperTriangularForm(sign))
 				return sign*this->DiagonalEntryProduct();
 
-			return 0;
+			return complex<T>( 0.0, 0.0 );
 		}
 
 
@@ -1005,7 +1015,7 @@ private:
 			{
 				for (int c = 0; c < this->NumCols(); c++)
 				{
-					get(r, c) = complex<T>(get(r, c).real(), -get(r, c).imag());
+					get(r, c) = std::conj(get(r, c));
 				}
 			}
 		}
@@ -1017,15 +1027,8 @@ private:
 				cout << "Error (Identity): Identity Matrix must be square" << endl;
 				return;
 			}*/
+			this->Conjugate();
 			this->transpose();
-			
-			for (int r = 0; r < this->NumRows(); r++)
-			{
-				for (int c = 0; c < this->NumCols(); c++)
-				{
-					get(r, c) = complex<T>(get(r, c).real(), -get(r, c).imag());
-				}
-			}
 		}
 
 		bool IsHermitian()
@@ -1040,9 +1043,9 @@ private:
 			{
 				for (int c = 0; c < this->NumCols(); c++)
 				{
-					if ( (get(r, c).real() != get(c, r).real()) || 
-						 (get(r, c).imag() != -get(c, r).imag()))
-						return false;
+					//if ( r!=c )
+						if (get(r, c) != std::conj(get(c, r)) )
+							return false;
 				}
 			}
 
@@ -1062,8 +1065,7 @@ private:
 			{
 				for (int c = 0; c < this->NumCols(); c++)
 				{
-					if ((get(r, c).real() != -get(c, r).real()) ||
-						(get(r, c).imag() != get(c, r).imag()))
+					if (get(r, c) != -std::conj(get(c, r)))
 						return false;
 				}
 			}
@@ -1104,7 +1106,7 @@ private:
 				{
 					sum0 += L(i, s) * y(s, 0);
 				}
-				y(i, 0) = (1 / L(i, i)) * (b(i, 0) - sum0);
+				y(i, 0) = (complex<T> (1.0, 0.0) / L(i, i)) * (b(i, 0) - sum0);
 			}
 
 			return y;
@@ -1141,12 +1143,12 @@ private:
 				for (int j = i + 1; j < n; j++)
 					sum0 += U(i, j)*x(j, 0);
 
-				x(i, 0) = (1 / U(i, i)) * (y(i, 0) - sum0);
+				x(i, 0) = (complex<T>(1.0, 0.0) / U(i, i)) * (y(i, 0) - sum0);
 			}
 
 			return x;
 		}
-
+		
 		//============================================================================
 		// Solves a system Ax = b via the Cholesky method
 		// this matrix must be symmetric and positive definite
@@ -1192,7 +1194,7 @@ private:
 						complex<T> sum2 = complex<T>(0.0, 0.0);
 						for (int s = 0; s < k; s++) sum2 += M(j, s) * M(k, s);
 
-						M(j, k) = (1 / M(k, k)) * (get(j, k) - sum2);
+						M(j, k) = (complex<T>(1.0, 0.0) / M(k, k)) * (get(j, k) - sum2);
 					}
 				}
 			}
@@ -1370,7 +1372,7 @@ private:
 						complex<T> sum1 = complex<T>( 0.0, 0,0 );
 						for (int s = 0; s < j; s++) sum1 += L(j, s) * U(s, k);
 
-						U(j, k) = (1 / L(j, j))*(get(j, k) - sum1);
+						U(j, k) = (complex<T>(1.0, 0.0) / L(j, j))*(get(j, k) - sum1);
 					}
 				}
 			}
@@ -1620,12 +1622,12 @@ private:
 			if (r + 2 >= NumRows() || c + 2 >= NumCols())
 			{
 				cout << "Error (Det_3x3): Out of bounds error" << endl;
-				return 0.0;
+				return complex<T>( 0.0, 0.0 );
 			}
 
-			T c1 = get(r, c);
-			T c2 = -get(r, c + 1);
-			T c3 = get(r, c + 2);
+			complex<T> c1 = get(r, c);
+			complex<T> c2 = -get(r, c + 1);
+			complex<T> c3 = get(r, c + 2);
 
 			return  c1 * (get(r + 1, c + 1) * get(r + 2, c + 2) - get(r + 1, c + 2)*get(r + 2, c + 1)) +
 				c2 * (get(r + 1, c) * get(r + 2, c + 2) - get(r + 1, c + 2) * get(r + 2, c)) +
@@ -1698,7 +1700,7 @@ private:
 
 			for (int r = 0; r < this->NumRows(); r++)
 			{
-				SWAP<T>(get(r, c1), get(r, c2));
+				SWAP<complex<T>>(get(r, c1), get(r, c2));
 			}
 		}
 
@@ -1716,7 +1718,7 @@ private:
 
 		void CopyData(T *p)
 		{
-			memcpy(data, p, SX*SY*sizeof(T));
+			memcpy(data, p, SX*SY*sizeof(complex<T>));
 		}
 
 
@@ -1751,5 +1753,8 @@ inline LINALG_COMPLEX::matrix_cf operator*(float s, LINALG_COMPLEX::matrix_cf &a
 }
 
 
-
+inline LINALG_COMPLEX::matrix_cd operator*(float s, LINALG_COMPLEX::matrix_cd &a)
+{
+	return a * s;
+}
 #endif
