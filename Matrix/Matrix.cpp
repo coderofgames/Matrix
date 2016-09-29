@@ -317,7 +317,7 @@ void Test_Complex_Matrix()
 	for (int i = 0; i < 1; i++)
 	{
 
-		matrix_cd m9(10, 10);
+		/*matrix_cd m9(10, 10);
 
 		for (int r = 0; r < 10; r++)
 		{
@@ -325,54 +325,78 @@ void Test_Complex_Matrix()
 			{
 				m9(r, c) = complex_arr[r*10 + c];
 			}
-		}
+		}*/
+		matrix_cd m9(4, 4);
 
+		for (int r = 0; r < 4; r++)
+		{
+			for (int c = 0; c < 4; c++)
+			{
+				m9(r, c) = LINALG_COMPLEX::RandomComplex<double>(-10.0, 10.0);
+			}
+		}
 		cout << endl;
-		cout << "printing big matrix" << endl;
+		cout << "printing m9" << endl;
 		m9.print(2);
 
 		cout << endl;
 		cout << "Is the matrix Hermitian?" << endl;
 		if (m9.IsHermitian())
 			cout << "true" << endl;
+		else cout << "false" << endl;
 
 		cout << endl;
-		cout << "printing m2 inverted" << endl;
+		cout << "printing m9 inverted" << endl;
 		matrix_cd Ic1 = m9;
-		matrix_cd m2_inv = Ic1.Gauss_Jordan();
-		m2_inv.print(2);
+		matrix_cd m9_inv = Ic1.Gauss_Jordan();
+		m9_inv.print(2);
 
 		cout << endl;
 		cout << "printing leftovers from Gauss Jordan" << endl;
 		Ic1.print(2);
 
-		m2_inv.ClipToZero(0.0000001);
-		m2.ClipToZero(0.0000001);
+		m9_inv.ClipToZero(0.0000001);
+		m9.ClipToZero(0.0000001);
 
 		cout << endl;
-		cout << "printing m2_inv* m2 " << endl;
-		matrix_cd I_complex = m2_inv * m9;
+		cout << "printing m9_inv* m9 " << endl;
+		matrix_cd I_complex = m9_inv * m9;
 		I_complex.print(2);
 
 		cout << endl;
-		cout << "printing  m2 *m2_inv " << endl;
-		matrix_cd I_complex2 = m9 *m2_inv;
+		cout << "printing  m9 *m9_inv " << endl;
+		matrix_cd I_complex2 = m9 *m9_inv;
 		I_complex2.print(2);
 	//	complex<double> R_01 = m9(0, 0) * m2_inv(0, 1) + m9(0, 1) * m2_inv(1, 1) + m9(0, 2)* m2_inv(2, 1) + m9(0, 3)* m2_inv(3, 1);
-	//	cout << endl;
+		cout << endl;
 	//	cout << "printing  element 0,1 " << endl;
-	//	cout << R_01 << "   abs(): " << std::abs(R_01) << "     determinant: " << m2_inv.Determinant() << endl;
+		cout << "     determinant: " << m9.Determinant() << endl;
 
 
 		m9.transpose();
-		m2_inv.transpose();
+		m9_inv.transpose();
 
 		//m2_inv.Conjugate();
 
 		cout << endl;
-		cout << "printing m2_inv.transpose() * m2.transpose() " << endl;
-		matrix_cd I_complex3 = m2_inv * m9;
+		cout << "printing m9_inv.transpose() * m2.transpose() " << endl;
+		matrix_cd I_complex3 = m9_inv * m9;
 		I_complex3.print(3);
+
+		matrix_cd m9_inv_copy = m9_inv;
+
+		cout << endl;
+		cout << "printing  m9_inv (inverted) " << endl;
+		m9_inv.transpose();
+		matrix_cd m9_inv_inv = m9_inv.Gauss_Jordan();
+		m9_inv_inv.print(3);
+
+		cout << endl;
+		cout << "printing  m9_inv transpose (inverted) " << endl;
+		//m9_inv_copy.transpose();
+		m9_inv_copy.Conjugate();
+		matrix_cd m9_inv_copy_inv = m9_inv_copy.Gauss_Jordan();
+		m9_inv_copy_inv.print(3);
 	}
 
 	cout << endl;
@@ -416,6 +440,28 @@ void Test_Complex_Matrix()
 	sol.print(4);
 
 	cout << endl;
+	// still broken, check on here 
+	// http://matrix.reshish.com/inverse.php
+	//complex<double> __a[6][6]
+		matrix_cd test_inv = {
+		{ { 5, 4 }, { 3, -2 }, { 4, 4 }, {-6, 2},   {-2, 4}, {2, -8} },
+		{  {2 + 2},	{ 3,  0 }, {-7 + 2}, {12 ,-1 },	{3, 2},	 {1 ,1}  },
+		{ { 5, 4 }, { 0, 0 }, { 9, 2 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+		{ { 0, 0 }, { 0, 0 }, { 0, 0 }, {-4, -7}, {2, -1 }, {2,  2}  },
+		{ {17, 19.6},	{4, 3},{ -2, -1},	{1,1 }, {-14,  3},	{8 ,-4}},
+		{ { -5, -3 }, { 8, 2 }, { 4, -3 }, { -3, -5 }, { 15, 2 }, { 1, 0 } }
+	};
+
+	//matrix_cd test_inv(6, 6);
+	/*for (int i = 0; i < 6; i++)
+		for (int j = 0; j < 6; j++)
+			test_inv(i, j) = __a[i][j];*/
+	cout << endl;
+	test_inv.print(3);
+	matrix_cd test_inv_inv = test_inv.Gauss_Jordan();
+
+	cout << endl;
+	test_inv_inv.print(5);
 }
 
 

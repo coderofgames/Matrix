@@ -829,10 +829,10 @@ public:
 	{
 	//	if (SX == 2 && SY == 2) return Det_2x2(0, 0);
 	//	if (SX == 3 && SY == 3) return Det_3x3(0, 0);
-
+		matrix temp = (*this);
 		T sign = 1;
-		if (this->ReduceToUpperTriangularForm(sign))
-			return sign*this->DiagonalEntryProduct();
+		if (temp.ReduceToUpperTriangularForm(sign))
+			return sign*temp.DiagonalEntryProduct();
 		
 		return 0;
 	}

@@ -14,15 +14,7 @@ using std::cout;
 using std::endl;
 
 using namespace std;
-/*
-template<class T>
-complex<T> operator / (complex<T> a, complex<T> z)
-{
-	T magnitude = std::abs(z);
-	z = std::conj(z) / magnitude;
-	return a*z;
 
-}*/
 
 class LINALG_COMPLEX
 {
@@ -43,6 +35,20 @@ public:
 		float r = (float)rand() / (float)RAND_MAX;
 		return min + r * (max - min);
 	}
+
+	template<class Scalar>
+	static inline Scalar RandomScalar(Scalar min, Scalar max)
+	{
+		Scalar r = (Scalar)rand() / (Scalar)RAND_MAX;
+		return min + r * (max - min);
+	}
+
+	template< class Scalar >
+	static inline complex<Scalar> RandomComplex(Scalar min, Scalar max)
+	{ 
+		return complex<Scalar>(RandomScalar(min, max), RandomScalar(min, max));
+	}
+
 
 	static inline float RandomInt(int min, int max)
 	{
@@ -78,13 +84,13 @@ private:
 	class matrix_complex
 	{
 	public:
-		matrix_complex<T>(){
+		matrix_complex(){
 			this->SX = 0; SY = 0;
 			data = 0;
 		}
 
 
-		matrix_complex<T>(matrix_complex<T> *p){
+		matrix_complex(matrix_complex *p){
 			this->SX = p->SX; SY = p->SY;
 			this->create();
 			for (int i = 0; i < SX; i++)
@@ -95,7 +101,7 @@ private:
 			is_transposed = false;
 		}
 
-		matrix_complex<T>(matrix_complex &p){
+		matrix_complex(matrix_complex &p){
 			this->SX = p.SX; SY = p.SY;
 			this->create();
 			for (int i = 0; i < SX; i++)
@@ -106,13 +112,13 @@ private:
 			is_transposed = false;
 		}
 
-		matrix_complex<T>(unsigned int n, unsigned int m)
+		matrix_complex(unsigned int n, unsigned int m)
 		{
 			SX = n;
 			SY = m;
 			create();
 		}
-		~matrix_complex<T>()
+		~matrix_complex()
 		{
 			destroy();
 			if (out) delete out;
@@ -146,7 +152,7 @@ private:
 			is_transposed = false;
 		}
 
-		void operator=(matrix_complex<T> &b)
+		void operator=(matrix_complex &b)
 		{
 			if (!(this->NumRows() == b.NumRows()) || !(this->NumCols() == b.NumCols()))
 			{
@@ -223,10 +229,6 @@ private:
 		inline complex< T >& get(unsigned int i, unsigned int j)
 		{
 			return data[i * NumCols() + j];
-			/*T null_return = 0.0;
-			if (i < NumRows() && j < NumCols())
-			return is_transposed ? data[j*NumCols() + i] : data[i * NumCols() + j];
-			else return null_return;*/
 		}
 
 	public:
@@ -270,7 +272,7 @@ private:
 			return matrix_complex(0, 0);
 		}
 
-		matrix_complex<T>& operator*(matrix_complex<T> &b)
+		matrix_complex& operator*(matrix_complex &b)
 		{
 			/*if (b.NumCols() == 1 && b.NumRows() == 1)
 			{
@@ -287,12 +289,12 @@ private:
 						(out->NumCols() == b.NumCols())))
 					{
 						delete out;
-						out = new matrix_complex<T>(this->NumRows(), b.NumCols());
+						out = new matrix_complex(this->NumRows(), b.NumCols());
 					}
 				}
 				else
 				{
-					out = new matrix_complex<T>(this->NumRows(), b.NumCols());
+					out = new matrix_complex(this->NumRows(), b.NumCols());
 				}
 				
 				for (int r = 0; r < this->NumRows(); r++)
@@ -311,7 +313,7 @@ private:
 
 				return *out;
 			}
-			return matrix_complex<T>(0, 0);
+			return matrix_complex(0, 0);
 		}
 
 		matrix_complex& operator*(T s)
@@ -411,7 +413,7 @@ private:
 		{
 			if (this->NumCols() != b.NumCols() || this->NumRows() != b.NumRows())
 			{
-				return matrix_complex<T>(0, 0);
+				return matrix_complex(0, 0);
 			}
 			else
 			{
@@ -496,15 +498,54 @@ private:
 					T imag = get(r, c).imag();
 					//cout << get(i, j)  << "  ";
 					if (precis == 2)
-						printf("(%8.2f %8.2f)  ", real, imag);
+					{
+						if ( imag > 0 )
+							printf("(%8.2f + %8.2f i )     ", real, imag);
+						else
+							printf("(%8.2f   %8.2f i )     ", real, imag);
+					}
 					else if (precis == 3)
-						printf("(%8.3f, %8.3f)  ", real, imag);
+					{
+						if (imag > 0)
+							printf("(%8.3f + %8.3f i )     ", real, imag);
+						else
+							printf("(%8.3f   %8.3f i )     ", real, imag);
+					}
 					else if (precis == 4)
-						printf("(%8.4f, %8.4f)  ", real, imag);
+					{
+						if (imag > 0)
+							printf("(%8.4f + %8.4f i )     ", real, imag);
+						else
+							printf("(%8.4f   %8.4f i )     ", real, imag);
+					}
 					else if (precis == 5)
-						printf("(%8.5f, %8.5f)  ", real, imag);
+					{
+						if (imag > 0)
+							printf("(%8.5f + %8.5f i )     ", real, imag);
+						else
+							printf("(%8.5f   %8.5f i )     ", real, imag);
+					}
 					else if (precis == 6)
-						printf("(%8.6f, %8.6f)  ", real, imag);
+					{
+						if (imag > 0)
+							printf("(%8.6f + %8.6f i )     ", real, imag);
+						else
+							printf("(%8.6f   %8.6f i )     ", real, imag);
+					}
+					else if (precis == 7)
+					{
+						if (imag > 0)
+							printf("(%8.7f + %8.7f i )     ", real, imag);
+						else
+							printf("(%8.7f   %8.7f i )     ", real, imag);
+					}
+					else if (precis == 8)
+					{
+						if (imag > 0)
+							printf("(%8.8f + %8.8f i )     ", real, imag);
+						else
+							printf("(%8.8f   %8.8f i )     ", real, imag);
+					}
 				}
 				cout << endl;
 			}
@@ -555,7 +596,7 @@ private:
 			}
 			else
 			{
-				matrix_complex<T> Y(this->NumCols(), this->NumRows());
+				matrix_complex Y(this->NumCols(), this->NumRows());
 
 				for (int i = 0; i < SX; i++)
 				{
@@ -738,7 +779,7 @@ private:
 			}
 
 			if (out) delete out;
-			out = new matrix_complex<T>(n, 1);
+			out = new matrix_complex(n, 1);
 
 			(*out)(n - 1, 0) = b(n - 1, 0) / get(n - 1, n - 1);
 
@@ -807,7 +848,7 @@ private:
 		// The matrix should be square, returns the inverse
 		//
 		//============================================================================
-		matrix_complex< T >& Gauss_Jordan()
+		matrix_complex& Gauss_Jordan()
 		{
 			if (!this->IsSquare())
 			{
@@ -832,7 +873,7 @@ private:
 			out = new matrix(this->NumRows(), this->NumCols());
 			}*/
 			if (out) delete out;
-			out = new matrix_complex<T>(this->NumRows(), this->NumCols());
+			out = new matrix_complex(this->NumRows(), this->NumCols());
 
 			out->Identity();
 
@@ -859,9 +900,9 @@ private:
 
 				for (int p = 0; p < n; p++)
 				{
-					SWAP(get(j, p), get(k, p));
+					SWAP<complex<T>>(get(j, p), get(k, p));
 
-					SWAP((*out)(j, p), (*out)(k, p));
+					SWAP<complex<T>>((*out)(j, p), (*out)(k, p));
 				}
 				for (j = k + 1; j < n; j++)
 				{
@@ -961,10 +1002,10 @@ private:
 		{
 			//	if (SX == 2 && SY == 2) return Det_2x2(0, 0);
 			//	if (SX == 3 && SY == 3) return Det_3x3(0, 0);
-
+			matrix_complex temp = (*this);
 			T sign = 1;
-			if (this->ReduceToUpperTriangularForm(sign))
-				return sign*this->DiagonalEntryProduct();
+			if (temp.ReduceToUpperTriangularForm(sign))
+				return sign*temp.DiagonalEntryProduct();
 
 			return complex<T>( 0.0, 0.0 );
 		}
@@ -1079,7 +1120,7 @@ private:
 		// L, is Lower triangular, y is the solution vector, b is the output
 		// inputs L, y, b
 		//============================================================================
-		matrix_complex<T> & Solve_Lower_TriangularSystem(matrix_complex<T> & L, matrix_complex<T> & y, matrix_complex<T> & b)
+		matrix_complex & Solve_Lower_TriangularSystem(matrix_complex & L, matrix_complex & y, matrix_complex & b)
 		{
 			if (!L.IsSquare())
 			{
@@ -1117,7 +1158,7 @@ private:
 		// U is upper triangular, x is the solution vector, y is the output
 		// inputs U,x,y
 		//============================================================================
-		matrix_complex<T> & Solve_Upper_TriangularSystem(matrix_complex<T> & U, matrix_complex<T>  & x, matrix_complex<T> & y)
+		matrix_complex & Solve_Upper_TriangularSystem(matrix_complex & U, matrix_complex  & x, matrix_complex & y)
 		{
 			if (!U.IsSquare()) {
 				cout << "Error (Solve_Upper_TriangularSystem): matrix should be square" << endl;
@@ -1155,7 +1196,7 @@ private:
 		// inputs b, output vector
 		// returns x, solution vector
 		//============================================================================
-		matrix_complex<T>& Cholesky(matrix_complex<T>& b)
+		matrix_complex& Cholesky(matrix_complex& b)
 		{
 			if (!this->IsSymmetric()) {
 				cout << "Error (Cholesky): Matrix should be symetric" << endl;
@@ -1168,7 +1209,7 @@ private:
 			}
 
 			int n = this->NumRows();
-			matrix_complex<T> M(n, n);
+			matrix_complex M(n, n);
 
 			M(0, 0) = sqrt(get(0, 0));
 
@@ -1199,12 +1240,12 @@ private:
 				}
 			}
 
-			matrix_complex<T> y(n, 1);
+			matrix_complex y(n, 1);
 			Solve_Lower_TriangularSystem(M, y, b);
 			M.transpose();
 
 			if (out) delete out;
-			out = new matrix_complex<T>(n, 1);
+			out = new matrix_complex(n, 1);
 
 			Solve_Upper_TriangularSystem(M, *out, y);
 
@@ -1218,7 +1259,7 @@ private:
 		// does not solve a system, it simple decompses this matrix into two
 		//matrices such that A = LU
 		//============================================================================
-		int LU_Decomposition_Doolittle(matrix_complex<T>& L, matrix_complex<T>& U)
+		int LU_Decomposition_Doolittle(matrix_complex& L, matrix_complex& U)
 		{
 			if (!L.EqualSize(U))
 			{
@@ -1283,7 +1324,7 @@ private:
 		// returns x
 		//
 		//============================================================================
-		matrix_complex<T>& Solve_System_Doolittle(matrix_complex<T>& b)
+		matrix_complex& Solve_System_Doolittle(matrix_complex& b)
 		{
 
 			if (!this->IsSquare())
@@ -1300,17 +1341,17 @@ private:
 
 			int n = this->NumCols();
 
-			matrix_complex<T> L(n, n);
-			matrix_complex<T> U(n, n);
+			matrix_complex L(n, n);
+			matrix_complex U(n, n);
 
 
 			this->LU_Decomposition_Doolittle(L, U);
 
-			matrix_complex<T> y(n, 1);
+			matrix_complex y(n, 1);
 			Solve_Lower_TriangularSystem(L, y, b);
 
 			if (out) delete out;
-			out = new matrix_complex<T>(n, 1);
+			out = new matrix_complex(n, 1);
 
 			Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1322,7 +1363,7 @@ private:
 		// Very similar to the Doolittle method, solves A = LU for L and U
 		// inputs require L and U to be of the same dimensionality as A
 		//============================================================================
-		int LU_Decomposition_Crout(matrix_complex<T>& L, matrix_complex<T>& U)
+		int LU_Decomposition_Crout(matrix_complex& L, matrix_complex& U)
 		{
 			if (!L.EqualSize(U))
 			{
@@ -1387,7 +1428,7 @@ private:
 		// returns x
 		//
 		//============================================================================
-		matrix_complex<T>& Solve_System_Crout(matrix_complex& b)
+		matrix_complex& Solve_System_Crout(matrix_complex& b)
 		{
 
 			if (!this->IsSquare())
@@ -1404,17 +1445,17 @@ private:
 
 			int n = this->NumCols();
 
-			matrix_complex<T> L(n, n);
-			matrix_complex<T> U(n, n);
+			matrix_complex L(n, n);
+			matrix_complex U(n, n);
 
 
 			this->LU_Decomposition_Crout(L, U);
 
-			matrix_complex<T> y(n, 1);
+			matrix_complex y(n, 1);
 			Solve_Lower_TriangularSystem(L, y, b);
 
 			if (out) delete out;
-			out = new matrix_complex<T>(n, 1);
+			out = new matrix_complex(n, 1);
 
 			Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1428,7 +1469,7 @@ private:
 		// returns x
 		//
 		//============================================================================
-		matrix_complex<T>& Solve_System_LU(matrix_complex<T>& L, matrix_complex<T>& U, matrix_complex<T>& b)
+		matrix_complex& Solve_System_LU(matrix_complex& L, matrix_complex& U, matrix_complex& b)
 		{
 
 			if (!this->IsSquare())
@@ -1451,11 +1492,11 @@ private:
 
 			//this->LU_Decomposition_Crout(L, U);
 
-			matrix_complex<T> y(n, 1);
+			matrix_complex y(n, 1);
 			Solve_Lower_TriangularSystem(L, y, b);
 
 			if (out) delete out;
-			out = new matrix_complex<T>(n, 1);
+			out = new matrix_complex(n, 1);
 
 			Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1540,11 +1581,11 @@ private:
 				cout << "Error (IsOrthogonal): Matrix should be square" << endl;
 				return false;
 			}
-			matrix_complex<T> AT = (*this);
+			matrix_complex AT = (*this);
 
 			AT.transpose();
 
-			matrix_complex<T> I = AT * (*this);
+			matrix_complex I = AT * (*this);
 
 		/*	for (int i = 0; i < this->NumRows(); i++)
 				for (int j = 0; j < this->NumRows(); j++)
@@ -1565,7 +1606,7 @@ private:
 
 		}
 
-		void Overwrite_Submatrix(matrix_complex<T> b, int r, int c)
+		void Overwrite_Submatrix(matrix_complex b, int r, int c)
 		{
 			if (b.NumCols() > this->NumCols() || b.NumRows() > this->NumRows())
 			{
@@ -1589,7 +1630,7 @@ private:
 
 		}
 
-		void Overwrite_Submatrix_transposed(matrix_complex<T> b, int r, int c)
+		void Overwrite_Submatrix_transposed(matrix_complex b, int r, int c)
 		{
 			if (b.NumCols() > this->NumCols() || b.NumRows() > this->NumRows())
 			{
@@ -1705,7 +1746,23 @@ private:
 		}
 
 
+		//http://stackoverflow.com/questions/19840213/how-to-read-values-from-a-2d-initializer-list-and-put-them-in-a-2d-vector
+		matrix_complex(const std::initializer_list<std::initializer_list<complex<T>>>& list)
+		{
 
+			this->SX = list.size();
+			this->SY = (*list.begin()).size();
+			this->create();
+
+			int r = 0;
+			for (const auto& l : list) {
+				int c = 0;
+				for (const auto d : l) {
+					(*this)(r, c++) = d; // rather than get() because of the bounds check
+				}
+				++r;
+			}
+		}
 
 
 
