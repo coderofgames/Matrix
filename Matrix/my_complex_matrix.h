@@ -916,7 +916,7 @@ private:
 						 
 						(*out)(j, p) = (*out)(j, p) - mjk * (*out)(k, p);
 					}
-					A(j, k) = 0.0;
+					A(j, k) = complex<T> (0.0, 0.0 );
 					//b(j, 0) = b(j, 0) - mjk * b(k, 0);
 				}
 
@@ -935,6 +935,7 @@ private:
 					A(k, c) = A(k, c) / val;
 					(*out)(k, c) = (*out)(k, c) / val;
 				}
+				A(k, k) = complex<T>(1.0, 0.0);
 			}
 
 			// starting at the n-1 th row, we have
@@ -960,7 +961,7 @@ private:
 						// all operations are mirrored on the other *output* matrix, or the inverse
 						(*out)(r, p) = (*out)(r, p) - (*out)(c, p)*val;
 					}
-					A(r, c) = 0.0;
+					A(r, c) = complex<T>(0.0, 0.0);
 
 
 				}
