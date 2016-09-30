@@ -458,10 +458,49 @@ void Test_Complex_Matrix()
 			test_inv(i, j) = __a[i][j];*/
 	cout << endl;
 	test_inv.print(3);
+	matrix_cd test_inv_copy = test_inv;
 	matrix_cd test_inv_inv = test_inv.Gauss_Jordan();
+	cout << endl;
+	test_inv.print(3);
+	test_inv_inv.print(3);
+
+	cout << "swapping rows back to how they were before for both matrices" << endl;
+	for (int r = 0; r < 6; r++)
+	{
+
+		for (int r2 = r+1; r2 < 6; r2++)
+		{
+			int c = 0;
+			for (c = 0; c < 6; c++)
+			{
+				if (test_inv_copy(r, c) != test_inv(r2, c))
+				{
+					break;
+				}
+			
+				
+			}
+			if (c == 6)
+			{
+				test_inv.SwapRow(r, r2);
+				test_inv_inv.SwapRow(r, r2);
+				//r = 0;
+			}
+		}
+	}
+
+	cout << endl;
+	test_inv.print(3);
 
 	cout << endl;
 	test_inv_inv.print(5);
+
+	matrix_cd test_inv_inv2 = test_inv_inv * test_inv;//.Gauss_Jordan();
+
+	cout << endl;
+	test_inv_inv2.print(5);
+
+	cout << "Clearly this is just plain wrong ... is this numerical stability or just plain super-wrongness?"<<endl;
 }
 
 

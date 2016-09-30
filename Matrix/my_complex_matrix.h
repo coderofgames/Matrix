@@ -856,6 +856,7 @@ private:
 				return (*this);
 			}
 
+			matrix_complex A = (*this);
 
 			unsigned int n = this->NumRows();
 
@@ -885,7 +886,7 @@ private:
 				unsigned int j = n - 1;
 				for (j = k + 1; j < n; j++)
 				{
-					if ((get(j, k).real() != 0) && (get(j, k).imag() != 0) )
+					if ((A(j, k).real() != 0) && (A(j, k).imag() != 0) )
 					{
 						bSolutionExists = true;
 						break;
@@ -900,21 +901,22 @@ private:
 
 				for (int p = 0; p < n; p++)
 				{
+					SWAP<complex<T>>(A(j, p), A(k, p));
 					SWAP<complex<T>>(get(j, p), get(k, p));
-
 					SWAP<complex<T>>((*out)(j, p), (*out)(k, p));
 				}
-				for (j = k + 1; j < n; j++)
+				for (j = k+1; j < n; j++)
 				{
-					complex<T> mjk = get(j, k) / get(k, k);
+					complex<T> mjk = A(j, k) / A(k, k);
 
 					for (int p = k; p < n; p++)
 					{
 
-						get(j, p) = get(j, p) - mjk * get(k, p);
-
+						A(j, p) = A(j, p) - mjk * A(k, p);
+						 
 						(*out)(j, p) = (*out)(j, p) - mjk * (*out)(k, p);
 					}
+					A(j, k) = 0.0;
 					//b(j, 0) = b(j, 0) - mjk * b(k, 0);
 				}
 
@@ -926,10 +928,11 @@ private:
 			// need this for the next loop
 			for (int k = 0; k < n; k++)
 			{
-				complex<T> val = get(k, k);
+				complex<T> val = A(k, k);
 				for (int c = 0; c < n; c++)
 				{
-					get(k, c) = get(k, c) / val;
+
+					A(k, c) = A(k, c) / val;
 					(*out)(k, c) = (*out)(k, c) / val;
 				}
 			}
@@ -944,19 +947,20 @@ private:
 				// the next element after the diagonal is Row+1
 				for (int c = r + 1; c < n; c++)
 				{
-					// get the value in the row / column position, we will make the element in (r,c) into zero
+					// A the value in the row / column position, we will make the element in (r,c) into zero
 					// by multiplying by the *next* row, elemnts before the diagonal are already zero, and 
 					// the next elements in this row will be handled next ...
 					// ...
-					complex<T> val = get(r, c);
+					complex<T> val = A(r, c);
 					for (int p = 0; p < n; p++)
 					{
 						// we use c to use a mulitiple of c's row, subtracting a multiple of the 1's on the diagonal
-						get(r, p) = get(r, p) - get(c, p)*val;
+						A(r, p) = A(r, p) - A(c, p)*val;
 
 						// all operations are mirrored on the other *output* matrix, or the inverse
 						(*out)(r, p) = (*out)(r, p) - (*out)(c, p)*val;
 					}
+					A(r, c) = 0.0;
 
 
 				}
