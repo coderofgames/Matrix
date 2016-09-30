@@ -483,7 +483,7 @@ void Test_Complex_Matrix()
 			if (c == 6)
 			{
 				test_inv.SwapRow(r, r2);
-				test_inv_inv.SwapRow(r, r2);
+				//test_inv_inv.SwapRow(r, r2);
 				//r = 0;
 			}
 		}
@@ -495,7 +495,7 @@ void Test_Complex_Matrix()
 	cout << endl;
 	test_inv_inv.print(5);
 
-	matrix_cd test_inv_inv2 = test_inv_inv * test_inv;//.Gauss_Jordan();
+	matrix_cd test_inv_inv2 = test_inv*test_inv_inv;//.Gauss_Jordan();
 
 	cout << endl;
 	test_inv_inv2.print(5);
