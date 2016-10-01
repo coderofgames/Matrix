@@ -42,3 +42,6 @@ http://mathfaculty.fullerton.edu/mathews/n2003/HessenbergMod.html
 (see examples at top for information, the max is a 6x6 matrix)
 16) memory optimized for real matrices
 17) Implemented a Complex matrix type - still experimental 
+18) Set up matrix inversion using LU decomposition thanks to 
+http://www.gamedev.net/page/resources/_/technical/math-and-physics/matrix-inversion-using-lu-decomposition-r3637
+19) Added some functions for finding a determinant up to 5x5 however the input function isn't implemented.
