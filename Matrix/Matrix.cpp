@@ -501,6 +501,21 @@ void Test_Complex_Matrix()
 	test_inv_inv2.print(5);
 
 	cout << "Clearly this is just plain wrong ... is this numerical stability or just plain super-wrongness?"<<endl;
+	cout << endl; 
+	cout << "Testing Crout inverse" << endl;
+
+	matrix_cd crout_inv = test_inv_copy.Invert_Crout();
+	crout_inv.print(4);
+
+	cout << "printing A*A_inv" << endl;
+
+	matrix_cd crout_ident = test_inv_copy * crout_inv;
+	crout_ident.print(4);
+
+
+	cout << "Conclusion ? The crout method successfully computes the inverse by solving the system Ax = b " << endl;
+	cout << "with b x as a column of the inverse and b as the corresponding column of the identity matrix" << endl;
+	//cout << "perhaps it is possible to fix the tiny numerical errors" << endl;
 }
 
 

@@ -1375,7 +1375,7 @@ public:
 	}
 
 	//============================================================================
-	// For solution of the system Ax = b, relies on the coondition
+	// For solution of the system Ax = b, relies on the condition
 	// that this matrix A is square and that b has the same number of rows as A
 	//
 	// inputs b, initial estimation x0, tolerance (eps > 0) small number, MAX_ITERATIONS for number of loops,

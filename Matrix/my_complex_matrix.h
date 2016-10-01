@@ -985,7 +985,63 @@ private:
 			}
 			return complex<T>(0.0, 0.0);
 		}
+	private:
 
+		// recognising the fact that C(n,r) = n! /(k! (n-k)!) ... here '!' denotes the factorial sign
+		// we have k = (n-1) so ... C(n,r) = n! /((n-1)!( n-(n-1))!) = n! /((n-1)!(-1)!) ...
+		// what is (-1)! ... I cannot remember ... so ... but it looks like C(n,n-1) = n
+		//
+		// Note I am not using permutations here - these are combinations
+
+
+
+
+		// C(n,k) = C(5,4) = 5*4*3*2*1 / ((4*3*2*1) * (5-4)!) = 5 
+		inline complex<T> Det_5x5_internal(int r1, int r2, int r3, int r4, int r5, int c)
+		{
+			complex<T> c1 = get(r1, c);
+			complex<T> c2 = -get(r2, c);
+			complex<T> c3 = get(r3, c);
+			complex<T> c4 = -get(r4, c);
+			complex<T> c5 = get(r5, c);
+
+			return c1 * Det_4x4_internal(r2, r3, r4, r5, c + 1) +
+				c2 * Det_4x4_internal(r1, r3, r4, r5, c + 1) +
+				c3 * Det_4x4_internal(r1, r2, r4, r5, c + 1) +
+				c4 * Det_4x4_internal(r1, r2, r3, r5, c + 1) +
+				c5 * Det_4x4_internal(r1, r2, r3, r4, c + 1);
+		}
+
+		inline complex<T> Det_4x4_internal(int r1, int r2, int r3, int r4, int c)
+		{
+			complex<T> c1 = get(r1, c);
+			complex<T> c2 = -get(r2, c);
+			complex<T> c3 = get(r3, c);
+			complex<T> c4 = -get(r4, c);
+
+			return c1 * Det_3x3_internal(r2, r3, r4, c + 1) +
+				c2 * Det_3x3_internal(r1, r3, r4, c + 1) +
+				c3 * Det_3x3_internal(r1, r2, r4, c + 1) +
+				c4 * Det_3x3_internal(r1, r2, r3, c + 1);
+
+		}
+		inline complex< T > Det_3x3_internal(int r1, int r2, int r3, int c)
+		{
+			complex<T> c1 = get(r1, c);
+			complex<T> c2 = -get(r2, c);
+			complex<T> c3 = get(r3, c);
+
+			return c1 * Det_2x2_internal( r2, r3, c + 1) + 
+				   c2 * Det_2x2_internal( r1, r3, c + 1) + 
+				   c3* Det_2x2_internal( r1, r2, c + 1);
+
+			
+		}
+		inline complex< T > Det_2x2_internal(int r1, int r2, int c)
+		{
+			return get(r1, c) * get(r2, c + 1) - get(r2, c) * get(r1, c + 1);
+		}
+	public:
 		complex< T > DiagonalEntryProduct()
 		{
 			if (!this->IsSquare())
@@ -1415,7 +1471,7 @@ private:
 					}
 					else
 					{
-						complex<T> sum1 = complex<T>( 0.0, 0,0 );
+						complex< T > sum1 = complex< T >( 0.0, 0.0 );
 						for (int s = 0; s < j; s++) sum1 += L(j, s) * U(s, k);
 
 						U(j, k) = (complex<T>(1.0, 0.0) / L(j, j))*(get(j, k) - sum1);
@@ -1424,6 +1480,37 @@ private:
 			}
 
 			return 1;
+		}
+
+		// TODO: optimize this...
+		// thanks to
+		// http://www.gamedev.net/page/resources/_/technical/math-and-physics/matrix-inversion-using-lu-decomposition-r3637
+		// for this solution
+		matrix_complex& Invert_Crout()
+		{
+			int n = this->NumCols();
+
+			matrix_complex A_inv(n, n);
+
+			matrix_complex b(n, 1);
+
+			for (int c = 0; c < n; c++)
+			{
+				b.ToZero();
+				b(c, 0) = complex<T>(1.0, 0.0);
+
+				matrix_complex sol = Solve_System_Crout(b);
+
+				for (int r = 0; r < n; r++)
+				{
+					A_inv(r, c) = sol(r, 0);
+				}
+			}
+
+			(*out) = A_inv;
+
+			return (*out);
+			
 		}
 
 		//============================================================================
