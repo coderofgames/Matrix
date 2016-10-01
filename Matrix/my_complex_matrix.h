@@ -1484,8 +1484,10 @@ private:
 
 		// TODO: optimize this...
 		// thanks to
+        // http://mathworld.wolfram.com/MatrixInverse.html
+        // and 
 		// http://www.gamedev.net/page/resources/_/technical/math-and-physics/matrix-inversion-using-lu-decomposition-r3637
-		// for this solution
+		// for this solution 
 		matrix_complex& Invert_Crout()
 		{
 			int n = this->NumCols();
