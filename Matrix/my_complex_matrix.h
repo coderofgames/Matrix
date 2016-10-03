@@ -497,6 +497,11 @@ private:
 					T real = get(r, c).real();
 					T imag = get(r, c).imag();
 					//cout << get(i, j)  << "  ";
+					if (precis == -1)
+					{
+						cout << get(r, c) << "  ";
+
+					}
 					if (precis == 2)
 					{
 						if ( imag > 0 )
@@ -1002,7 +1007,7 @@ private:
 			complex<T> c1 = get(r1, c);
 			complex<T> c2 = -get(r2, c);
 			complex<T> c3 = get(r3, c);
-			complex<T> c4 = -get(r4, c);
+			complex<T> c4 = -get(r4, c); 
 			complex<T> c5 = get(r5, c);
 
 			return c1 * Det_4x4_internal(r2, r3, r4, r5, c + 1) +
@@ -1369,7 +1374,7 @@ private:
 						complex<T> sum1 = complex<T>( 0.0, 0.0 );
 						for (int s = 0; s < k; s++) sum1 += L(j, s) * U(s, k);
 
-						L(j, k) = (1 / U(k, k))*(get(j, k) - sum1);
+						L(j, k) = (complex< T >( 1.0, 0.0) / U(k, k))*(get(j, k) - sum1);
 					}
 
 				}
@@ -1498,7 +1503,7 @@ private:
 
 			for (int c = 0; c < n; c++)
 			{
-				b.ToZero();
+				//b.ToZero();
 				b(c, 0) = complex<T>(1.0, 0.0);
 
 				matrix_complex sol = Solve_System_Crout(b);
@@ -1507,12 +1512,80 @@ private:
 				{
 					A_inv(r, c) = sol(r, 0);
 				}
+
+				b(c, 0) = complex<T>(0.0, 0.0);
 			}
 
 			(*out) = A_inv;
 
 			return (*out);
 			
+		}
+
+		/* UNTESTED */
+		matrix_complex& Invert_Gauss()
+		{
+			if (!this->IsSquare())
+			{
+				cout << "Error (Invert_Gauss): matrix should be square" << endl;
+				return matrix_complex(0, 0);
+			}
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumCols() == this->NumCols())))
+				{
+					delete out;
+					out = new matrix_complex(this->NumRows(), this->NumCols());
+				}
+			}
+			else
+			{
+				out = new matrix_complex(this->NumRows(), this->NumCols());
+			}
+
+			int n = this->NumCols();
+			matrix_complex sol(n, 1);
+			matrix_complex I_Col(n, 1);
+
+			for (int i = 0; i < n; i++)
+			{
+				I_Col(i, 0) = complex< T >(1.0, 0.0);
+				sol = Gauss_Elimination(I_Col);
+				I_Col(i, 0) = complex<T>(0.0, 0.0);
+
+				for (int j = 0; j < n; j++)
+					(*out)(j, i) = sol(j, 0);
+			}
+
+			/* UNTESTED */
+			return (*out);
+		}
+		
+		// note for this method, inv can be arbitrary iff every eigenvalue of (I-AX(0)) is of absolute value < 1
+		// the method is mostly used for improving an innaccurate inverse obtained by another method.
+
+		matrix_complex& Newtons_Iteration_for_Inverse(matrix_complex& inv, int num_iterations)
+		{
+			if (!inv.IsSquare() || !this->IsSquare())
+			{
+				cout << "Error (Newtons_Iteration_for_Inverse): Matrices should be square" << endl;
+			}
+
+			int n = inv.NumCols();
+
+			// need an identity matrix
+			matrix_complex I(n,n);
+			I.Identity();
+
+			for (int i = 0; i < num_iterations; i++)
+			{
+				// incrementally update the inverse ...
+				// could possibly test for convergence here using a norm
+				inv = inv * (I * 2 - (*this) * inv);
+			}
+
+			return inv;
 		}
 
 		//============================================================================
@@ -1839,6 +1912,20 @@ private:
 			}
 		}
 
+
+		complex< T > Frobenius_Norm()
+		{
+			complex< T > sum = complex< T >( 0.0, 0.0);
+			for (int r = 0; r < NumRows(); r++)
+			{
+				for (int c = 0; c < NumCols(); c++)
+				{
+					sum += get(r, c)*get(r, c);
+				}
+			}
+
+			return std::sqrt(sum);
+		}
 
 		//http://stackoverflow.com/questions/19840213/how-to-read-values-from-a-2d-initializer-list-and-put-them-in-a-2d-vector
 		matrix_complex(const std::initializer_list<std::initializer_list<complex<T>>>& list)

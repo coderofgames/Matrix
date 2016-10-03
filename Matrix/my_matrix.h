@@ -477,6 +477,124 @@ public:
 		return matrix(0, 0);
 	}
 
+	// solution for matrix multiplication involving transposed matrices ...
+	matrix& mul_transposed(matrix &b)
+	{
+		/*if (b.NumCols() == 1 && b.NumRows() == 1)
+		{
+		//is a 1x1 matrix treated like a scalar?
+		return (*this) * b(0, 0);
+		}*/
+		if (this->NumRows() == b.NumRows())
+		{
+			//if (out) delete out;
+			//out = new matrix(this->NumRows(), b.NumCols());
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumCols()) &&
+					(out->NumCols() == b.NumCols())))
+				{
+					delete out;
+					out = new matrix(this->NumCols(), b.NumCols());
+				}
+			}
+			else
+			{
+				out = new matrix(this->NumCols(), b.NumCols());
+			}
+
+			for (int i = 0; i < this->NumCols(); i++)
+			{
+
+				for (int j = 0; j < b.NumCols(); j++)
+				{
+					(*out)(i, j) = 0.0;
+					for (int k = 0; k < this->NumRows(); k++)
+					{
+						(*out)(i, j) += get(k, i) * b(k, j);
+					}
+				}
+			}
+
+			return *out;
+		}
+		return matrix<T>(0, 0);
+	}
+
+	matrix& add_transposed(matrix &b)
+	{
+		if (this->NumRows() != b.NumCols() || this->NumCols() != b.NumRows())
+		{
+			return matrix<T>(0, 0);
+		}
+		else
+		{
+			//if (out)delete out;
+			//out = new matrix(this->NumRows(), this->NumCols());
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumCols()) &&
+					(out->NumCols() == this->NumRows())))
+				{
+					delete out;
+					out = new matrix(this->NumCols(), this->NumRows());
+				}
+			}
+			else
+			{
+				out = new matrix(this->NumCols(), this->NumRows());
+			}
+
+			for (int i = 0; i < this->NumCols(); i++)
+			{
+				for (int j = 0; j < this->NumRows(); j++)
+				{
+					(*out)(i, j) = this->get(j, i) + b.get(i, j);
+				}
+			}
+
+			return *out;
+		}
+		return matrix(0, 0);
+	}
+
+	matrix& sub_transposed(matrix &b)
+	{
+		if (this->NumRows() != b.NumCols() || this->NumCols() != b.NumRows())
+		{
+			return matrix<T>(0, 0);
+		}
+		else
+		{
+			//if (out)delete out;
+			//out = new matrix(this->NumRows(), this->NumCols());
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumCols()) &&
+					(out->NumCols() == this->NumRows())))
+				{
+					delete out;
+					out = new matrix(this->NumCols(), this->NumRows());
+				}
+			}
+			else
+			{
+				out = new matrix(this->NumCols(), this->NumRows());
+			}
+
+			for (int i = 0; i < this->NumCols(); i++)
+			{
+				for (int j = 0; j < this->NumRows(); j++)
+				{
+					(*out)(i, j) = this->get(j, i) - b.get(i, j);
+				}
+			}
+
+			return *out;
+		}
+		return matrix(0, 0);
+	}
+
 	// may need to override this for different matrix types
 	void print(int precis)
 	{
@@ -489,8 +607,12 @@ public:
 		{
 			for (int j = 0; j < this->NumCols(); j++)
 			{
-				float f = get(i, j);
+				T f = get(i, j);
 				//cout << f.5 << "  ";
+				if (precis == -1)
+				{
+					cout << f << "  ";
+				}
 				if ( precis == 2)
 					printf("%8.2f    ", f);
 				else if (precis == 3)
@@ -750,6 +872,8 @@ public:
 		return *out;
 	}
 
+	
+
 	// generalization of the reduction to triangular form above
 	bool ReduceToUpperTriangularForm(T &sign)
 	{
@@ -807,7 +931,59 @@ public:
 		}
 		return 0.0;
 	}
+	private:
 
+
+
+
+
+
+		// C(n,k) = C(5,4) = 5*4*3*2*1 / ((4*3*2*1) * (5-4)!) = 5 
+		inline T Det_5x5_internal(int r1, int r2, int r3, int r4, int r5, int c)
+		{
+			T c1 = get(r1, c);
+			T c2 = -get(r2, c);
+			T c3 = get(r3, c);
+			T c4 = -get(r4, c);
+			T c5 = get(r5, c);
+
+			return c1 * Det_4x4_internal(r2, r3, r4, r5, c + 1) +
+				c2 * Det_4x4_internal(r1, r3, r4, r5, c + 1) +
+				c3 * Det_4x4_internal(r1, r2, r4, r5, c + 1) +
+				c4 * Det_4x4_internal(r1, r2, r3, r5, c + 1) +
+				c5 * Det_4x4_internal(r1, r2, r3, r4, c + 1);
+		}
+
+		inline T Det_4x4_internal(int r1, int r2, int r3, int r4, int c)
+		{
+			T c1 = get(r1, c);
+			T c2 = -get(r2, c);
+			T c3 = get(r3, c);
+			T c4 = -get(r4, c);
+
+			return c1 * Det_3x3_internal(r2, r3, r4, c + 1) +
+				c2 * Det_3x3_internal(r1, r3, r4, c + 1) +
+				c3 * Det_3x3_internal(r1, r2, r4, c + 1) +
+				c4 * Det_3x3_internal(r1, r2, r3, c + 1);
+
+		}
+		inline T Det_3x3_internal(int r1, int r2, int r3, int c)
+		{
+			T c1 = get(r1, c);
+			T c2 = -get(r2, c);
+			T c3 = get(r3, c);
+
+			return c1 * Det_2x2_internal(r2, r3, c + 1) +
+				c2 * Det_2x2_internal(r1, r3, c + 1) +
+				c3* Det_2x2_internal(r1, r2, c + 1);
+
+
+		}
+		inline T Det_2x2_internal(int r1, int r2, int c)
+		{
+			return get(r1, c) * get(r2, c + 1) - get(r2, c) * get(r1, c + 1);
+		}
+	public:
 	T DiagonalEntryProduct()
 	{
 		if (!this->IsSquare())
@@ -1123,6 +1299,108 @@ public:
 				
 			}
 		}
+	}
+
+	// TODO: optimize this...
+	// thanks to
+	// http://mathworld.wolfram.com/MatrixInverse.html
+	// and 
+	// http://www.gamedev.net/page/resources/_/technical/math-and-physics/matrix-inversion-using-lu-decomposition-r3637
+	// for this solution 
+	matrix& Invert_Crout()
+	{
+		int n = this->NumCols();
+
+		matrix A_inv(n, n);
+
+		matrix b(n, 1);
+
+		for (int c = 0; c < n; c++)
+		{
+			//b.ToZero();
+			b(c, 0) = 1.0;
+
+			matrix sol = Solve_System_Crout(b);
+
+			for (int r = 0; r < n; r++)
+			{
+				A_inv(r, c) = sol(r, 0);
+			}
+
+			b(c, 0) = 0.0;
+		}
+
+		(*out) = A_inv;
+
+		return (*out);
+
+	}
+
+
+	/* UNTESTED */
+	matrix& Invert_Gauss()
+	{
+		if (!this->IsSquare())
+		{
+			cout << "Error (Invert_Gauss): matrix should be square" << endl;
+			return matrix(0, 0);
+		}
+		if (out)
+		{
+			if (!((out->NumRows() == this->NumRows()) &&
+				(out->NumCols() == this->NumCols())))
+			{
+				delete out;
+				out = new matrix(this->NumRows(), this->NumCols());
+			}
+		}
+		else
+		{
+			out = new matrix(this->NumRows(), this->NumCols());
+		}
+
+		int n = this->NumCols();
+		matrix sol(n, 1);
+		matrix I_Col(n, 1);
+
+		for (int i = 0; i < n; i++)
+		{
+			I_Col(i, 0) = 1.0;
+			sol = Gauss_Elimination(I_Col);
+			I_Col(i, 0) = 0.0;
+
+			for (int j = 0; j < n; j++)
+				(*out)(j, i) = sol(j, 0);
+		}
+
+		/* UNTESTED */
+		return (*out);
+	}
+
+	// note for this method, inv can be arbitrary iff every eigenvalue of (I-AX(0)) is of absolute value < 1
+	// the method is mostly used for improving an innaccurate inverse obtained by another method.
+
+	matrix& Newtons_Iteration_for_Inverse(matrix& inv, int num_iterations)
+	{
+		if (!inv.IsSquare() || !this->IsSquare())
+		{
+			cout << "Error (Newtons_Iteration_for_Inverse): Matrices should be square" << endl;
+		}
+
+		int n = inv.NumCols();
+
+		// need an identity matrix
+		matrix I(n, n);
+		I.Identity();
+
+		for (int i = 0; i < num_iterations; i++)
+		{
+			// incrementally update the inverse ...
+			// could possibly test for convergence here using a norm
+			inv = inv * (I * 2 - (*this) * inv);
+		}
+
+		return inv;
 	}
 
 	//============================================================================

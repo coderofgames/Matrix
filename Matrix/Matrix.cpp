@@ -512,10 +512,53 @@ void Test_Complex_Matrix()
 	matrix_cd crout_ident = test_inv_copy * crout_inv;
 	crout_ident.print(4);
 
-
+	matrix_cd crout_inv_copy = crout_inv;
 	cout << "Conclusion ? The crout method successfully computes the inverse by solving the system Ax = b " << endl;
 	cout << "with b x as a column of the inverse and b as the corresponding column of the identity matrix" << endl;
 	//cout << "perhaps it is possible to fix the tiny numerical errors" << endl;
+	cout << endl;
+	cout << "Testing Newtown Iteration for inverse" << endl;
+	crout_inv = test_inv_copy.Newtons_Iteration_for_Inverse(crout_inv, 20);
+	crout_inv.print(-1);
+
+	
+	matrix_cd diff = crout_inv_copy - crout_inv;
+	cout << "Printing difference after newton iteration" << endl;
+	diff.print(-1);
+
+	crout_ident = test_inv_copy * crout_inv;
+	cout << "Printing closer identity" << endl;
+	crout_ident.print(4);
+
+
+
+	cout << endl;
+	cout << "Testing newton iteration on Gauss Elimination matrix" << endl;
+	test_inv.Newtons_Iteration_for_Inverse(test_inv_inv,20);
+
+	test_inv_inv2 = test_inv*test_inv_inv;//.Gauss_Jordan();
+
+	cout << endl;
+	test_inv_inv2.print(5);
+
+	cout << endl << "this is clearly the identity matrix ... printing the new inverse " << endl;
+
+	test_inv_inv.print(4);
+
+
+	cout << endl << "and finally the difference between the two inverses" << endl;
+
+	matrix_cd inv_diff = test_inv_inv - crout_inv;
+	inv_diff.print(4);
+
+	cout << endl << "At a higher resolution" << endl;
+	inv_diff.print(-1);
+
+	cout << "Printing the Frobenius Norm of the matrix " << endl;
+	complex<double> c = inv_diff.Frobenius_Norm();
+
+	cout << c << endl;
+	//cout << "Printing the Frobenius Norm of the matrix " << endl;
 }
 
 
