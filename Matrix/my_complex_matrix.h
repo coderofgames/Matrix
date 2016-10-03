@@ -801,6 +801,92 @@ private:
 			return *out;
 		}
 
+		//============================================================================
+		// For solution of the system Ax = b, 
+		// relies on the condition that this matrix A is square and 
+		// that b has the same number of rows as A
+		//
+		// inputs b, outputs x, 
+		//
+		// For more information please consult Krezig: Advanced Engineering Mathematics, sec 19.1
+		//
+		//============================================================================
+		matrix_complex& Gauss_Elimination_Save_Original(matrix_complex &b)
+		{
+			if (!this->IsSquare())
+			{
+				cout << "Error in Gauss calculation: System Matrix must be square." << endl;
+				return b;
+			}
+
+			if (b.NumRows() != this->NumRows())
+			{
+				cout << "Error in Gauss calculation: b must have the same number of rows as A" << endl;
+				return b;
+			}
+
+			matrix_complex X = (*this);
+
+			unsigned int n = b.NumRows();
+
+			for (int k = 0; k < n - 1; k++)
+			{
+				bool bSolutionExists = false;
+				unsigned int j = k + 1;
+				for (j = k + 1; j < n; j++)
+				{
+					if (X(j, k).real() != 0 && X(j, k).imag() != 0)
+					{
+						bSolutionExists = true;
+						break;
+					}
+				}
+
+				if (!bSolutionExists)
+				{
+					cout << "No Unique Solution Exists" << endl;
+					return b; // no solution
+				}
+
+				for (int i = 0; i < n; i++)
+				{
+					SWAP(X(j, i), X(k, i));
+
+					SWAP(b(j, 0), b(k, 0));
+				}
+				for (j = k + 1; j < n; j++)
+				{
+					complex<T> mjk = X(j, k) / X(k, k);
+					for (int p = k; p < n; p++)
+					{
+						X(j, p) = X(j, p) - mjk * X(k, p);
+					}
+					b(j, 0) = b(j, 0) - mjk * b(k, 0);
+				}
+			}
+			if (X(n - 1, n - 1) == 0)
+			{
+				cout << "No Unique Solution Exists" << endl;
+				return b; // no solution
+			}
+
+			if (out) delete out;
+			out = new matrix_complex(n, 1);
+
+			(*out)(n - 1, 0) = b(n - 1, 0) / X(n - 1, n - 1);
+
+			for (int i = n - 2; i > -1; i--)
+			{
+				complex<T> the_sum = 0;
+				for (int j = i + 1; j < n; j++)
+					the_sum += X(i, j)*(*out)(j, 0);
+
+				(*out)(i, 0) = (complex<T>(1.0, 0.0) / X(i, i)) * (b(i, 0) - the_sum);
+			}
+
+			return *out;
+		}
+
 		// generalization of the reduction to triangular form above
 		bool ReduceToUpperTriangularForm(T &sign)
 		{
@@ -1530,33 +1616,28 @@ private:
 				cout << "Error (Invert_Gauss): matrix should be square" << endl;
 				return matrix_complex(0, 0);
 			}
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix_complex(this->NumRows(), this->NumCols());
-			}
+	
 
 			int n = this->NumCols();
 			matrix_complex sol(n, 1);
 			matrix_complex I_Col(n, 1);
+			matrix_complex X(n, n);
 
 			for (int i = 0; i < n; i++)
 			{
 				I_Col(i, 0) = complex< T >(1.0, 0.0);
-				sol = Gauss_Elimination(I_Col);
+				sol = Gauss_Elimination_Save_Original(I_Col);
 				I_Col(i, 0) = complex<T>(0.0, 0.0);
 
 				for (int j = 0; j < n; j++)
-					(*out)(j, i) = sol(j, 0);
+					X(j, i) = sol(j, 0);
 			}
+
+			// out exists as a solution to the gauss elimination
+			// next phase is to use the "out" stored in out, as 
+			// a linked list
+			if (out) delete out;
+			out = X;
 
 			/* UNTESTED */
 			return (*out);
