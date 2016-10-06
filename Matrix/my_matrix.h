@@ -192,14 +192,35 @@ public:
 	//============================================================================
 	//
 	//============================================================================
+	void create(int sx, int sy)
+	{
+		SX = sx; SY = sy;
+		if (SY > 0 && SX > 0)
+		{
+			data = new T[SX * SY];
+			for (int i = 0; i < SX; i++)
+			{
+
+				for (int j = 0; j < SY; j++)
+					data[i * SY + j] = 0.0;
+			}
+		}
+		else
+		{
+			cout << "Error (Create): Matrix should not be zero size on any dimension" << endl;
+		}
+		is_transposed = false;
+	}
+
+	//============================================================================
+	//
+	//============================================================================
 	void operator=(matrix &b)
 	{
-		if (!(this->NumRows() == b.NumRows()) || !(this->NumCols() == b.NumCols()))
+		if (!this->EqualSize(b))
 		{
 			this->destroy();
-			this->SX = b.NumRows();
-			this->SY = b.NumCols();
-			this->create();
+			this->create(b.NumRows(), b.NumCols());
 		}
 		for (int i = 0; i < SX; i++)
 		{
@@ -221,13 +242,10 @@ public:
 	//============================================================================
 	void operator=(matrix *b)
 	{
-		if (!(this->NumRows() == b->NumRows()) || 
-			!(this->NumCols() == b->NumCols()))
+		if (!this->EqualSize(b))
 		{
 			this->destroy();
-			this->SX = b->NumRows();
-			this->SY = b->NumCols();
-			this->create();
+			this->create(b.NumRows(), b.NumCols());
 		}
 
 		for (int i = 0; i < this->NumRows(); i++)
@@ -288,10 +306,6 @@ private:
 	inline T& get(unsigned int i, unsigned int j)
 	{
 		return data[i * NumCols() + j];
-		/*T null_return = 0.0;
-		if (i < NumRows() && j < NumCols())
-			return is_transposed ? data[j*NumCols() + i] : data[i * NumCols() + j];
-		else return null_return;*/
 	}
 
 public:
@@ -301,10 +315,8 @@ public:
 	//============================================================================
 	matrix& operator | (matrix &b)
 	{
-		if ((this->NumCols() == b.NumCols()) && (this->NumRows() == b.NumRows()))
+		if (this->EqualSize(b))
 		{
-		//	if (out) delete out;
-		//	out = new matrix(this->NumRows(), this->NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
@@ -321,13 +333,9 @@ public:
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
-
 				for (int j = 0; j < this->NumCols(); j++)
 				{
-					//for (int k = 0; k < this->NumCols(); k++)
-					{
-						(*out)(i, j) = get(i, j) * b(i, j);
-					}
+					(*out)(i, j) = get(i, j) * b(i, j);		
 				}
 			}
 
@@ -342,15 +350,8 @@ public:
 	//============================================================================
 	matrix& operator*(matrix &b)
 	{
-		/*if (b.NumCols() == 1 && b.NumRows() == 1)
-		{
-		//is a 1x1 matrix treated like a scalar?
-			return (*this) * b(0, 0);
-		}*/
 		if (this->NumCols() == b.NumRows())
 		{
-			//if (out) delete out;
-			//out = new matrix(this->NumRows(), b.NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
@@ -367,7 +368,6 @@ public:
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
-
 				for (int j = 0; j < b.NumCols(); j++)
 				{
 					(*out)(i, j) = 0.0;
@@ -410,9 +410,6 @@ public:
 			out = new matrix(this->NumRows(), this->NumCols());
 		}
 
-		//if (out)delete out;
-		//out = new matrix(this->NumRows(), this->NumCols());
-
 		for (int i = 0; i < this->NumRows(); i++)
 		{
 			for (int j = 0; j < this->NumCols(); j++)
@@ -428,9 +425,6 @@ public:
 	//============================================================================
 	matrix& operator/(T s)
 	{
-		//if (out) delete out;
-		//out = new matrix(this->NumRows(), this->NumCols());
-
 		if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
@@ -459,8 +453,6 @@ public:
 	//============================================================================
 	matrix& operator+(T s)
 	{
-		//if (out)delete out;
-		//out = new matrix(this->NumRows(), this->NumCols());
 		if (out)
 		{
 			if (!((out->NumRows() == this->NumRows()) &&
@@ -496,8 +488,6 @@ public:
 		}
 		else
 		{
-			//if (out)delete out;
-			//out = new matrix(this->NumRows(), this->NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
@@ -530,12 +520,8 @@ public:
 	//============================================================================
 	matrix& operator-(matrix &b)
 	{
-		if (this->NumCols() != b.NumCols() || this->NumRows() != b.NumRows())
-			return matrix(0, 0);
-		else
+		if (this->EqualSize(b))
 		{
-		//	if (out)delete out;
-		//	out = new matrix(this->NumRows(), this->NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
@@ -569,15 +555,8 @@ public:
 	//============================================================================
 	matrix& mul_transposed(matrix &b)
 	{
-		/*if (b.NumCols() == 1 && b.NumRows() == 1)
-		{
-		//is a 1x1 matrix treated like a scalar?
-		return (*this) * b(0, 0);
-		}*/
 		if (this->NumRows() == b.NumRows())
 		{
-			//if (out) delete out;
-			//out = new matrix(this->NumRows(), b.NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumCols()) &&
@@ -621,8 +600,6 @@ public:
 		}
 		else
 		{
-			//if (out)delete out;
-			//out = new matrix(this->NumRows(), this->NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumCols()) &&
@@ -661,8 +638,6 @@ public:
 		}
 		else
 		{
-			//if (out)delete out;
-			//out = new matrix(this->NumRows(), this->NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumCols()) &&
@@ -770,8 +745,6 @@ public:
 				for (int j = i; j < SY; j++)
 				{
 					SWAP<T>(get(i, j), get(j, i));
-					//if (get(i, j) != get(i, j))
-					//	return true;
 				}
 			}
 		}
@@ -787,9 +760,7 @@ public:
 				}
 			}
 			this->destroy();
-			this->SX = Y.NumRows();
-			this->SY = Y.NumCols();
-			this->create();
+			this->create( Y.NumRows(), Y.NumCols() );
 
 			for (int i = 0; i < SX; i++)
 			{
@@ -810,7 +781,6 @@ public:
 	inline unsigned int NumRows()
 	{
 		return SX;
-		//return  (is_transposed ? SY : SX);
 	}
 
 	//============================================================================
@@ -819,7 +789,6 @@ public:
 	inline unsigned int NumCols()
 	{
 		return SY;
-		//return (is_transposed ? SX : SY);
 	}
 
 	//============================================================================
@@ -1182,7 +1151,6 @@ public:
 				c2 * Det_3x3_internal(r1, r3, r4, c + 1) +
 				c3 * Det_3x3_internal(r1, r2, r4, c + 1) +
 				c4 * Det_3x3_internal(r1, r2, r3, c + 1);
-
 		}
 
 		//============================================================================
@@ -1197,8 +1165,6 @@ public:
 			return c1 * Det_2x2_internal(r2, r3, c + 1) +
 				c2 * Det_2x2_internal(r1, r3, c + 1) +
 				c3* Det_2x2_internal(r1, r2, c + 1);
-
-
 		}
 
 		//============================================================================
@@ -1208,6 +1174,7 @@ public:
 		{
 			return get(r1, c) * get(r2, c + 1) - get(r2, c) * get(r1, c + 1);
 		}
+
 	public:
 	
 	//============================================================================
@@ -1357,15 +1324,10 @@ public:
 					// all operations are mirrored on the other *output* matrix, or the inverse
 					(*out)(r, p) = (*out)(r, p) - (*out)(c,p)*val; 
 				}
-
-
 			}
-
 		}
 		
-
 		return *out;
-
 	}
 
 	//============================================================================
@@ -1466,7 +1428,6 @@ public:
 
 		M(0, 0) = sqrt(get(0, 0));
 
-
 		for (int j = 1; j < n; j++)
 		{
 			M(j, 0) = get(j, 0) / M(0, 0);
@@ -1531,8 +1492,7 @@ public:
 				else
 				{
 					get(j, i) = 0.0;
-				}
-				
+				}	
 			}
 		}
 	}
@@ -1657,8 +1617,6 @@ public:
 			cout << "Error (LU_Decomposition_Doolittle):  source matrix must be square" << endl;
 			return 0;
 		}
-
-
 
 		int n = this->NumCols();
 
@@ -1968,8 +1926,6 @@ public:
 		T S = 0.0;
 		for (int c = 0; c < n - 2; c++)
 		{
-			//H = (*this);
-
 			S = 0.0;
 			for (int r = c+1; r < n; r++)
 			{
@@ -1979,11 +1935,9 @@ public:
 			S = sqrt(S);
 			for (int r = c + 1; r < n; r++)
 			{
-
 				if (r == c + 1)
 				{
 					V(r, 0) = sqrt(0.5*(1.0 + abs( H_(r, c) ) / S));
-					
 				}
 				else if ( r > c+1)
 				{
@@ -2408,7 +2362,6 @@ public:
 			cout << "Error (max_row_of_column): column index exceeds bounds" << endl;
 			return -1;
 		}
-
 
 		T max_val = get(row_start, c);
 		int max_int = row_start;

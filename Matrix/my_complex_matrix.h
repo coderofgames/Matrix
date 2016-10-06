@@ -135,8 +135,7 @@ private:
 		//
 		//============================================================================
 		matrix_complex(matrix_complex &p){
-			this->SX = p.SX; SY = p.SY;
-			this->create();
+			this->create(p.SX, p.SY);
 			for (int i = 0; i < SX; i++)
 			{
 				for (int j = 0; j < SY; j++)
@@ -150,9 +149,7 @@ private:
 		//============================================================================
 		matrix_complex(unsigned int n, unsigned int m)
 		{
-			SX = n;
-			SY = m;
-			create();
+			create(n, m);
 		}
 
 		//============================================================================
@@ -192,7 +189,20 @@ private:
 						data[r * SY + c] = complex< T >( 0.0, 0.0 );
 				}
 			}
+			else
+			{
+				cout << "Error (Create): Matrix dimensions should not be zero" << endl;
+			}
 			is_transposed = false;
+		}
+
+		//============================================================================
+		//
+		//============================================================================
+		void create(int sx, int sy)
+		{
+			SX = sx; SY = sy;
+			create();
 		}
 
 		//============================================================================
@@ -200,12 +210,10 @@ private:
 		//============================================================================
 		void operator=(matrix_complex &b)
 		{
-			if (!(this->NumRows() == b.NumRows()) || !(this->NumCols() == b.NumCols()))
+			if (!this->EqualSize(b))
 			{
 				this->destroy();
-				this->SX = b.NumRows();
-				this->SY = b.NumCols();
-				this->create();
+				this->create(b.NumRows(), b.NumCols());
 			}
 			for (int i = 0; i < SX; i++)
 			{
@@ -227,13 +235,10 @@ private:
 		//============================================================================
 		void operator=(matrix_complex *b)
 		{
-			if (!(this->NumRows() == b->NumRows()) ||
-				!(this->NumCols() == b->NumCols()))
+			if (!this->EqualSize(b))
 			{
 				this->destroy();
-				this->SX = b->NumRows();
-				this->SY = b->NumCols();
-				this->create();
+				this->create(b->NumRows(), b->NumCols());
 			}
 
 			for (int i = 0; i < this->NumRows(); i++)
@@ -301,10 +306,8 @@ private:
 		//============================================================================
 		matrix_complex& operator | (matrix_complex &b)
 		{
-			if ((this->NumCols() == b.NumCols()) && (this->NumRows() == b.NumRows()))
+			if (this->EqualSize(b))
 			{
-				//	if (out) delete out;
-				//	out = new matrix(this->NumRows(), this->NumCols());
 				if (out)
 				{
 					if (!((out->NumRows() == this->NumRows()) &&
@@ -321,13 +324,9 @@ private:
 
 				for (int i = 0; i < this->NumRows(); i++)
 				{
-
 					for (int j = 0; j < this->NumCols(); j++)
 					{
-						//for (int k = 0; k < this->NumCols(); k++)
-						{
-							(*out)(i, j) = get(i, j) * b(i, j);
-						}
+						(*out)(i, j) = get(i, j) * b(i, j);
 					}
 				}
 
@@ -342,15 +341,8 @@ private:
 		//============================================================================
 		matrix_complex& operator*(matrix_complex &b)
 		{
-			/*if (b.NumCols() == 1 && b.NumRows() == 1)
-			{
-			//is a 1x1 matrix treated like a scalar?
-			return (*this) * b(0, 0);
-			}*/
 			if (this->NumCols() == b.NumRows())
 			{
-				//if (out) delete out;
-				//out = new matrix_complex(this->NumRows(), b.NumCols());
 				if (out)
 				{
 					if (!((out->NumRows() == this->NumRows()) &&
@@ -373,7 +365,6 @@ private:
 						(*out)(r, c) = complex < T >(0.0, 0.0);
 						for (int k = 0; k < this->NumCols(); k++)
 						{
-							//(*out)(r, c) += std::conj(get(r, k)) * b(k, c);
 							(*out)(r, c) += get(r, k) * b(k, c);
 						}
 					}
@@ -398,7 +389,6 @@ private:
 
 			if (out)
 			{
-
 				if (!((out->NumRows() == this->NumRows()) &&
 					(out->NumCols() == this->NumCols())))
 				{
@@ -410,9 +400,6 @@ private:
 			{
 				out = new matrix_complex(this->NumRows(), this->NumCols());
 			}
-
-			//if (out)delete out;
-			//out = new matrix(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -429,9 +416,6 @@ private:
 		//============================================================================
 		matrix_complex& operator/(T s)
 		{
-			//if (out) delete out;
-			//out = new matrix(this->NumRows(), this->NumCols());
-
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
@@ -460,8 +444,6 @@ private:
 		//============================================================================
 		matrix_complex& operator+(T s)
 		{
-			//if (out)delete out;
-			//out = new matrix(this->NumRows(), this->NumCols());
 			if (out)
 			{
 				if (!((out->NumRows() == this->NumRows()) &&
@@ -491,14 +473,8 @@ private:
 		//============================================================================
 		matrix_complex& operator+(matrix_complex &b)
 		{
-			if (this->NumCols() != b.NumCols() || this->NumRows() != b.NumRows())
+			if (this->EqualSize(b))
 			{
-				return matrix_complex(0, 0);
-			}
-			else
-			{
-				//if (out)delete out;
-				//out = new matrix(this->NumRows(), this->NumCols());
 				if (out)
 				{
 					if (!((out->NumRows() == this->NumRows()) &&
@@ -531,12 +507,8 @@ private:
 		//============================================================================
 		matrix_complex& operator-(matrix_complex &b)
 		{
-			if (this->NumCols() != b.NumCols() || this->NumRows() != b.NumRows())
-				return matrix_complex(0, 0);
-			else
+			if (this->EqualSize(b))
 			{
-				//	if (out)delete out;
-				//	out = new matrix(this->NumRows(), this->NumCols());
 				if (out)
 				{
 					if (!((out->NumRows() == this->NumRows()) &&
@@ -1321,11 +1293,6 @@ private:
 		//============================================================================
 		void Conjugate()
 		{
-			/*if (!this->IsSquare())
-			{
-				cout << "Error (Identity): Identity Matrix must be square" << endl;
-				return;
-				}*/
 			for (int r = 0; r < this->NumRows(); r++)
 			{
 				for (int c = 0; c < this->NumCols(); c++)
@@ -1340,11 +1307,6 @@ private:
 		//============================================================================
 		void ConjugateTranspose()
 		{
-			/*if (!this->IsSquare())
-			{
-				cout << "Error (Identity): Identity Matrix must be square" << endl;
-				return;
-			}*/
 			this->Conjugate();
 			this->transpose();
 		}
@@ -1364,9 +1326,17 @@ private:
 			{
 				for (int c = 0; c < this->NumCols(); c++)
 				{
-					//if ( r!=c ) // breakdown in the case of the NAN
-						if (get(r, c) != std::conj(get(c, r)) )
+					//if (r != c) // breakdown in the case of the NAN
+					{
+						if (get(r, c) != std::conj(get(c, r)))
 							return false;
+					}
+					/*else
+					{
+						if ((get(r, c).imag() > 0.0 + precision) || 
+							(get(r, c).imag() < 0.0 - precision))
+							return false;
+					}*/
 				}
 			}
 
@@ -1388,9 +1358,17 @@ private:
 			{
 				for (int c = 0; c < this->NumCols(); c++)
 				{
-					//if ( r != c)
+					//if (r != c)
+					{
 						if (get(r, c) != -std::conj(get(c, r)))
 							return false;
+					}
+					/*else
+					{
+						if ((get(r, c).real() > 0.0 + precision) ||
+							(get(r, c).real() < 0.0 - precision))
+							return false;
+					}*/
 				}
 			}
 
@@ -1494,7 +1472,7 @@ private:
 			int n = this->NumRows();
 			matrix_complex M(n, n);
 
-			M(0, 0) = sqrt(get(0, 0));
+			M(0, 0) = std::sqrt(get(0, 0));
 
 
 			for (int j = 1; j < n; j++)
@@ -1511,7 +1489,7 @@ private:
 						complex<T> sum1 = complex<T>( 0.0, 0.0 );
 						for (int s = 0; s < j; s++) sum1 += M(j, s) * M(j, s);
 
-						M(j, j) = sqrt(get(j, j) - sum1);
+						M(j, j) = std::sqrt(get(j, j) - sum1);
 					}
 					else
 					{
@@ -1572,7 +1550,7 @@ private:
 
 				L(k, 0) = get(k, 0) / U(0, 0); // loop 1 with rows indexed with k, ignore cols
 
-				L(k, k) = 1.0f; // loop 1 as L(k,k)
+				L(k, k) = complex< T >(1.0, 0.0); // loop 1 as L(k,k)
 			}
 
 			for (int j = 1; j < n; j++)
@@ -1676,7 +1654,7 @@ private:
 
 				U(0, j) = get(0, j) / L(0, 0);
 
-				U(j, j) = 1.0f;
+				U(j, j) = complex <T> (1.0, 0.0);
 
 			}
 
@@ -1914,13 +1892,13 @@ private:
 					S += H_(r, c)*H_(r, c);
 				}
 
-				S = sqrt(S);
+				S = std::sqrt(S);
 				for (int r = c + 1; r < n; r++)
 				{
 
 					if (r == c + 1)
 					{
-						V(r, 0) = sqrt(0.5*(1.0 + abs(H_(r, c)) / S));
+						V(r, 0) = std::sqrt(0.5*(1.0 + abs(H_(r, c)) / S));
 
 					}
 					else if (r > c + 1)
