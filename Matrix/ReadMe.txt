@@ -20,13 +20,15 @@ Completed Procedures
 
 had problems with the process of constructing a Hessenburg matrix for the general case
 of an n*n square matrix because I thought the Householder algorithm only worked for 
-symmetric matrices. I implemented a method that performs a similarity transform and returns
-H and S from http://www.mymathlib.com/matrices/eigen/, however I found a paper
+symmetric matrices. 
+
+I implemented a method that performs a similarity transform and returns
+H and S from http://www.mymathlib.com/matrices/eigen/, 
+(these are removed, I used the Krezig method, see much older versions)
+
+I found a paper
 http://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0258255-3/S0025-5718-1969-0258255-3.pdf
-that proves numerical instability of the row reduction methods. The methods I used for the 
-Hessenburg showed indeterminate numbers using the example matrix. I implemented both Hessenburg 
-matrix routines from the website however there may be mistakes in the code because the memory
-is accessed differently.
+that proves numerical instability of the row reduction methods.(this showed up again in the complex matrix).
 
 Anyway I discovered that the Householder method can be used to transform a general N*N matrix
 into the Hessenburg form ... The matrix in the example is from this page 
