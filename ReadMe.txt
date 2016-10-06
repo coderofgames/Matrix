@@ -48,3 +48,5 @@ and
 http://www.gamedev.net/page/resources/_/technical/math-and-physics/matrix-inversion-using-lu-decomposition-r3637
 for completely explaining it
 19) Added some functions for finding a determinant up to 5x5 however the input function isn't implemented.
+20) Added method for newton iteration to improve bad inverses.
+21) first complex matrix version of the householder algorithm is implemented

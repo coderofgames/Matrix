@@ -73,17 +73,17 @@ public:
 	}
 
 	//============================================================================
-	//
+	// https://en.wikipedia.org/wiki/Sign_function
 	//============================================================================
-	template<class T>
-	static inline T sgn(T x)
+	template< class T >
+	static inline complex <T> sgn(complex <T> z)
 	{
-		if (x > 0.0 + DBL_EPSILON)
-			return 1.0;
-		if (x < 0.0 - DBL_EPSILON)
-			return -1.0;
+		if (z.real() == 0.0 && z.imag() == 0.0)
+			return z;
 
-		return x;
+		T abs_z_inv = 1 / std::abs(z);
+		
+		return z * abs_z_inv;
 	}
 
 	//============================================================================
@@ -414,6 +414,35 @@ private:
 		//============================================================================
 		//
 		//============================================================================
+		matrix_complex& operator*(complex<T> s)
+		{
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumCols() == this->NumCols())))
+				{
+					delete out;
+					out = new matrix_complex(this->NumRows(), this->NumCols());
+				}
+			}
+			else
+			{
+				out = new matrix_complex(this->NumRows(), this->NumCols());
+			}
+
+			for (int i = 0; i < this->NumRows(); i++)
+			{
+				for (int j = 0; j < this->NumCols(); j++)
+				{
+					(*out)(i, j) = get(i, j) * s;
+				}
+			}
+			return *out;
+		}
+
+		//============================================================================
+		//
+		//============================================================================
 		matrix_complex& operator/(T s)
 		{
 			if (out)
@@ -442,7 +471,64 @@ private:
 		//============================================================================
 		//
 		//============================================================================
+		matrix_complex& operator/(complex<T> s)
+		{
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumCols() == this->NumCols())))
+				{
+					delete out;
+					out = new matrix_complex(this->NumRows(), this->NumCols());
+				}
+			}
+			else
+			{
+				out = new matrix_complex(this->NumRows(), this->NumCols());
+			}
+			for (int i = 0; i < this->NumRows(); i++)
+			{
+				for (int j = 0; j < this->NumCols(); j++)
+				{
+					(*out)(i, j) = get(i, j) / s;
+				}
+			}
+			return *out;
+		}
+
+		//============================================================================
+		//complex<T>(1.0, 0.0) 
+		//============================================================================
 		matrix_complex& operator+(T s)
+		{
+			if (out)
+			{
+				if (!((out->NumRows() == this->NumRows()) &&
+					(out->NumCols() == this->NumCols())))
+				{
+					delete out;
+					out = new matrix_complex(this->NumRows(), this->NumCols());
+				}
+			}
+			else
+			{
+				out = new matrix_complex(this->NumRows(), this->NumCols());
+			}
+
+			for (int i = 0; i < this->NumRows(); i++)
+			{
+				for (int j = 0; j < this->NumCols(); j++)
+				{
+					(*out)(i, j) = get(i, j) + s;
+				}
+			}
+			return *out;
+		}
+
+		//============================================================================
+		//complex<T>(1.0, 0.0) 
+		//============================================================================
+		matrix_complex& operator+(complex<T> s)
 		{
 			if (out)
 			{
@@ -1864,7 +1950,32 @@ private:
 			return *out;
 		}
 
-		/*
+		/* TESTED BUT NOT PROVEN
+		Information on complex housholder matrices ...
+		https://en.wikipedia.org/wiki/QR_decomposition
+		this method requires 30 iterations on the test matrix before convergence ...
+		this can be attributed to the fact that the complex numbers suffer from a greater
+		degree of floating point "wobble" than the real numbers - as illustrated with our
+		gauss jordan elimination example.
+		https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html 
+		explains the "wobble" or error in floating point, although not neccessarily in the case
+		of complex numbers.
+		// from the wikipedia article (above) 
+		// its hard to tell what type of norm is being used
+		// since ||x|| at one time refers to the euclidean norm, and for complex numbers this
+		// is defined as sqrt( sum( abs(z)^2 ) ) 
+		// http://mathworld.wolfram.com/L2-Norm.html
+		// and in the articles example the sum of elements norm is used without notation	
+		// so the complex euclidean norm (or L2 norm) is used here in a system resembling the 
+		// original method i etched out for real numbers - it was only luck that
+		// (or despair) that caused me to experiment by trying to iterate ..
+		// before I jump for joy I must remind myself that this still needs to be proven to 
+		// be the actual hessenburg and I must also appreciate that the luck of finding a Newton iteration
+		// formula to fix it will not neccessarily happen
+		// also its neccessary to refer to this
+		// https://wwwmath.uni-muenster.de/u/hannes.thiel/preprints/QR.pdf
+		// for some mathematical insight, and perhaps a clue to other methods
+		*/
 		void Householder_Tridiagonalize()
 		{
 			//if (!this->IsSymmetric())
@@ -1873,23 +1984,31 @@ private:
 			//}
 			int n = this->NumRows();
 
-			matrix<T>  V(n, 1);
-			matrix<T>  VT(1, n);
-			matrix<T>  Inn(n, n);
+			matrix_complex  X(n, 1);
+			matrix_complex  X_CT(1, n); // conjugate transpose
+			matrix_complex  V(n, 1);
+			matrix_complex  V_CT(1, n); // conjugate transpose
+			matrix_complex  Inn(n, n);
+			matrix_complex V_VH;
+			
 			Inn.Identity();
 
-			matrix<T> H_ = (*this);
-			matrix<T> P;
+			matrix_complex H_ = (*this);
+			matrix_complex P;
 
-			T S = 0.0;
+			complex< T > S = complex< T > (0.0, 0.0);
+			for (int zz = 0; zz < 30; zz++)
 			for (int c = 0; c < n - 2; c++)
 			{
 				//H = (*this);
 
-				S = 0.0;
+				S = complex< T >(0.0, 0.0);
 				for (int r = c + 1; r < n; r++)
 				{
-					S += H_(r, c)*H_(r, c);
+					S += std::abs(H_(r, c)*H_(r, c));
+
+					X(r, 0) = H_(r, c); // store X
+					X_CT(0, r) =  std::conj(X(r, 0)); // conjugate transpose
 				}
 
 				S = std::sqrt(S);
@@ -1898,37 +2017,161 @@ private:
 
 					if (r == c + 1)
 					{
-						V(r, 0) = std::sqrt(0.5*(1.0 + abs(H_(r, c)) / S));
+						V(r, 0) = std::sqrt((0.5 + 0.5*std::abs(H_(r, c)) / S));
 
 					}
 					else if (r > c + 1)
 					{
-						V(r, 0) = H_(r, c) * sgn(H_(c + 1, c)) / (2.0 * V(c + 1, 0)*S);
+						V(r, 0) = H_(r, c) * sgn< T >(H_(c + 1, c)) / (2.0 * V(c + 1, 0)*S);
 					}
 
-					VT(0, r) = V(r, 0);
+					V_CT(0, r) =  std::conj(V(r, 0));
 				}
 
-				// anotH_er copy 
-				P = Inn - V * VT * 2;
+				matrix_complex X_CT_V = X_CT * V;
+				matrix_complex V_CT_X = V_CT * X;
+				
 
-				H_ = H_ * P;
-				H_ = P * H_;
+
+				complex< T > w = X_CT_V(0, 0) / V_CT_X(0, 0);
+				
+				// anotH_er copy 
+				V_VH = V*V_CT;
+				P = Inn - V_VH - V_VH * w;
+
+				//H_ = H_ * P ;
+				H_ = P * H_ *P;
 
 				//(*this) = P * (*this) * P;
 
 				// zero the vectors again
 				V.ToZero();
-				VT.ToZero();
-
+				V_CT.ToZero();
+				X.ToZero();
+				X_CT.ToZero();
 			}
 
 			(*this) = H_;
 
-		}*/
+		}
+		
+		T Euclidean_Norm_column(matrix_complex &v, int r1, int c)
+		{
+
+			complex< T > S = complex< T >(0.0, 0.0);
+			for (int r = r1; r < v.NumRows(); r++)
+			{
+				S += std::abs(v(r, c)*v(r, c));
+			}
+
+			return std::sqrt(S.real());
+		}
+
+		complex< T > Sum_Norm_column(matrix_complex &v, int r1, int c)
+		{
+
+			complex< T > S = complex< T >(0.0, 0.0);
+			for (int r = r1; r < v.NumRows(); r++)
+			{
+				S += std::abs(v(r, c)*v(r, c));
+			}
+
+			return S;
+		}
+		/*
+		//wikipedia calculation
+		// with some variation ... 
+		// its hard to tell what type of norm is being used
+		// since ||x|| at one time refers to the euclidean norm, and for complex numbers this
+		// is defined as sqrt( sum( abs(z)^2 ) ) 
+		// http://mathworld.wolfram.com/L2-Norm.html
+		// and in the articles example the sum of elements norm is used without notation
+		// 
+		void Householder_Tridiagonalize()
+		{
+
+			int n = this->NumRows();
+
+			matrix_complex  X(n, 1);
+			matrix_complex  X_CT(1, n); // conjugate transpose
+			matrix_complex  V;
+			matrix_complex  V_CT; // conjugate transpose
+			matrix_complex  Inn(n, n);
+			matrix_complex V_VH;
+
+			matrix_complex U(n, 1);
+
+			Inn.Identity();
+
+			matrix_complex H_ = (*this);
+			matrix_complex P;
+
+			complex< T > S = complex< T >(0.0, 0.0);
+			for (int c = 0; c < n - 2; c++)
+			{
+				//H = (*this);
+
+				S = complex< T >(0.0, 0.0);
+				for (int r = c + 1; r < n; r++)
+				{
+					S += H_(r, c)*H_(r, c);
+
+
+				}
+
+				for (int r = c; r < n; r++)
+				{
+					X(r, 0) = H_(r, c); // store X
+					X_CT(0, r) = std::conj(X(r, 0)); // conjugate transpose
+				}
+				
+
+				S = std::sqrt(S);
+
+				T  arg_z = std::atan2(H_(c + 1, c).imag() , H_(c + 1, c).real());
+				T mag_z = Euclidean_Norm_column(X, c,0);
+			
+
+
+				U = X;
+				U(c , 0) = X(c , 0) - std::polar(-mag_z, arg_z);
+
+				complex<T > col_norm = Sum_Norm_column(U, c, 0);
+
+				V = U / col_norm;
+
+				V_CT = V;
+				V_CT.ConjugateTranspose();
+
+				//X_CT = X;
+				//X_CT.ConjugateTranspose();
 
 
 
+				complex< T > w = (X_CT * V)(0, 0) / (V_CT * X)(0, 0);
+
+				// anotH_er copy 
+				V_VH = V*V_CT;
+
+				P = Inn - V_VH - V_VH * w;
+				
+
+				//H_ = H_ * P ;
+				H_ = P * H_  *P;
+
+
+				// zero the vectors again
+				V.ToZero();
+				V_CT.ToZero();
+				X.ToZero();
+				X_CT.ToZero();
+				U.ToZero();
+			}
+
+			(*this) = H_;
+
+		}
+		*/
 
 
 		//============================================================================

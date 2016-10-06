@@ -2270,7 +2270,6 @@ public:
 
 				C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
 			}
-	
 		}
 	
 		// set the eigen values and exit
