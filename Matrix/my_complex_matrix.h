@@ -1996,16 +1996,16 @@ private:
 			matrix_complex H_ = (*this);
 			matrix_complex P;
 
-			complex< T > S = complex< T > (0.0, 0.0);
+			T S = 0.0;// complex< T >(0.0, 0.0);
 			for (int zz = 0; zz < 30; zz++)
 			for (int c = 0; c < n - 2; c++)
 			{
 				//H = (*this);
 
-				S = complex< T >(0.0, 0.0);
+				S = 0.0;// complex< T >(0.0, 0.0);
 				for (int r = c + 1; r < n; r++)
 				{
-					S += std::abs(H_(r, c)*H_(r, c));
+					S += std::abs(H_(r, c))*std::abs(H_(r, c));
 
 					X(r, 0) = H_(r, c); // store X
 					X_CT(0, r) =  std::conj(X(r, 0)); // conjugate transpose
@@ -2107,14 +2107,14 @@ private:
 			matrix_complex P;
 
 			complex< T > S = complex< T >(0.0, 0.0);
-			for (int zz = 0; zz < 90; zz++)
+			//for (int zz = 0; zz < 90; zz++)
 			for (int c = 0; c < n - 2; c++)
 			{
 				//H = (*this);
 
 				
 
-				for (int r = c; r < n; r++)
+				for (int r = c+1; r < n; r++)
 				{
 					X(r, 0) = H_(r, c); // store X
 					X_CT(0, r) = std::conj(X(r, 0)); // conjugate transpose
@@ -2123,15 +2123,15 @@ private:
 
 				
 
-				T  arg_z = std::atan2(H_(c, c).imag() , H_(c, c).real());
-				T mag_z = Euclidean_Norm_column(X, c,0);
+				T  arg_z = std::atan2(H_(c + 1, c).imag(), H_(c + 1, c).real());
+				T mag_z = Euclidean_Norm_column(X, c+1,0);
 			
 
 
 				U = X;
-				U(c , 0) = X(c , 0) - std::polar(-mag_z, arg_z);
+				U(c + 1, 0) = X(c + 1, 0) - std::polar(-mag_z, arg_z);
 
-				complex<T > col_norm = Sum_Norm_column(U, c, 0);
+				complex<T > col_norm = Sum_Norm_column(U, c , 0);
 
 				V = U / col_norm;
 

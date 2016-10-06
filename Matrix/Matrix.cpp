@@ -317,7 +317,7 @@ void Test_Complex_Matrix()
 	for (int i = 0; i < 1; i++)
 	{
 
-		/*matrix_cd m9(10, 10);
+		matrix_cd m9(10, 10);
 
 		for (int r = 0; r < 10; r++)
 		{
@@ -325,8 +325,8 @@ void Test_Complex_Matrix()
 			{
 				m9(r, c) = complex_arr[r*10 + c];
 			}
-		}*/
-		matrix_cd m9(4, 4);
+		}
+		/*matrix_cd m9(4, 4);
 
 		for (int r = 0; r < 4; r++)
 		{
@@ -334,7 +334,7 @@ void Test_Complex_Matrix()
 			{
 				m9(r, c) = LINALG_COMPLEX::RandomComplex<double>(-10.0, 10.0);
 			}
-		}
+		}*/
 		cout << endl;
 		cout << "printing m9" << endl;
 		m9.print(2);
@@ -348,23 +348,24 @@ void Test_Complex_Matrix()
 		cout << endl;
 		cout << "printing m9 inverted" << endl;
 		matrix_cd Ic1 = m9;
-		matrix_cd m9_inv = Ic1.Gauss_Jordan();
+		matrix_cd m9_inv = Ic1.Invert_Crout();
 		m9_inv.print(2);
 
 		cout << endl;
-		cout << "printing leftovers from Gauss Jordan" << endl;
-		Ic1.print(2);
+		cout << "printing inverse after newton iteration" << endl;
+		matrix_cd new_m9_inv = m9.Newtons_Iteration_for_Inverse(m9_inv, 20);
+		new_m9_inv.print(2);
 
-		m9_inv.ClipToZero(0.0000001);
-		m9.ClipToZero(0.0000001);
+		//m9_inv.ClipToZero(0.0000001);
+		//m9.ClipToZero(0.0000001);
 
 		cout << endl;
-		cout << "printing m9_inv* m9 " << endl;
+		cout << "printing new_m9_inv * m9 " << endl;
 		matrix_cd I_complex = m9_inv * m9;
 		I_complex.print(2);
 
 		cout << endl;
-		cout << "printing  m9 *m9_inv " << endl;
+		cout << "printing  m9 *new_m9_inv  " << endl;
 		matrix_cd I_complex2 = m9 *m9_inv;
 		I_complex2.print(2);
 	//	complex<double> R_01 = m9(0, 0) * m2_inv(0, 1) + m9(0, 1) * m2_inv(1, 1) + m9(0, 2)* m2_inv(2, 1) + m9(0, 3)* m2_inv(3, 1);
@@ -373,30 +374,12 @@ void Test_Complex_Matrix()
 		cout << "     determinant: " << m9.Determinant() << endl;
 
 
-		m9.transpose();
-		m9_inv.transpose();
-
-		//m2_inv.Conjugate();
-
 		cout << endl;
-		cout << "printing m9_inv.transpose() * m2.transpose() " << endl;
-		matrix_cd I_complex3 = m9_inv * m9;
-		I_complex3.print(3);
+		cout << "Householder test ..." << endl;
+		m9.Householder_Tridiagonalize();
+		m9.print(3);
 
-		matrix_cd m9_inv_copy = m9_inv;
 
-		cout << endl;
-		cout << "printing  m9_inv (inverted) " << endl;
-		m9_inv.transpose();
-		matrix_cd m9_inv_inv = m9_inv.Gauss_Jordan();
-		m9_inv_inv.print(3);
-
-		cout << endl;
-		cout << "printing  m9_inv transpose (inverted) " << endl;
-		//m9_inv_copy.transpose();
-		m9_inv_copy.Conjugate();
-		matrix_cd m9_inv_copy_inv = m9_inv_copy.Gauss_Jordan();
-		m9_inv_copy_inv.print(3);
 	}
 
 	cout << endl;
@@ -529,6 +512,8 @@ void Test_Complex_Matrix()
 	H_2.print(4);
 	cout << endl;
 	cout << "Clearly there is a problem here ... " << endl;
+
+
 }
 
 
