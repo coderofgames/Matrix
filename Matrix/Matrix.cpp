@@ -505,7 +505,7 @@ void Test_Complex_Matrix()
 
 	cout << endl;
 	cout << "Testing newton iteration on Gauss Elimination matrix" << endl;
-	test_inv.Newtons_Iteration_for_Inverse(test_inv_inv,20);
+	test_inv.Newtons_Iteration_for_Inverse(test_inv_inv, 20);
 
 	test_inv_inv2 = test_inv*test_inv_inv;//.Gauss_Jordan();
 
@@ -514,25 +514,21 @@ void Test_Complex_Matrix()
 
 	cout << endl << "this is clearly the identity matrix ... printing the new inverse " << endl;
 
-	test_inv_inv.print(4);
 
 
-	cout << endl << "and finally the difference between the two inverses" << endl;
 
-	matrix_cd inv_diff = test_inv_inv - crout_inv;
-	inv_diff.print(4);
-
-	cout << endl << "At a higher resolution" << endl;
-	inv_diff.print(-1);
-
-	cout << "Printing the Frobenius Norm of the matrix " << endl;
-	complex<double> c = inv_diff.Frobenius_Norm();
-
-	cout << c << endl;
+	matrix_cd H_1 = test_inv_copy;
+	matrix_cd H_2 = H_1;
 	//cout << "Printing the Frobenius Norm of the matrix " << endl;
 	cout << endl << "Householder_Tridiagonalizen" << endl;
-	test_inv_copy.Householder_Tridiagonalize();
-	test_inv_copy.print(4);
+	H_1.Householder_Tridiagonalize();
+	H_1.print(4);
+
+	cout << endl << "Householder_Tridiagonalizen_wiki (current faulty implementation of the wikipedia algorithm)" << endl;
+	H_2.Householder_Tridiagonalize_wiki();
+	H_2.print(4);
+	cout << endl;
+	cout << "Clearly there is a problem here ... " << endl;
 }
 
 

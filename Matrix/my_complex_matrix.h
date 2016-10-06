@@ -1160,7 +1160,7 @@ private:
 				for (int p = 0; p < n; p++)
 				{
 					SWAP<complex<T>>(A(j, p), A(k, p));
-					SWAP<complex<T>>(get(j, p), get(k, p));
+					//SWAP<complex<T>>(get(j, p), get(k, p));
 					SWAP<complex<T>>((*out)(j, p), (*out)(k, p));
 				}
 				for (j = k+1; j < n; j++)
@@ -2061,7 +2061,7 @@ private:
 			complex< T > S = complex< T >(0.0, 0.0);
 			for (int r = r1; r < v.NumRows(); r++)
 			{
-				S += std::abs(v(r, c)*v(r, c));
+				S += std::abs(v(r, c)) * std::abs(v(r, c));
 			}
 
 			return std::sqrt(S.real());
@@ -2073,12 +2073,12 @@ private:
 			complex< T > S = complex< T >(0.0, 0.0);
 			for (int r = r1; r < v.NumRows(); r++)
 			{
-				S += std::abs(v(r, c)*v(r, c));
+				S += v(r, c);
 			}
 
 			return S;
 		}
-		/*
+		
 		//wikipedia calculation
 		// with some variation ... 
 		// its hard to tell what type of norm is being used
@@ -2087,7 +2087,7 @@ private:
 		// http://mathworld.wolfram.com/L2-Norm.html
 		// and in the articles example the sum of elements norm is used without notation
 		// 
-		void Householder_Tridiagonalize()
+		void Householder_Tridiagonalize_wiki()
 		{
 
 			int n = this->NumRows();
@@ -2107,17 +2107,12 @@ private:
 			matrix_complex P;
 
 			complex< T > S = complex< T >(0.0, 0.0);
+			for (int zz = 0; zz < 90; zz++)
 			for (int c = 0; c < n - 2; c++)
 			{
 				//H = (*this);
 
-				S = complex< T >(0.0, 0.0);
-				for (int r = c + 1; r < n; r++)
-				{
-					S += H_(r, c)*H_(r, c);
-
-
-				}
+				
 
 				for (int r = c; r < n; r++)
 				{
@@ -2126,9 +2121,9 @@ private:
 				}
 				
 
-				S = std::sqrt(S);
+				
 
-				T  arg_z = std::atan2(H_(c + 1, c).imag() , H_(c + 1, c).real());
+				T  arg_z = std::atan2(H_(c, c).imag() , H_(c, c).real());
 				T mag_z = Euclidean_Norm_column(X, c,0);
 			
 
@@ -2171,8 +2166,7 @@ private:
 			(*this) = H_;
 
 		}
-		*/
-
+		
 
 		//============================================================================
 		//
