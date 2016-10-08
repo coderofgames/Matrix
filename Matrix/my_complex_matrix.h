@@ -2120,7 +2120,7 @@ private:
 
 				// for some reason, the tridiagonal hessenburg does not appear unless
 				// the polar equation is used, and at the moment i am not sure if it is correct
-				if (useQR)
+				//if (useQR)
 				{
 					if (mag_z > 0.0)
 					{
@@ -2131,8 +2131,8 @@ private:
 						U(Row, 0) = X(Row, 0) + mag_z;
 					}
 				}
-				else
-					U(Row, 0) = X(Row, 0) - std::polar(mag_z, arg_z);
+				//else
+				//	U(Row, 0) = X(Row, 0) - std::polar(mag_z, arg_z);
 
 				complex<T > col_norm = Euclidean_Norm_column(U, Row, 0);
 
