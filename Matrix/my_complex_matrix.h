@@ -2113,15 +2113,26 @@ private:
 				//T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
 				T  arg_z = std::atan(R_(Row, c).imag() / R_(Row, c).real());
 				T mag_z = Euclidean_Norm_column(X, Row, 0);
+
+				if (!useQR) mag_z = Euclidean_Norm_column(X, Row-1, 0);
 			
 				U = X;
 
 				// for some reason, the tridiagonal hessenburg does not appear unless
 				// the polar equation is used, and at the moment i am not sure if it is correct
 				if (useQR)
-					U(Row, 0) = X(Row, 0) + mag_z* sgn < T >(mag_z);
+				{
+					if (mag_z > 0.0)
+					{
+						U(Row, 0) = X(Row, 0) - mag_z;
+					}
+					else if (mag_z < 0.0)
+					{ 
+						U(Row, 0) = X(Row, 0) + mag_z;
+					}
+				}
 				else
-					U(Row, 0) = X(Row, 0) - std::polar(-mag_z, arg_z);
+					U(Row, 0) = X(Row, 0) - std::polar(mag_z, arg_z);
 
 				complex<T > col_norm = Euclidean_Norm_column(U, Row, 0);
 
