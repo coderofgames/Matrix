@@ -428,7 +428,7 @@ void Test_Complex_Matrix()
 	//complex<double> __a[6][6]
 		matrix_cd test_inv = {
 		{ { 5, 4 }, { 3, -2 }, { 4, 4 }, {-6, 2},   {-2, 4}, {2, -8} },
-		{  {2 + 2},	{ 3,  0 }, {-7 + 2}, {12 ,-1 },	{3, 2},	 {1 ,1}  },
+		{  {2, 2},	{ 3,  0 }, {-7, 2}, {12 ,-1 },	{3, 2},	 {1 ,1}  },
 		{ { 5, 4 }, { 0, 0 }, { 9, 2 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 		{ { 0, 0 }, { 0, 0 }, { 0, 0 }, {-4, -7}, {2, -1 }, {2,  2}  },
 		{ {17, 19.6},	{4, 3},{ -2, -1},	{1,1 }, {-14,  3},	{8 ,-4}},
@@ -507,11 +507,20 @@ void Test_Complex_Matrix()
 	H_1.Householder_Tridiagonalize();
 	H_1.print(4);
 
-	cout << endl << "Householder_Tridiagonalizen_wiki (current implementation of the wikipedia QR algorithm)" << endl;
-	H_2.Householder_Tridiagonalize_wiki();
+	matrix_cd H_3 = H_2;
+	cout << endl << "Householder_Tridiagonalizen_wiki (current implementation of the Householder algorithm based on wikipedia math)" << endl;
+	H_2.Householder_Tridiagonalize_wiki(false);
 	H_2.print(4);
 	cout << endl;
-	cout << "Clearly there is an improvement here ... this version computes QR not PHP" << endl;
+	cout << "Clearly there is an improvement here ... this version computes QRQ" << endl;
+
+	cout << endl << "QR algorithm wiki (current implementation of the wikipedia QR algorithm)" << endl;
+	matrix_cd Q = H_3.Householder_Tridiagonalize_wiki(true);
+	H_3.print(4);
+
+	cout << endl;
+	Q.print(4);
+	cout << "This is the product QR where Q is an orthogonal transformation and the product is a triangular matrix" << endl;
 
 
 }

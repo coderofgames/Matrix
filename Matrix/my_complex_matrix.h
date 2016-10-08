@@ -2071,7 +2071,7 @@ private:
 		// This produces a different result from the version above
 		// I am not sure which is "correct" however this version is much faster
 		// since there is no need to iterate.
-		void Householder_Tridiagonalize_wiki()
+		matrix_complex& Householder_Tridiagonalize_wiki(bool useQR)
 		{
 
 			int n = this->NumRows();
@@ -2090,15 +2090,26 @@ private:
 			matrix_complex R_ = (*this);
 			matrix_complex Q;
 
+			if (out) delete out;
+			out = new matrix_complex(n, n);
+			out->Identity();
+
 			complex< T > S = complex< T >(0.0, 0.0);
-			//for (int zz = 0; zz < 20; zz++)
-			for (int c = 0; c < n - 2; c++)
+			
+			int end_loop = n - 2;
+			
+			if (useQR) end_loop += 1;
+
+			for (int c = 0; c < end_loop; c++)
 			{
 	
 
 				
+				int Row = c + 1;
 
-				for (int r = c+1; r < n; r++)
+				if (useQR) Row = c;
+
+				for (int r = Row; r < n; r++)
 				{
 					X(r, 0) = R_(r, c); // store X
 					X_CT(0, r) = std::conj(X(r, 0)); // conjugate transpose
@@ -2107,15 +2118,16 @@ private:
 
 				
 
-				T  arg_z = std::atan2(R_(c + 1, c).imag(), R_(c + 1, c).real());
-				T mag_z = Euclidean_Norm_column(X, c+1,0);
+				T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real());
+				T mag_z = Euclidean_Norm_column(X, Row, 0);
 			
 
 
 				U = X;
-				U(c + 1, 0) = X(c + 1, 0) - std::polar(-mag_z, arg_z);
+				
+				U(Row, 0) = X(Row, 0) - std::polar(-mag_z, arg_z);
 
-				complex<T > col_norm = Euclidean_Norm_column(U, c + 1, 0);
+				complex<T > col_norm = Euclidean_Norm_column(U, Row, 0);
 
 				V = U / col_norm;
 
@@ -2134,11 +2146,13 @@ private:
 
 				Q = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
 				
-
+				(*out) = (*out) * Q;
 				//H_ = H_ * P ;
 				R_ = Q * R_ ;
 
-
+				if (!useQR)  // then this should be the Householder tridiagonalization method ?
+					R_ = R_ * Q; 
+				
 				// zero the vectors again
 				V.ToZero();
 				V_CT.ToZero();
@@ -2148,6 +2162,8 @@ private:
 			}
 
 			(*this) = R_;
+
+			return *out;
 
 		}
 		
