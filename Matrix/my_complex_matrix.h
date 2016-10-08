@@ -1980,7 +1980,7 @@ private:
 			matrix_complex P;
 
 			T S = 0.0;// complex< T >(0.0, 0.0);
-			for (int zz = 0; zz < 30; zz++)
+			//for (int zz = 0; zz < 3; zz++)
 			for (int c = 0; c < n - 2; c++)
 			{
 				//H = (*this);
@@ -2115,17 +2115,19 @@ private:
 					X_CT(0, r) = std::conj(X(r, 0)); // conjugate transpose
 				}
 				
-
-				
-
-				T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real());
+				// changing the length of the vector on the pivot axis, keeping the rest the same ...
+				// these formulas find a unit normal on the plane of reflection (V) and they are used
+				// to construct the reflection matrix (orthogonal matrix) Q that takes the
+				// vector X from "Row" to the vector aligned to the (alpha, 0,0,...0) or e_row * alpha
+				// where e_row is a column of the identity matrix with a 1 at the row entry ...
+				// alpha is computed as a polar complex number (wiki) to form the sign on the complex
+				// hyperplane.
+				T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
 				T mag_z = Euclidean_Norm_column(X, Row, 0);
 			
-
-
 				U = X;
 				
-				U(Row, 0) = X(Row, 0) - std::polar(-mag_z, arg_z);
+				U(Row, 0) = X(Row, 0) - std::polar(-mag_z, arg_z); 
 
 				complex<T > col_norm = Euclidean_Norm_column(U, Row, 0);
 
@@ -2134,23 +2136,15 @@ private:
 				V_CT = V;
 				V_CT.ConjugateTranspose();
 
-				//X_CT = X;
-				//X_CT.ConjugateTranspose();
-
-
-
-				//complex< T > w = (X_CT * V)(0, 0) / (V_CT * X)(0, 0);
-
-				// anotH_er copy 
-				
-
 				Q = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
 				
-				(*out) = (*out) * Q;
-				//H_ = H_ * P ;
+				(*out) = (*out) * Q;  // storing Q just in case it is needed
+				
 				R_ = Q * R_ ;
 
-				if (!useQR)  // then this should be the Householder tridiagonalization method ?
+				// then this should be the Householder tridiagonalization method, creating tridiagonal matrices
+				// this takes the example Hermitian matrix into a Tridiagonal form
+				if (!useQR)  
 					R_ = R_ * Q; 
 				
 				// zero the vectors again

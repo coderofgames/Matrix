@@ -376,7 +376,7 @@ void Test_Complex_Matrix()
 
 		cout << endl;
 		cout << "Householder test ..." << endl;
-		m9.Householder_Tridiagonalize();
+		m9.Householder_Tridiagonalize_wiki(false);
 		m9.print(3);
 
 
