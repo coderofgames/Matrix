@@ -2124,11 +2124,11 @@ private:
 				{
 					if (mag_z > 0.0)
 					{
-						U(Row, 0) = X(Row, 0) - mag_z;
+						U(Row, 0) = X(Row, 0) + mag_z;
 					}
 					else if (mag_z < 0.0)
 					{ 
-						U(Row, 0) = X(Row, 0) + mag_z;
+						U(Row, 0) = X(Row, 0) - mag_z;
 					}
 				}
 				//else
