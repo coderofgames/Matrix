@@ -2067,8 +2067,10 @@ private:
 		// since ||x|| at one time refers to the euclidean norm, and for complex numbers this
 		// is defined as sqrt( sum( abs(z)^2 ) ) 
 		// http://mathworld.wolfram.com/L2-Norm.html
-		// and in the articles example the sum of elements norm is used without notation
-		// 
+
+		// This produces a different result from the version above
+		// I am not sure which is "correct" however this version is much faster
+		// since there is no need to iterate.
 		void Householder_Tridiagonalize_wiki()
 		{
 
