@@ -1980,11 +1980,9 @@ private:
 			matrix_complex P;
 
 			T S = 0.0;// complex< T >(0.0, 0.0);
-			//for (int zz = 0; zz < 3; zz++)
+			for (int zz = 0; zz < 30; zz++)
 			for (int c = 0; c < n - 2; c++)
 			{
-				//H = (*this);
-
 				S = 0.0;// complex< T >(0.0, 0.0);
 				for (int r = c + 1; r < n; r++)
 				{
@@ -2010,22 +2008,12 @@ private:
 
 					V_CT(0, r) =  std::conj(V(r, 0));
 				}
-
-				//matrix_complex X_CT_V = ;
-				//matrix_complex V_CT_X = ;
-				
-
-
-				//complex< T > w = X_CT_V(0, 0) / V_CT_X(0, 0);
 				
 				// anotH_er copy 
 				
 				P = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
 
-				//H_ = H_ * P ;
 				H_ = P * H_ *P;
-
-				//(*this) = P * (*this) * P;
 
 				// zero the vectors again
 				V.ToZero();
@@ -2098,7 +2086,7 @@ private:
 			
 			int end_loop = n - 2;
 			
-			if (useQR) end_loop += 1;
+			if (useQR) end_loop += 2;
 
 			for (int c = 0; c < end_loop; c++)
 			{
@@ -2122,12 +2110,18 @@ private:
 				// where e_row is a column of the identity matrix with a 1 at the row entry ...
 				// alpha is computed as a polar complex number (wiki) to form the sign on the complex
 				// hyperplane.
-				T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
+				//T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
+				T  arg_z = std::atan(R_(Row, c).imag() / R_(Row, c).real());
 				T mag_z = Euclidean_Norm_column(X, Row, 0);
 			
 				U = X;
-				
-				U(Row, 0) = X(Row, 0) - std::polar(-mag_z, arg_z); 
+
+				// for some reason, the tridiagonal hessenburg does not appear unless
+				// the polar equation is used, and at the moment i am not sure if it is correct
+				if (useQR)
+					U(Row, 0) = X(Row, 0) + mag_z* sgn < T >(mag_z);
+				else
+					U(Row, 0) = X(Row, 0) - std::polar(-mag_z, arg_z);
 
 				complex<T > col_norm = Euclidean_Norm_column(U, Row, 0);
 

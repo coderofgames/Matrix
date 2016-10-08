@@ -52,3 +52,15 @@ for completely explaining it
 19) Added some functions for finding a determinant up to 5x5 however the input function isn't implemented.
 20) Added method for newton iteration to improve bad inverses.
 21) first complex matrix version of the householder algorithm is implemented
+22) implemented QR Decomposition and tested the matrix on here 
+http://comnuan.com/cmnn0100e/
+This is the matrix I tested
+------------------------------------------------------
+ 5+4i   3-2i  4+4i  -6+2i   -2+4i  2-8i
+2+2i 	3+0i  -7+2i  12-1i 	3+2i	 1+1i 
+5+4i   0+0i  9+2i  0+0i  0+0i  0+0i
+0+0i    0+0i  0+0i  -4-7i   2-1i  2+2i
+17+19.6i	4+3i  -2-1i  1+1i   -14+3i  8-4i
+-5-3i 8+2i   4-3i -3-5i  15+2i  1+0i
+------------------------------------------------------
+there must be no spaces in the entries, and spaces separating them
