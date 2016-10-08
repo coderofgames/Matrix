@@ -1958,24 +1958,7 @@ private:
 		degree of floating point "wobble" than the real numbers - as illustrated with our
 		gauss jordan elimination example.
 		https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html 
-		explains the "wobble" or error in floating point, although not neccessarily in the case
-		of complex numbers.
-		// from the wikipedia article (above) 
-		// its hard to tell what type of norm is being used
-		// since ||x|| at one time refers to the euclidean norm, and for complex numbers this
-		// is defined as sqrt( sum( abs(z)^2 ) ) 
-		// http://mathworld.wolfram.com/L2-Norm.html
-		// and in the articles example the sum of elements norm is used without notation	
-		// so the complex euclidean norm (or L2 norm) is used here in a system resembling the 
-		// original method i etched out for real numbers - it was only luck that
-		// (or despair) that caused me to experiment by trying to iterate ..
-		// before I jump for joy I must remind myself that this still needs to be proven to 
-		// be the actual hessenburg and I must also appreciate that the luck of finding a Newton iteration
-		// formula to fix it will not neccessarily happen
-		// also its neccessary to refer to this
-		// https://wwwmath.uni-muenster.de/u/hannes.thiel/preprints/QR.pdf
-		// for some mathematical insight, and perhaps a clue to other methods
-		*/
+*/
 		void Householder_Tridiagonalize()
 		{
 			//if (!this->IsSymmetric())
@@ -2028,16 +2011,16 @@ private:
 					V_CT(0, r) =  std::conj(V(r, 0));
 				}
 
-				matrix_complex X_CT_V = X_CT * V;
-				matrix_complex V_CT_X = V_CT * X;
+				//matrix_complex X_CT_V = ;
+				//matrix_complex V_CT_X = ;
 				
 
 
-				complex< T > w = X_CT_V(0, 0) / V_CT_X(0, 0);
+				//complex< T > w = X_CT_V(0, 0) / V_CT_X(0, 0);
 				
 				// anotH_er copy 
-				V_VH = V*V_CT;
-				P = Inn - V_VH - V_VH * w;
+				
+				P = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
 
 				//H_ = H_ * P ;
 				H_ = P * H_ *P;
@@ -2080,8 +2063,7 @@ private:
 		}
 		
 		//wikipedia calculation
-		// with some variation ... 
-		// its hard to tell what type of norm is being used
+//	https://en.wikipedia.org/wiki/QR_decomposition
 		// since ||x|| at one time refers to the euclidean norm, and for complex numbers this
 		// is defined as sqrt( sum( abs(z)^2 ) ) 
 		// http://mathworld.wolfram.com/L2-Norm.html
@@ -2103,27 +2085,27 @@ private:
 
 			Inn.Identity();
 
-			matrix_complex H_ = (*this);
-			matrix_complex P;
+			matrix_complex R_ = (*this);
+			matrix_complex Q;
 
 			complex< T > S = complex< T >(0.0, 0.0);
-			//for (int zz = 0; zz < 90; zz++)
+			//for (int zz = 0; zz < 20; zz++)
 			for (int c = 0; c < n - 2; c++)
 			{
-				//H = (*this);
+	
 
 				
 
 				for (int r = c+1; r < n; r++)
 				{
-					X(r, 0) = H_(r, c); // store X
+					X(r, 0) = R_(r, c); // store X
 					X_CT(0, r) = std::conj(X(r, 0)); // conjugate transpose
 				}
 				
 
 				
 
-				T  arg_z = std::atan2(H_(c + 1, c).imag(), H_(c + 1, c).real());
+				T  arg_z = std::atan2(R_(c + 1, c).imag(), R_(c + 1, c).real());
 				T mag_z = Euclidean_Norm_column(X, c+1,0);
 			
 
@@ -2131,7 +2113,7 @@ private:
 				U = X;
 				U(c + 1, 0) = X(c + 1, 0) - std::polar(-mag_z, arg_z);
 
-				complex<T > col_norm = Sum_Norm_column(U, c , 0);
+				complex<T > col_norm = Euclidean_Norm_column(U, c + 1, 0);
 
 				V = U / col_norm;
 
@@ -2143,16 +2125,16 @@ private:
 
 
 
-				complex< T > w = (X_CT * V)(0, 0) / (V_CT * X)(0, 0);
+				//complex< T > w = (X_CT * V)(0, 0) / (V_CT * X)(0, 0);
 
 				// anotH_er copy 
-				V_VH = V*V_CT;
+				
 
-				P = Inn - V_VH - V_VH * w;
+				Q = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
 				
 
 				//H_ = H_ * P ;
-				H_ = P * H_  *P;
+				R_ = Q * R_ ;
 
 
 				// zero the vectors again
@@ -2163,7 +2145,7 @@ private:
 				U.ToZero();
 			}
 
-			(*this) = H_;
+			(*this) = R_;
 
 		}
 		

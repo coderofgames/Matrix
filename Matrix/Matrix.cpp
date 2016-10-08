@@ -507,11 +507,11 @@ void Test_Complex_Matrix()
 	H_1.Householder_Tridiagonalize();
 	H_1.print(4);
 
-	cout << endl << "Householder_Tridiagonalizen_wiki (current faulty implementation of the wikipedia algorithm)" << endl;
+	cout << endl << "Householder_Tridiagonalizen_wiki (current implementation of the wikipedia QR algorithm)" << endl;
 	H_2.Householder_Tridiagonalize_wiki();
 	H_2.print(4);
 	cout << endl;
-	cout << "Clearly there is a problem here ... " << endl;
+	cout << "Clearly there is an improvement here ... this version computes QR not PHP" << endl;
 
 
 }
