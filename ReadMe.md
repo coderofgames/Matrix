@@ -53,6 +53,6 @@ for completely explaining it<br>
 20) Added method for newton iteration to improve bad inverses.<br>
 21) first complex matrix version of the householder algorithm is implemented<br>
 22) implemented QR factorisation and tested here - the output produces the same R matrix<br>
-23) Reduction to Hessenburg is *almost* the same as the python version, apart from the signs ...<br> 
+23) Reduction to Hessenburg is *exactly* the same as the python version, the solution was to use CSGN instead of SGN<br> 
 <img src="Untitled.jpg"></img><br>
 

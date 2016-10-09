@@ -86,6 +86,32 @@ public:
 		return z * abs_z_inv;
 	}
 
+	template<class T>
+	static T CSGN(complex<T> x)
+	{
+		if (x.real() > 0.0)
+		{
+			return 1.0;
+
+		}
+		else if (x.real() < 0.0)
+		{
+			return -1.0;
+		}
+		else if (x.real() == 0.0)
+		{
+			if (x.imag() > 0.0)
+			{
+				return 1.0;
+			}
+			else if (x.imag() < 0.0)
+			{
+				return -1.0;
+			}
+		}
+		return 0.0;
+	}
+
 	//============================================================================
 	//
 	//============================================================================
@@ -2111,29 +2137,18 @@ private:
 				// where e_row is a column of the identity matrix with a 1 at the row entry ...
 				// alpha is computed as a polar complex number (wiki) to form the sign on the complex
 				// hyperplane.
-				T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
-				//T  arg_z = std::atan(R_(Row, c).imag() / R_(Row, c).real());
+				//T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
+				T  arg_z = std::atan(R_(Row, c).imag() / R_(Row, c).real());
 				T mag_z = Euclidean_Norm_column(X, Row, 0);
 
 				
 			
 				U = X;
 
-				// for some reason, the tridiagonal hessenburg does not appear unless
-				// the polar equation is used, and at the moment i am not sure if it is correct
-				//if (useQR)
-				{
-					if (arg_z > 0.0)
-					{
-						U(Row, 0) = X(Row, 0) + mag_z;// std::polar(mag_z, arg_z);;// *sgn<T>(std::polar(mag_z, arg_z));
-					}
-					else if (arg_z < 0.0)
-					{ 
-						U(Row, 0) = X(Row, 0) - mag_z;// std::polar(mag_z, arg_z);;
-					}
-				}
-				//else
-				//	U(Row, 0) = X(Row, 0) - std::polar(mag_z, arg_z);
+				// Instead of the sign of a complex number (i.e. on unit circle z / |z| )
+				// The correct answer here was the CSGN function which is defined on wikipedia 
+				
+				U(Row, 0) = X(Row, 0) + mag_z * CSGN< T > (R_(Row, c));
 
 				complex<T > col_norm = Euclidean_Norm_column(U, Row, 0);
 
@@ -2147,11 +2162,13 @@ private:
 				
 				(*out) = (*out) * Q;  // storing Q just in case it is needed
 				
+
 				R_ = Q * R_ ;
 
 				// then this should be the Householder tridiagonalization method, creating tridiagonal matrices
 				// this takes the example Hermitian matrix into a Tridiagonal form
 				Q.ConjugateTranspose();
+
 				if (!useQR)  
 					R_ = R_ * Q; 
 				
@@ -2164,6 +2181,8 @@ private:
 			}
 
 			(*this) = R_;
+
+			
 
 			return *out;
 
