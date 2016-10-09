@@ -2084,9 +2084,10 @@ private:
 
 			complex< T > S = complex< T >(0.0, 0.0);
 			
-			int end_loop = n - 2;
+			int end_loop = n - 1;
 			
-			if (useQR) end_loop += 2;
+			if (useQR) end_loop += 1;
+
 
 			for (int c = 0; c < end_loop; c++)
 			{
@@ -2110,11 +2111,11 @@ private:
 				// where e_row is a column of the identity matrix with a 1 at the row entry ...
 				// alpha is computed as a polar complex number (wiki) to form the sign on the complex
 				// hyperplane.
-				//T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
-				T  arg_z = std::atan(R_(Row, c).imag() / R_(Row, c).real());
+				T  arg_z = std::atan2(R_(Row, c).imag(), R_(Row, c).real()); 
+				//T  arg_z = std::atan(R_(Row, c).imag() / R_(Row, c).real());
 				T mag_z = Euclidean_Norm_column(X, Row, 0);
 
-				if (!useQR) mag_z = Euclidean_Norm_column(X, Row-1, 0);
+				
 			
 				U = X;
 
@@ -2122,13 +2123,13 @@ private:
 				// the polar equation is used, and at the moment i am not sure if it is correct
 				//if (useQR)
 				{
-					if (mag_z > 0.0)
+					if (arg_z > 0.0)
 					{
-						U(Row, 0) = X(Row, 0) + mag_z;
+						U(Row, 0) = X(Row, 0) + mag_z;// std::polar(mag_z, arg_z);;// *sgn<T>(std::polar(mag_z, arg_z));
 					}
-					else if (mag_z < 0.0)
+					else if (arg_z < 0.0)
 					{ 
-						U(Row, 0) = X(Row, 0) - mag_z;
+						U(Row, 0) = X(Row, 0) - mag_z;// std::polar(mag_z, arg_z);;
 					}
 				}
 				//else
@@ -2139,6 +2140,7 @@ private:
 				V = U / col_norm;
 
 				V_CT = V;
+
 				V_CT.ConjugateTranspose();
 
 				Q = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
@@ -2149,6 +2151,7 @@ private:
 
 				// then this should be the Householder tridiagonalization method, creating tridiagonal matrices
 				// this takes the example Hermitian matrix into a Tridiagonal form
+				Q.ConjugateTranspose();
 				if (!useQR)  
 					R_ = R_ * Q; 
 				
