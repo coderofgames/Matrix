@@ -1115,10 +1115,14 @@ void Test_QR()
 		//list_of_matrices[matrix_selection].print(2);
 		cout << "Testing Housholder algorithm and QR algorithm " << endl;
 
+		matrixf m = list_of_matrices[matrix_selection];
+
 		TestingProcedure_Householder_Hessenburg_QR(list_of_matrices[matrix_selection]);
 
+		matrixf eig = m.Eigenvalues_PowerMethod(14);
 
-
+		cout << "Printing Eigenvalue from power method " << endl;
+		eig.print(3);
 	}
 }
 
@@ -1130,7 +1134,7 @@ int main(int argc, char* argv[])
 
 
 
-
+	Test_QR();
 		
 
 	
@@ -1172,7 +1176,7 @@ int main(int argc, char* argv[])
 
 	*/
 
-	Test_Complex_Matrix();
+	//Test_Complex_Matrix();
 		return 0;
 }
 

@@ -287,10 +287,10 @@ public:
 	//============================================================================
 	//
 	//============================================================================
-	inline T& operator()(unsigned int i, unsigned int j)
+	inline T& operator()(unsigned int ROW, unsigned int COL)
 	{
-		if (i < NumRows() && j < NumCols())
-			return get(i, j);
+		if (ROW < NumRows() && COL < NumCols())
+			return get(ROW, COL);
 
 		T zero = 0.0;
 		return zero; // can't convert 0.0 to a reference ? why then did this compile without any kind of default return
@@ -303,9 +303,9 @@ private:
 	//============================================================================
 	//
 	//============================================================================
-	inline T& get(unsigned int i, unsigned int j)
+	inline T& get(unsigned int ROW, unsigned int COL)
 	{
-		return data[i * NumCols() + j];
+		return data[ROW * NumCols() + COL];
 	}
 
 public:
@@ -1966,7 +1966,8 @@ public:
 	}
 
 	//============================================================================
-	//
+	// NOTE: this might return a matrix vector with the biggest eigenvalue in
+	// its 0,0 element
 	//============================================================================
 	matrix& Eigenvalues_PowerMethod(int max_iterations)
 	{
@@ -1976,45 +1977,50 @@ public:
 			return *this;
 		}
 
+		matrix A = (*this);
+
 		int n = this->NumCols();
 
 		if (out) delete out;
 		out = new matrix(n, 1);
+		//out->ToZero();
 
 		matrix V(n, 1);
 		for (int i = 0; i < n; i++)
 			V(i, 0) = 1;
 
-		for (int i = 0; i < n; i++)
+		// phase 1, computing the largest eigen value.
+		T last_value = 0;
+		for (int k = 0; k < max_iterations; k++)
 		{
-			if (i == 0)
+			V = A * V;
+
+			T max_value = 0;
+			for (int j = 0; j < n; j++)
+				if (V(j, 0) > max_value)
+					max_value = V(j, 0);
+
+			for (int j = 0; j < n; j++)
+				V(j, 0) = V(j, 0) / max_value;
+
+			if ( // max resolution is (0.01 / max_iterations), so for 100 it would be 0.0001
+				(max_value > last_value - 0.01  / (T)(k + 1) ) &&
+				(max_value < last_value + 0.01  / (T)(k + 1) ))
 			{
-				T last_value = 0;
-				for (int k = 0; k < max_iterations; k++)
-				{
-					V = (*this) * V;
-
-					T max_value = 0;
-					for (int j = 0; j < n; j++)
-						if (V(j, 0) > max_value)
-							max_value = V(j, 0);
-
-					for (int j = 0; j < n; j++)
-						V(j, 0) = V(j, 0) / max_value;
-
-					if (max_value == last_value)
-					{
-						out(0, 0) = max_value;
-						break;
-					}
-				}
+				(*out)(0, 0) = max_value;
+						
+				//break;
 			}
 
-		/*	else if ( i b  )
+			if ((max_value > last_value - this->precision) &&
+				(max_value < last_value + this->precision))
 			{
-
-			}*/
+				cout << "Iterations required: " << k;
+				break;
+			}
+			last_value = max_value;
 		}
+
 		return *out;
 	}
 
