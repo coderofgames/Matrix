@@ -2024,6 +2024,56 @@ public:
 		return *out;
 	}
 
+	//============================================================================
+	// time for one of those sweeping generalizations 
+	// (or a dystopian design decision)
+	//============================================================================
+	matrix& ComputeRealEigenVector(T lambda)
+	{
+
+		//if (lambda.imag() == 0.0) // compute a real eigenvector
+		{
+			matrix A = (*this);
+
+			matrix x(this->NumRows(), 1);
+
+			for (int r = 0; r < A.NumRows(); r++)
+			{
+			//	for (int c = 0; c < A.NumCols(); c++)
+				{
+					
+						A(r, r) = A(r, r) - lambda;
+				}
+				x(r, 0) = 1.0;
+			}
+
+			matrix b(this->NumRows(), 1);
+			
+			
+
+			x = A.Gauss_Seidel(b, x, 0.1, 100);
+			cout << endl;
+			/*for (int i = 0; i < x.NumRows(); i++)
+			{
+				cout << x(i, 0) << endl;
+			}*/
+			matrix test = A*x;
+
+			for (int i = 0; i < x.NumRows(); i++)
+			{
+				if (test(i, 0) > 0.001 || test(i, 0) < -0.001)
+					cout << "Bad eigen vector" << endl;
+			}
+
+			(*out) = x;
+
+			return *out;
+		}
+	//	else
+	//	{
+			//???
+	//	}
+	}
 
 	//============================================================================
 	// this should be rewritten for complex types too.
@@ -2032,7 +2082,7 @@ public:
 	bool IsOrthogonal()
 	{
 		if (!this->IsSquare())
-		{
+		{ 
 			cout << "Error (IsOrthogonal): Matrix should be square" << endl;
 			return false;
 		}

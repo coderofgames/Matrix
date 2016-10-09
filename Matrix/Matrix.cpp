@@ -1123,6 +1123,10 @@ void Test_QR()
 
 		cout << "Printing Eigenvalue from power method " << endl;
 		eig.print(3);
+
+		matrixf eigen_vec = m.ComputeRealEigenVector(eig(0, 0));
+		cout << endl << "Printing Eigenvector" << endl;
+		eigen_vec.print(4);
 	}
 }
 
