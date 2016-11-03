@@ -238,13 +238,20 @@ namespace LINALG_COMPLEX
 			if (out_start)
 			{
 				out = out_start;
-				while ((out) && (out->NumRows() != r) && (out->NumCols() != c))
+
+				while (true)
 				{
+					if ((out->NumRows() == r) && (out->NumCols() == c))
+						break;
+
 					out = out->out;
+
+					if (!out)
+						break;
 				}
 				if (!out)
 				{
-					out = new matrix_complex(r, c);
+					out = new matrix(r, c);
 				}
 				return out;
 			}
