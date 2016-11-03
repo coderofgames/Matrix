@@ -251,7 +251,7 @@ namespace LINALG_COMPLEX
 				}
 				if (!out)
 				{
-					out = new matrix(r, c);
+					out = new matrix_complex(r, c);
 				}
 				return out;
 			}
