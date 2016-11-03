@@ -18,9 +18,9 @@ using namespace std;
 //============================================================================
 //
 //============================================================================
-class LINALG_COMPLEX
+namespace LINALG_COMPLEX
 {
-public:
+
 
 	//============================================================================
 	//
@@ -123,7 +123,7 @@ public:
 	}
 
 	
-private:
+
 
 
 
@@ -184,7 +184,7 @@ private:
 		~matrix_complex()
 		{
 			destroy();
-			if (out) delete out;
+			if (out_start) delete out_start;
 		}
 
 		//============================================================================
@@ -212,7 +212,7 @@ private:
 				{
 
 					for (int c = 0; c < SY; c++)
-						data[r * SY + c] = complex< T >( 0.0, 0.0 );
+						data[r * SY + c] = complex< T >(0.0, 0.0);
 				}
 			}
 			else
@@ -231,6 +231,32 @@ private:
 			create();
 		}
 
+	private:
+	
+		matrix_complex* Find_out(int r, int c)
+		{
+			if (out_start)
+			{
+				out = out_start;
+				while ((out) && (out->NumRows() != r) && (out->NumCols() != c))
+				{
+					out = out->out;
+				}
+				if (!out)
+				{
+					out = new matrix_complex(r, c);
+				}
+				return out;
+			}
+			else
+			{
+				out = new matrix_complex(r, c);
+				out_start = out;
+				return out;
+			}
+		}
+	
+	public:
 		//============================================================================
 		//
 		//============================================================================
@@ -334,19 +360,8 @@ private:
 		{
 			if (this->EqualSize(b))
 			{
-				if (out)
-				{
-					if (!((out->NumRows() == this->NumRows()) &&
-						(out->NumCols() == this->NumCols())))
-					{
-						delete out;
-						out = new matrix_complex(this->NumRows(), this->NumCols());
-					}
-				}
-				else
-				{
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
+
+				out = Find_out(this->NumRows(), this->NumCols());
 
 				for (int i = 0; i < this->NumRows(); i++)
 				{
@@ -369,19 +384,7 @@ private:
 		{
 			if (this->NumCols() == b.NumRows())
 			{
-				if (out)
-				{
-					if (!((out->NumRows() == this->NumRows()) &&
-						(out->NumCols() == b.NumCols())))
-					{
-						delete out;
-						out = new matrix_complex(this->NumRows(), b.NumCols());
-					}
-				}
-				else
-				{
-					out = new matrix_complex(this->NumRows(), b.NumCols());
-				}
+				out = Find_out(this->NumRows(), b.NumCols());
 				
 				for (int r = 0; r < this->NumRows(); r++)
 				{
@@ -413,19 +416,10 @@ private:
 			return (*this);
 			}*/
 
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix_complex(this->NumRows(), this->NumCols());
-			}
+
+
+			out = Find_out(this->NumRows(), this->NumCols());
+
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -442,19 +436,8 @@ private:
 		//============================================================================
 		matrix_complex& operator*(complex<T> s)
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix_complex(this->NumRows(), this->NumCols());
-			}
+
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -471,19 +454,8 @@ private:
 		//============================================================================
 		matrix_complex& operator/(T s)
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix_complex(this->NumRows(), this->NumCols());
-			}
+			out = Find_out(this->NumRows(), this->NumCols());
+
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 				for (int j = 0; j < this->NumCols(); j++)
@@ -499,19 +471,8 @@ private:
 		//============================================================================
 		matrix_complex& operator/(complex<T> s)
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix_complex(this->NumRows(), this->NumCols());
-			}
+			out = Find_out(this->NumRows(), this->NumCols());
+
 			for (int i = 0; i < this->NumRows(); i++)
 			{
 				for (int j = 0; j < this->NumCols(); j++)
@@ -527,19 +488,7 @@ private:
 		//============================================================================
 		matrix_complex& operator+(T s)
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix_complex(this->NumRows(), this->NumCols());
-			}
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -556,19 +505,7 @@ private:
 		//============================================================================
 		matrix_complex& operator+(complex<T> s)
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix_complex(this->NumRows(), this->NumCols());
-			}
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -587,19 +524,7 @@ private:
 		{
 			if (this->EqualSize(b))
 			{
-				if (out)
-				{
-					if (!((out->NumRows() == this->NumRows()) &&
-						(out->NumCols() == this->NumCols())))
-					{
-						delete out;
-						out = new matrix_complex(this->NumRows(), this->NumCols());
-					}
-				}
-				else
-				{
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
+				out = Find_out(this->NumRows(), this->NumCols());
 
 				for (int i = 0; i < this->NumRows(); i++)
 				{
@@ -621,19 +546,7 @@ private:
 		{
 			if (this->EqualSize(b))
 			{
-				if (out)
-				{
-					if (!((out->NumRows() == this->NumRows()) &&
-						(out->NumCols() == this->NumCols())))
-					{
-						delete out;
-						out = new matrix_complex(this->NumRows(), this->NumCols());
-					}
-				}
-				else
-				{
-					out = new matrix_complex(this->NumRows(), this->NumCols());
-				}
+				out = Find_out(this->NumRows(), this->NumCols());
 
 				for (int i = 0; i < this->NumRows(); i++)
 				{
@@ -974,8 +887,8 @@ private:
 				return b; // no solution
 			}
 
-			if (out) delete out;
-			out = new matrix_complex(n, 1);
+
+			out = Find_out(n, 1);
 
 			(*out)(n - 1, 0) = b(n - 1, 0) / get(n - 1, n - 1);
 
@@ -1061,8 +974,7 @@ private:
 				return b; // no solution
 			}
 
-			if (out) delete out;
-			out = new matrix_complex(n, 1);
+			out = Find_out(n, 1);
 
 			(*out)(n - 1, 0) = b(n - 1, 0) / X(n - 1, n - 1);
 
@@ -1157,9 +1069,9 @@ private:
 			{
 			out = new matrix(this->NumRows(), this->NumCols());
 			}*/
-			if (out) delete out;
-			out = new matrix_complex(this->NumRows(), this->NumCols());
-
+			
+			out = Find_out(this->NumRows(), this->NumCols());
+			
 			out->Identity();
 
 
@@ -1617,8 +1529,8 @@ private:
 			Solve_Lower_TriangularSystem(M, y, b);
 			M.transpose();
 
-			if (out) delete out;
-			out = new matrix_complex(n, 1);
+
+			out = Find_out(n, 1);
 
 			Solve_Upper_TriangularSystem(M, *out, y);
 
@@ -1723,8 +1635,8 @@ private:
 			matrix_complex y(n, 1);
 			Solve_Lower_TriangularSystem(L, y, b);
 
-			if (out) delete out;
-			out = new matrix_complex(n, 1);
+
+			out = Find_out(n, 1);
 
 			Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1826,6 +1738,7 @@ private:
 				b(c, 0) = complex<T>(0.0, 0.0);
 			}
 
+			out = Find_out(n, n);
 			(*out) = A_inv;
 
 			return (*out);
@@ -1860,8 +1773,9 @@ private:
 			// out exists as a solution to the gauss elimination
 			// next phase is to use the "out" stored in out, as 
 			// a linked list
-			if (out) delete out;
-			out = X;
+			
+			out = Find_out(n, n);
+			(*out) = X;
 
 			/* UNTESTED */
 			return (*out);
@@ -1927,8 +1841,8 @@ private:
 			matrix_complex y(n, 1);
 			Solve_Lower_TriangularSystem(L, y, b);
 
-			if (out) delete out;
-			out = new matrix_complex(n, 1);
+
+			out = Find_out(n, 1);
 
 			Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1968,89 +1882,15 @@ private:
 			matrix_complex y(n, 1);
 			Solve_Lower_TriangularSystem(L, y, b);
 
-			if (out) delete out;
-			out = new matrix_complex(n, 1);
+			
+			out = Find_out(n, 1);
 
 			Solve_Upper_TriangularSystem(U, *out, y);
 
 			return *out;
 		}
 
-		/* TESTED BUT NOT PROVEN
-		Information on complex housholder matrices ...
-		https://en.wikipedia.org/wiki/QR_decomposition
-		this method requires 30 iterations on the test matrix before convergence ...
-		this can be attributed to the fact that the complex numbers suffer from a greater
-		degree of floating point "wobble" than the real numbers - as illustrated with our
-		gauss jordan elimination example.
-		https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html 
-*/
-		void Householder_Tridiagonalize()
-		{
-			//if (!this->IsSymmetric())
-			//{
-			//cout << "Error (Householder_Tridiagonalize): matrix must be symetric" << endl;
-			//}
-			int n = this->NumRows();
 
-			matrix_complex  X(n, 1);
-			matrix_complex  X_CT(1, n); // conjugate transpose
-			matrix_complex  V(n, 1);
-			matrix_complex  V_CT(1, n); // conjugate transpose
-			matrix_complex  Inn(n, n);
-			matrix_complex V_VH;
-			
-			Inn.Identity();
-
-			matrix_complex H_ = (*this);
-			matrix_complex P;
-
-			T S = 0.0;// complex< T >(0.0, 0.0);
-			for (int zz = 0; zz < 30; zz++)
-			for (int c = 0; c < n - 2; c++)
-			{
-				S = 0.0;// complex< T >(0.0, 0.0);
-				for (int r = c + 1; r < n; r++)
-				{
-					S += std::abs(H_(r, c))*std::abs(H_(r, c));
-
-					X(r, 0) = H_(r, c); // store X
-					X_CT(0, r) =  std::conj(X(r, 0)); // conjugate transpose
-				}
-
-				S = std::sqrt(S);
-				for (int r = c + 1; r < n; r++)
-				{
-
-					if (r == c + 1)
-					{
-						V(r, 0) = std::sqrt((0.5 + 0.5*std::abs(H_(r, c)) / S));
-
-					}
-					else if (r > c + 1)
-					{
-						V(r, 0) = H_(r, c) * sgn< T >(H_(c + 1, c)) / (2.0 * V(c + 1, 0)*S);
-					}
-
-					V_CT(0, r) =  std::conj(V(r, 0));
-				}
-				
-				// anotH_er copy 
-				
-				P = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
-
-				H_ = P * H_ *P;
-
-				// zero the vectors again
-				V.ToZero();
-				V_CT.ToZero();
-				X.ToZero();
-				X_CT.ToZero();
-			}
-
-			(*this) = H_;
-
-		}
 		
 		T Euclidean_Norm_column(matrix_complex &v, int r1, int c)
 		{
@@ -2104,8 +1944,7 @@ private:
 			matrix_complex R_ = (*this);
 			matrix_complex Q;
 
-			if (out) delete out;
-			out = new matrix_complex(n, n);
+			out = Find_out(n, n);
 			out->Identity();
 
 			complex< T > S = complex< T >(0.0, 0.0);
@@ -2443,6 +2282,8 @@ private:
 		unsigned int SX = 0;
 		unsigned int SY = 0;
 
+
+		matrix_complex < T > *out_start = 0;
 		matrix_complex < T > *out = 0;
 
 		complex < T >* data = 0;
@@ -2450,7 +2291,7 @@ private:
 	};
 
 
-public:
+
 
 	typedef matrix_complex < float >  matrix_cf;
 	typedef  matrix_complex < double > matrix_cd;

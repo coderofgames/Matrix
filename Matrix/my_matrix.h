@@ -16,9 +16,9 @@ using std::endl;
 //============================================================================
 //
 //============================================================================
-class LINALG
+namespace LINALG
 {
-public:
+
 
 
 	//============================================================================
@@ -85,7 +85,7 @@ public:
 		float operator[](unsigned int idx) { return (idx < 2 ? v[idx] : 0.0f); }
 		void operator=(vector2d b){ v[0] = b.v[0]; v[1] = b.v[1]; }
 	};
-private:
+
 
 
 //============================================================================
@@ -151,7 +151,7 @@ public:
 	~matrix<T>()
 	{
 		destroy();
-		if (out) delete out;
+		if (out_start) delete out_start;
 	}
 
 	//============================================================================
@@ -211,6 +211,33 @@ public:
 		}
 		is_transposed = false;
 	}
+
+		private:
+
+			matrix* Find_out(int r, int c)
+			{
+				if (out_start)
+				{
+					out = out_start;
+					while ((out) && (out->NumRows() != r) && (out->NumCols() != c))
+					{
+						out = out->out;
+					}
+					if (!out)
+					{
+						out = new matrix(r, c);
+					}
+					return out;
+				}
+				else
+				{
+					out = new matrix(r, c);
+					out_start = out;
+					return out;
+				}
+			}
+
+	public:
 
 	//============================================================================
 	//
@@ -317,19 +344,8 @@ public:
 	{
 		if (this->EqualSize(b))
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix(this->NumRows(), this->NumCols());
-			}
+
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -352,19 +368,8 @@ public:
 	{
 		if (this->NumCols() == b.NumRows())
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == b.NumCols())))
-				{
-					delete out;
-					out = new matrix(this->NumRows(), b.NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix(this->NumRows(), b.NumCols());
-			}
+
+			out = Find_out(this->NumRows(), b.NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -395,20 +400,7 @@ public:
 			return (*this);
 		}*/
 
-		if (out )
-		{
-			
-			if (!((out->NumRows() == this->NumRows()) && 
-					(out->NumCols() == this->NumCols())))
-			{
-				delete out;
-				out = new matrix(this->NumRows(), this->NumCols());
-			}
-		}
-		else
-		{
-			out = new matrix(this->NumRows(), this->NumCols());
-		}
+		out = Find_out(this->NumRows(), this->NumCols());
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -425,19 +417,8 @@ public:
 	//============================================================================
 	matrix& operator/(T s)
 	{
-		if (out)
-		{
-			if (!((out->NumRows() == this->NumRows()) &&
-				(out->NumCols() == this->NumCols())))
-			{
-				delete out;
-				out = new matrix(this->NumRows(), this->NumCols());
-			}
-		}
-		else
-		{
-			out = new matrix(this->NumRows(), this->NumCols());
-		}
+		out = Find_out(this->NumRows(), this->NumCols());
+
 		for (int i = 0; i < this->NumRows(); i++)
 		{
 			for (int j = 0; j < this->NumCols(); j++)
@@ -453,19 +434,7 @@ public:
 	//============================================================================
 	matrix& operator+(T s)
 	{
-		if (out)
-		{
-			if (!((out->NumRows() == this->NumRows()) &&
-				(out->NumCols() == this->NumCols())))
-			{
-				delete out;
-				out = new matrix(this->NumRows(), this->NumCols());
-			}
-		}
-		else
-		{
-			out = new matrix(this->NumRows(), this->NumCols());
-		}
+		out = Find_out(this->NumRows(), this->NumCols());
 
 		for (int i = 0; i < this->NumRows(); i++)
 		{
@@ -488,19 +457,7 @@ public:
 		}
 		else
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix(this->NumRows(), this->NumCols());
-			}
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -522,19 +479,7 @@ public:
 	{
 		if (this->EqualSize(b))
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumRows()) &&
-					(out->NumCols() == this->NumCols())))
-				{
-					delete out;
-					out = new matrix(this->NumRows(), this->NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix(this->NumRows(), this->NumCols());
-			}
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumRows(); i++)
 			{
@@ -557,19 +502,9 @@ public:
 	{
 		if (this->NumRows() == b.NumRows())
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumCols()) &&
-					(out->NumCols() == b.NumCols())))
-				{
-					delete out;
-					out = new matrix(this->NumCols(), b.NumCols());
-				}
-			}
-			else
-			{
-				out = new matrix(this->NumCols(), b.NumCols());
-			}
+
+
+			out = Find_out(this->NumCols(), b.NumCols());
 
 			for (int i = 0; i < this->NumCols(); i++)
 			{
@@ -600,19 +535,9 @@ public:
 		}
 		else
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumCols()) &&
-					(out->NumCols() == this->NumRows())))
-				{
-					delete out;
-					out = new matrix(this->NumCols(), this->NumRows());
-				}
-			}
-			else
-			{
-				out = new matrix(this->NumCols(), this->NumRows());
-			}
+
+
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumCols(); i++)
 			{
@@ -638,19 +563,7 @@ public:
 		}
 		else
 		{
-			if (out)
-			{
-				if (!((out->NumRows() == this->NumCols()) &&
-					(out->NumCols() == this->NumRows())))
-				{
-					delete out;
-					out = new matrix(this->NumCols(), this->NumRows());
-				}
-			}
-			else
-			{
-				out = new matrix(this->NumCols(), this->NumRows());
-			}
+			out = Find_out(this->NumRows(), this->NumCols());
 
 			for (int i = 0; i < this->NumCols(); i++)
 			{
@@ -946,8 +859,9 @@ public:
 			return b; // no solution
 		}
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+
+		out = Find_out(n, 1);
+
 
 		(*out)(n - 1, 0) = b(n - 1, 0) / get(n - 1, n - 1);
 
@@ -1033,8 +947,7 @@ public:
 			return b; // no solution
 		}
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+		out = Find_out(n, 1);
 
 		(*out)(n - 1, 0) = b(n - 1, 0) / X(n - 1, n - 1);
 
@@ -1239,8 +1152,9 @@ public:
 		{
 			out = new matrix(this->NumRows(), this->NumCols());
 		}*/
-		if (out) delete out;
-		out = new matrix<T>(this->NumRows(), this->NumCols());
+	
+		out = Find_out(this->NumRows(), this->NumCols());
+		
 		
 		out->Identity();
 
@@ -1458,8 +1372,9 @@ public:
 		Solve_Lower_TriangularSystem(M, y, b);
 		M.transpose();
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+		
+		out = Find_out(n, 1);
+		
 
 		Solve_Upper_TriangularSystem(M, *out, y);
 
@@ -1529,6 +1444,7 @@ public:
 			b(c, 0) = 0.0;
 		}
 
+		out = Find_out(n, n);
 		(*out) = A_inv;
 
 		return (*out);
@@ -1561,8 +1477,8 @@ public:
 				X(j, i) = sol(j, 0);
 		}
 
-		if (out) delete out;
-		out = X;
+		out = Find_out(n, n);
+		(*out) = X;
 
 		/* UNTESTED */
 		return (*out);
@@ -1689,8 +1605,9 @@ public:
 		matrix y(n, 1);
 		Solve_Lower_TriangularSystem(L, y, b);
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+	
+		out = Find_out(n, 1);
+		
 
 		Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1793,8 +1710,7 @@ public:
 		matrix y(n, 1);
 		Solve_Lower_TriangularSystem(L, y, b);
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+		out = Find_out(n, 1);
 
 		Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1834,8 +1750,7 @@ public:
 		matrix y(n, 1);
 		Solve_Lower_TriangularSystem(L, y, b);
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+		out = Find_out(n, 1);
 
 		Solve_Upper_TriangularSystem(U, *out, y);
 
@@ -1868,8 +1783,7 @@ public:
 
 		int n = this->NumRows();
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+		out = Find_out(n, 1);
 
 		for ( int m = 0; m < MAX_ITERATIONS; m++)
 		{
@@ -1981,8 +1895,7 @@ public:
 
 		int n = this->NumCols();
 
-		if (out) delete out;
-		out = new matrix(n, 1);
+		out = Find_out(n, 1);
 		//out->ToZero();
 
 		matrix V(n, 1);
@@ -2064,7 +1977,7 @@ public:
 				if (test(i, 0) > 0.001 || test(i, 0) < -0.001)
 					cout << "Bad eigen vector" << endl;
 			}
-
+			out = Find_out(this->NumRows(), 1);
 			(*out) = x;
 
 			return *out;
@@ -2619,6 +2532,7 @@ private:
 	unsigned int SX = 0;
 	unsigned int SY = 0;
 
+	matrix<T> *out_start = 0;
 	matrix<T> *out = 0;
 
 	T* data = 0;
@@ -2626,7 +2540,7 @@ private:
 };
 
 
-public:
+
 
 	typedef matrix < float >  matrixf;
 	typedef  matrix < double > matrixd;

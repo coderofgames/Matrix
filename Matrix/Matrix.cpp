@@ -14,6 +14,8 @@ typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
 typedef LINALG_COMPLEX::matrix_cd matrix_cd;
 
+
+
 /*
 %%MatrixMarket matrix array      complex general
 %-----------------------------------------------------
@@ -510,9 +512,6 @@ void Test_Complex_Matrix()
 	matrix_cd H_1 = test_inv_copy;
 	matrix_cd H_2 = H_1;
 	//cout << "Printing the Frobenius Norm of the matrix " << endl;
-	cout << endl << "Householder_Tridiagonalizen" << endl;
-	H_1.Householder_Tridiagonalize();
-	H_1.print(4);
 
 	matrix_cd H_3 = H_2;
 	cout << endl << "Householder_Tridiagonalizen_wiki (current implementation of the Householder algorithm based on wikipedia math)" << endl;
@@ -1139,8 +1138,8 @@ int main(int argc, char* argv[])
 
 
 	Test_QR();
-		
-
+	//TestCrout_LU_Method();
+	//Testing_GaussJordan_Elimination();
 	
 	//Testing_Householder_Tridiagonalize();
 
