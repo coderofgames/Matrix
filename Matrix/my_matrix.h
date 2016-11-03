@@ -661,25 +661,31 @@ public:
 				}
 			}
 		}
+		else if (this->NumRows() == 1 || this->NumCols() == 1)
+		{
+			SWAP<unsigned int>(SX, SY);
+		}
 		else
 		{
-			matrix<T> Y(this->NumCols(), this->NumRows());
+			//matrix<T> Y(this->NumCols(), this->NumRows());
+			out = Find_out(this->NumCols(), this->NumRows());
 
 			for (int i = 0; i < SX; i++)
 			{
 				for (int j = 0; j < SY; j++)
 				{
-					Y(j,i) = get(i, j);
+					(*out)(j, i) = get(i, j);
 				}
 			}
-			this->destroy();
-			this->create( Y.NumRows(), Y.NumCols() );
+			//this->destroy();
+			//this->create( Y.NumRows(), Y.NumCols() );
+			SWAP<unsigned int>(SX, SY);
 
 			for (int i = 0; i < SX; i++)
 			{
 				for (int j = 0; j < SY; j++)
 				{
-					get(i, j) = Y(i, j);
+					get(i, j) = (*out)(i, j);
 				}
 			}
 

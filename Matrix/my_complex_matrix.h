@@ -686,27 +686,33 @@ namespace LINALG_COMPLEX
 					}
 				}
 			}
+			else if (this->NumCols() == 1 || this->NumRows() == 1)
+			{
+				SWAP<unsigned int>(SX, SY);
+			}
 			else
 			{
-				matrix_complex Y(this->NumCols(), this->NumRows());
+				//matrix_complex Y(this->NumCols(), this->NumRows());
+				out = Find_out(this->NumCols(), this->NumRows());
 
 				for (int i = 0; i < SX; i++)
 				{
 					for (int j = 0; j < SY; j++)
 					{
-						Y(j, i) = get(i, j);
+						(*out)(j, i) = get(i, j);
 					}
 				}
-				this->destroy();
-				this->SX = Y.NumRows();
-				this->SY = Y.NumCols();
-				this->create();
+
+				//this->destroy();
+				this->SX = out->NumRows();
+				this->SY = out->NumCols();
+				//this->create();
 
 				for (int i = 0; i < SX; i++)
 				{
 					for (int j = 0; j < SY; j++)
 					{
-						get(i, j) = Y(i, j);
+						get(i, j) = (*out)(i, j);
 					}
 				}
 
@@ -1270,8 +1276,13 @@ namespace LINALG_COMPLEX
 		//============================================================================
 		complex< T > Determinant()
 		{
-			//	if (SX == 2 && SY == 2) return Det_2x2(0, 0);
-			//	if (SX == 3 && SY == 3) return Det_3x3(0, 0);
+			if (!this->IsSquare())
+			{
+				cout << "Error (Determinant):  matrix must be square" << endl;
+				return complex<T>(0.0, 0.0);
+			}
+			if (SX == 2 && SY == 2) return Det_2x2(0, 0);
+			if (SX == 3 && SY == 3) return Det_3x3(0, 0);
 			matrix_complex temp = (*this);
 			T sign = 1;
 			if (temp.ReduceToUpperTriangularForm(sign))
@@ -1723,12 +1734,14 @@ namespace LINALG_COMPLEX
 
 			matrix_complex b(n, 1);
 
+			matrix_complex sol(n, 1);
+
 			for (int c = 0; c < n; c++)
 			{
 				//b.ToZero();
 				b(c, 0) = complex<T>(1.0, 0.0);
 
-				matrix_complex sol = Solve_System_Crout(b);
+				sol = Solve_System_Crout(b);
 
 				for (int r = 0; r < n; r++)
 				{

@@ -1135,7 +1135,7 @@ int main(int argc, char* argv[])
 
 
 
-
+	Test_Transposition();
 
 	Test_QR();
 	//TestCrout_LU_Method();
