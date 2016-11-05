@@ -311,7 +311,7 @@ void Test_Complex_Matrix()
 
 	cout << endl;
 	cout << "printing m ReduceToUpperTriangularForm" << endl;
-	double sign = 1;
+	 double sign = 1;
 	m.ReduceToUpperTriangularForm(sign);
 
 	//m.Round_to_N_digits(5);
@@ -528,6 +528,14 @@ void Test_Complex_Matrix()
 	Q.print(4);
 	cout << "This is the product QR where Q is an orthogonal transformation and the product is a triangular matrix" << endl;
 
+	cout << endl << "QR algorithm for eigenvalues" << endl;
+	matrix_cd eigen_values(H_2.NumRows(), 1);
+	H_2.print(4);
+	H_2.ClipToZero(0.000000001);
+	H_2.print(4);
+	H_2.QR_algorithm(eigen_values);
+
+	H_2.print(4);
 
 }
 
@@ -1134,10 +1142,10 @@ int main(int argc, char* argv[])
 
 
 
+	Test_Complex_Matrix();
+	//Test_Transposition();
 
-	Test_Transposition();
-
-	Test_QR();
+//	Test_QR();
 	//TestCrout_LU_Method();
 	//Testing_GaussJordan_Elimination();
 	

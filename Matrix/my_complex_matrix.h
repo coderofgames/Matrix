@@ -7,6 +7,7 @@
 #include <iostream>
 //#include "Utils.h"
 #include <complex>
+#include <limits>
 
 using std::complex;
 
@@ -20,7 +21,21 @@ using namespace std;
 //============================================================================
 namespace LINALG_COMPLEX
 {
+	template<class T>
+	bool almost_equal(T a, T b)
+	{
+		return (std::abs(a - b) < numeric_limits<T>.epsilon());
+	}
 
+
+
+	// stack overflow
+	template<class T>
+	bool almost_equal(T a, T b, int ulps)
+	{
+		return (std::abs(a - b) < numeric_limits<T>.epsilon() * std::abs(a+b) * ulps) 
+			|| std::abs(x - y) < std::numeric_limits<T>::min();
+	}
 
 	//============================================================================
 	//
@@ -286,7 +301,9 @@ namespace LINALG_COMPLEX
 		//============================================================================
 		inline bool NotEqual(complex<T> test_value, complex<T> compare)
 		{
-			return ((test_value > compare + this->precision) || (test_value < compare - this->precision));
+			//complex<T> precis(this->precision, this->precision);
+			//return ((test_value > compare.real + this->precision) || (test_value < compare - this->precision));
+			return test_value != compare;
 		}
 
 		//============================================================================
@@ -2046,6 +2063,194 @@ namespace LINALG_COMPLEX
 			return *out;
 
 		}
+
+		
+
+		//============================================================================
+		// http://www.netlib.org/lapack/lawnspdf/lawn148.pdf
+		// notes about precision issues ... not computing the full case
+		// here.
+		//============================================================================
+		void QR_algorithm(matrix_complex& eigen_values)
+		{
+			
+			if (!this->IsSquare())
+			{
+				cout << "Error (QR_algorithm): Matrix must be square" << endl;
+				return;
+			}
+
+			int n = this->NumCols();
+
+			matrix_complex C_n(n, n);
+			C_n.Identity();
+
+			matrix_complex R_n(n, n);
+			R_n.Identity();
+
+			matrix_complex I_b(2, 2);
+			I_b.Identity();
+
+			matrix_complex *C = new matrix_complex<T>[n - 1]; // an array of n 4x4 matrices
+			for (int i = 0; i < n - 1; i++)
+				C[i] = I_b;
+
+			complex<T> tan_theta, sin_theta, cos_theta;
+
+			// to compute R0 = C
+
+			T z4 = std::numeric_limits<T>::epsilon()/std::numeric_limits<T>::denorm_min();
+			T zm4 = std::numeric_limits<T>::denorm_min() / std::numeric_limits<T>::epsilon();
+
+			T z2 = std::sqrt(z4);
+			T zm2 = std::sqrt(zm4);
+
+			for (int loop = 0; loop < 100; loop++)
+			{
+				for (int j = 0; j < n - 1; j++)
+				{
+					complex<T> f = get(j, j); // f
+					complex<T> g = get(j + 1, j); // g
+
+					
+
+					// cos_theta = x/r = f / sqrt(f**2 + g**2)
+					// sin_theta = y/r = g / sqrt(f**2 + g**2)
+					// tan_theta = y/x = g/f = sin_theta / cos_theta 
+					// => cos_theta * g/f = sin_theta
+					// cos_theta = 1.0 / sqrt(1+tan_theta**2) = 1/ sqrt(1+g**2/f**2)
+					// = f / sqrt(f**2 + g**2)
+					// sin_theta = tan_theta / sqrt(1+tan_theta**2) =
+					// = g / sqrt(f**2 + g**2)
+					T scale_g = std::abs(g);
+					T scale_f = std::abs(f);
+					if (scale_g == 0.0)
+					{
+						cos_theta = complex<T>(1.0, 0.0);
+						sin_theta = complex<T>(0.0, 0.0);
+					}
+					else if (scale_f == 0)
+					{
+						
+						while (true)
+						{
+							if ((scale_g < z2) && (scale_g > zm2))
+								break;
+
+							if (scale_g > z2)
+							{
+								complex<T> g2 = g*zm4;
+								if (g2.real() == g2.real())
+									g = g2;
+								
+							}
+							else if (scale_g < zm2)
+							{
+								complex<T> g2 = g*z4;
+								if (g2.real() == g2.real())
+									g = g2;
+							}
+
+							
+
+							scale_g = std::abs(g);
+						}
+						
+						
+						
+						cos_theta = complex<T>(0.0, 0.0);
+						sin_theta = std::conj(g) / std::abs(g);
+					}
+					else
+					{
+						T absF2 = f.real() * f.real() + f.imag() * f.imag();
+						T absG2 = g.real() * g.real() + g.imag() * g.imag();
+
+						if (scale_f < std::numeric_limits<T>::epsilon() * scale_g)
+						{
+							cos_theta = absF2 / (scale_f * scale_g);
+							sin_theta = f * std::conj(g) / (scale_f * scale_g);
+						} 
+						else if (scale_g < std::numeric_limits<T>::epsilon() * scale_f)
+						{
+							cos_theta = complex<T>(1.0, 0.0);
+							sin_theta = f * std::conj(g) / absF2;
+						}
+						else
+						{
+
+							sin_theta = std::conj(g) * f / (scale_f * std::sqrt(absF2 + absG2));
+							cos_theta = scale_f / (std::sqrt(absF2 + absG2));
+						}
+						//tan_theta = (g / f);
+
+						//cos_theta = std::abs(f) / std::sqrt(1.0 + tan_theta*tan_theta);
+						//sin_theta = tan_theta / std::sqrt(1.0 + tan_theta*tan_theta);
+					}
+					/*
+					tan_theta = (g / f);
+
+					cos_theta = std::abs(f) / std::sqrt(1.0 + tan_theta*tan_theta);
+					sin_theta = tan_theta / std::sqrt(1.0 + tan_theta*tan_theta);
+					*/
+					C[j](0, 0) = cos_theta;      C[j](0, 1) = sin_theta;
+					C[j](1, 0) = -sin_theta;      C[j](1, 1) = cos_theta;
+
+
+					C_n.Overwrite_Submatrix(C[j], j, j);
+
+					(*this) = C_n * (*this);
+
+					C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
+				}
+				//C_n.Identity();
+
+				for (int j = 0; j < n - 1; j++)
+				{
+					C_n.Overwrite_Submatrix_transposed(C[j], j, j);
+
+					(*this) = (*this) * C_n;
+
+					C_n.Overwrite_Submatrix(I_b, j, j); // set back to identity for next C_j
+				}
+			}
+
+			// set the eigen values and exit
+			bool flag_last = false;
+			for (int j = 0; j < n - 1; j++)
+			{
+				complex<T> sub_diag2 = get(j + 1, j);
+				//precision = FLT_EPSILON;
+				if (NotEqual(sub_diag2, complex<T>(0.0, 0.0)) == false /*FLT_EPSILON*/)
+				{
+					complex<T> L1, L2;
+					//Eigenvalues_2x2(j, j, L1, L2);
+
+					eigen_values(j, 0) = L1;
+					//eigen_values(j, 1) = L1.imag();
+
+					eigen_values(j + 1, 0) = L2;
+					//eigen_values(j + 1, 1) = L2.imag();
+
+					flag_last = true;
+				}
+				else
+				{
+					if (!flag_last)
+						eigen_values(j, 0) = get(j, j);
+
+					flag_last = false;
+				}
+			}
+
+			if (flag_last == false)
+			{
+				eigen_values(n - 1, 0) = get(n - 1, n - 1);
+			}
+
+			delete[] C;
+
+		}
 		
 
 		//============================================================================
@@ -2284,7 +2489,7 @@ namespace LINALG_COMPLEX
 
 		//	virtual void Set_Zero_Epsilon() = 0;
 
-		T precision = FLT_EPSILON; // defaults to float eps
+		T precision = numeric_limits<T>::epsilon(); // defaults to float eps
 	private:
 
 
@@ -2315,7 +2520,7 @@ namespace LINALG_COMPLEX
 
 	typedef matrix_complex < float >  matrix_cf;
 	typedef  matrix_complex < double > matrix_cd;
-
+	//typedef  matrix_complex < long double > matrix_cd;
 
 
 
