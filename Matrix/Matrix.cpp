@@ -428,14 +428,30 @@ void Test_Complex_Matrix()
 	// still broken, check on here 
 	// http://matrix.reshish.com/inverse.php
 	//complex<double> __a[6][6]
-		matrix_cd test_inv = {
+	/*	matrix_cd test_inv = {
 		{ { 5, 4 }, { 3, -2 }, { 4, 4 }, {-6, 2},   {-2, 4}, {2, -8} },
 		{  {2, 2},	{ 3,  0 }, {-7, 2}, {12 ,-1 },	{3, 2},	 {1 ,1}  },
 		{ { 5, 4 }, { 0, 0 }, { 9, 2 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 		{ { 0, 0 }, { 0, 0 }, { 0, 0 }, {-4, -7}, {2, -1 }, {2,  2}  },
 		{ {17, 19.6},	{4, 3},{ -2, -1},	{1,1 }, {-14,  3},	{8 ,-4}},
 		{ { -5, -3 }, { 8, 2 }, { 4, -3 }, { -3, -5 }, { 15, 2 }, { 1, 0 } }
-	};
+	};*/
+
+		matrix_cd test_inv = {
+			{ { 5, 0 }, { 3, -2 }, { 4, 4 }, { -6, 2 }, { 7, 9.6 }, { -5, -3 } },
+			{ { 3, 2 }, { 3, 0 }, { -7, 2 }, { 12, -1 }, { 3, 2 }, { 8, 2 } },
+			{ { 4, -4 }, { -7, -2 }, { 9, 0 }, { 0, 0 }, { -2, -1 }, { 4, -3 } },
+			{ { -6, -2 }, { 12, 1 }, { 0, 0 }, { -4, 0}, { 2, -1 }, { -3, -5 } },
+			{ { 7, -9.6 }, { 3, -2 }, { -2, 1 }, { 2, 1 }, { -14, 0 }, { 8, -4 } },
+			{ { -5, 3 }, { 8, -2 }, { 4, 3 }, { -3, 5 }, { 8, 4 }, { 4, 0 } }
+		};
+
+		if (test_inv.IsHermitian())
+		{
+			cout << endl << "matrix is hermitian" << endl;
+			test_inv.print(3);
+			//return;
+		}
 		/*
 		C = [[ 5+4j,   3-2j,  4+4j,  -6+2j,   -2+4j,  2-8j],
 		[2+2j,3+0j,  -7+2j,  12-1j,3+2j,1+1j ],
@@ -521,21 +537,54 @@ void Test_Complex_Matrix()
 	cout << "Clearly there is an improvement here ... this version computes QRQ" << endl;
 
 	cout << endl << "QR algorithm wiki (current implementation of the wikipedia QR algorithm)" << endl;
-	matrix_cd Q = H_3.Householder_Tridiagonalize_wiki(true);
-	H_3.print(4);
+	matrix_cd Q, Q2;
+	/*for (int i = 0; i < 60; i++ )
+	{ 
+	
+		Q = H_2.Householder_Tridiagonalize_wiki(true);
+	//	cout << endl << "**************** ";
+	//	cout << endl;
+	//	H_2.print(4);
+	//	cout << endl;
+	//	cout << endl; //Q.transpose();
+		H_2 = H_2*Q;
+	//	cout << endl;
+	//	cout << endl;
+	//	H_3.print(4);
+	//	cout << endl;
+	//	cout << endl;
+	//	Q.print(4);
+	//	Q= H_3.Householder_Tridiagonalize_wiki(true);
+	}
+	Q = H_2.Householder_Tridiagonalize_wiki(true);
+	*/
+
+	//matrix_cd eigen_values2 = H_2.get_diag_vector();
+	//eigen_values2.print(4);
+//	Q.print(4);
+
 
 	cout << endl;
-	Q.print(4);
+	cout << endl;
+
 	cout << "This is the product QR where Q is an orthogonal transformation and the product is a triangular matrix" << endl;
 
 	cout << endl << "QR algorithm for eigenvalues" << endl;
 	matrix_cd eigen_values(H_2.NumRows(), 1);
+	cout << endl;
+	cout << endl;
+	
 	H_2.print(4);
-	H_2.ClipToZero(0.000000001);
+	//H_2.ClipToZero(0.000000001);
+	cout << endl;
+	cout << endl;
+	
 	H_2.print(4);
+	cout << endl;
+	cout << endl;
 	H_2.QR_algorithm(eigen_values);
 
-	H_2.print(4);
+	eigen_values.print(4);
 
 }
 
