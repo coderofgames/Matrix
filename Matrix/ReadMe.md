@@ -54,7 +54,7 @@ for completely explaining it<br>
 21) first complex matrix version of the householder algorithm is implemented<br>
 22) implemented QR factorisation and tested here - the output produces the same R matrix<br>
 23) Reduction to Hessenburg is *exactly* the same as the python version, the solution was to use CSGN instead of SGN<br> 
-24) Eigenvalues for the Hermitian matrix are *exactly* the same as the python version, the solution was to use CSGN instead of SGN<br> 
+24) Eigenvalues for the Hermitian matrix are *exactly* the same as the python version<br> 
 
 <img src="Untitled.jpg"></img><br>
 
