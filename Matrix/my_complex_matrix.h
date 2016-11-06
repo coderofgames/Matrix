@@ -1953,6 +1953,7 @@ namespace LINALG_COMPLEX
 			return S;
 		}
 		
+		//============================================================================
 		//wikipedia calculation
 //	https://en.wikipedia.org/wiki/QR_decomposition
 		// since ||x|| at one time refers to the euclidean norm, and for complex numbers this
@@ -1962,6 +1963,8 @@ namespace LINALG_COMPLEX
 		// This produces a different result from the version above
 		// I am not sure which is "correct" however this version is much faster
 		// since there is no need to iterate.
+		// WORKING / STABLE
+		//============================================================================
 		matrix_complex& complex_decomposition_qr_householder_shur(bool useQR)
 		{
 
@@ -2084,6 +2087,11 @@ namespace LINALG_COMPLEX
 
 		}
 
+
+		//============================================================================
+		// have the values swapped?
+		// WORKING / STABLE
+		//============================================================================
 		void Eigenvalues_2x2(int r, int c, complex<T> &L1, complex<T> &L2)
 		{
 			if (r + 1 >= this->NumRows() || c + 1 >= this->NumCols())
@@ -2099,6 +2107,16 @@ namespace LINALG_COMPLEX
 			L2 = trace * 0.5 - std::sqrt(trace*trace / 4.0 - det);
 		}
 
+		//============================================================================
+		// Application specific QR algorithm using complex Householder reflectors
+		// This removes the need for extra copies and streamlines the functionality
+		// also seems to be absolutely convergent (so far, tested with 450 iterations
+		// and also with 1450 iterations)
+		// the function mimics the QR algorithm for real valued matrices, with 
+		// similar solution for non-zero subdiagonal entries, the question of 
+		// what happens when the top corner (0,0) element is part of a 2*2 block
+		// with non-zero subdiagonal element still needs some testing.
+		//============================================================================
 		void solve_eigen_values_shur_decomposition(matrix_complex& eigen_values)
 		{
 
@@ -2248,6 +2266,7 @@ namespace LINALG_COMPLEX
 				eigen_values(n - 1, 0) = R_(n - 1, n - 1);
 			}
 
+			
 		/*	Q3 = Q1;
 			Q3.ConjugateTranspose();
 			R_2 = Q1 * R_2 * Q3;
