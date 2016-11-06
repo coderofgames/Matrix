@@ -2160,7 +2160,9 @@ namespace LINALG_COMPLEX
 		//============================================================================
 		// http://www.netlib.org/lapack/lawnspdf/lawn148.pdf
 		// notes about precision issues ... not computing the full case
-		// here. NOT WORKING
+		// here.  WORKING  as QRQ* shur decomposition using QR Householder reflectors 
+		// slight numerical instability, but to be expected with complex numbers
+		// and ~hard to read~ math
 		//============================================================================
 		void QR_algorithm(matrix_complex& eigen_values)
 		{
