@@ -59,5 +59,7 @@ for completely explaining it<br>
     this is work in progress, because I need to test
     for convergence and it is possible to over-converge.
     I am using a QR method with Shur decomposition.
+    (to see the difference check the eigen values in the
+    ipython notebook for the matrix named C)
 <img src="Untitled.jpg"></img><br>
 
