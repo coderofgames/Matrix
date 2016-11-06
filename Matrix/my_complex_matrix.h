@@ -2084,6 +2084,179 @@ namespace LINALG_COMPLEX
 
 		}
 
+		void Eigenvalues_2x2(int r, int c, complex<T> &L1, complex<T> &L2)
+		{
+			if (r + 1 >= this->NumRows() || c + 1 >= this->NumCols())
+			{
+				cout << "Error (Eigenvalues_2x2): index out of bounds" << endl;
+				return;// false;
+			}
+
+			complex<T> trace = get(r, c) + get(r + 1, c + 1);
+			complex<T> det = get(r, c)*get(r + 1, c + 1) - get(r + 1, c)*get(r, c + 1);
+
+			L1 = trace * 0.5 + std::sqrt(trace*trace / 4.0 - det);
+			L2 = trace * 0.5 - std::sqrt(trace*trace / 4.0 - det);
+		}
+
+		void solve_eigen_values_shur_decomposition(matrix_complex& eigen_values)
+		{
+
+			int n = this->NumRows();
+
+			matrix_complex  X(n, 1);
+			matrix_complex  X_CT(1, n); // conjugate transpose
+			matrix_complex  V;
+			matrix_complex  V_CT; // conjugate transpose
+			matrix_complex  Inn(n, n);
+			matrix_complex V_VH;
+
+			matrix_complex U(n, 1);
+
+			Inn.Identity();
+
+			matrix_complex R_ = (*this);
+			matrix_complex R_2 = R_;
+			matrix_complex R_3 = R_;
+			matrix_complex Q;
+			matrix_complex Q1(n,n);
+			matrix_complex Q2(n, n);
+			matrix_complex Q3(n, n);
+			Q1.Identity();
+			Q2.Identity();
+			Q3.Identity();
+			out = Find_out(n, n);
+			out->Identity();
+
+			complex< T > S = complex< T >(0.0, 0.0);
+
+			// the more iterations, the more it converges
+			for (int i = 0; i < 450; i++ )
+			{ 
+				for (int c = 0; c < n; c++)
+				{
+					int Row = c;
+
+					for (int r = Row; r < n; r++)
+					{
+						X(r, 0) = R_(r, c); // store X
+						X_CT(0, r) = std::conj(X(r, 0)); // conjugate transpose
+					}
+
+					T mag_z = Euclidean_Norm_column(X, Row, 0);
+
+					U = X;
+
+					// Instead of the sign of a complex number (i.e. on unit circle z / |z| )
+					// The correct answer here was the CSGN function which is defined on wikipedia 
+
+					U(Row, 0) = X(Row, 0) + mag_z * CSGN< T >(R_(Row, c));
+
+					complex<T > col_norm = Euclidean_Norm_column(U, Row, 0);
+
+					V = U / col_norm;
+
+					V_CT = V;
+
+					V_CT.ConjugateTranspose();
+
+					Q = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
+
+					Q1 = Q * Q1;
+
+					R_ = Q * R_;
+
+					//R_3 = Q * R_3;
+				
+					Q.ConjugateTranspose();
+
+					Q2 = Q2 * Q;  // storing Q just in case it is needed
+
+					//R_3 = R_3 * Q;
+					// zero the vectors again
+					V.ToZero();
+					V_CT.ToZero();
+					X.ToZero();
+					X_CT.ToZero();
+					U.ToZero();
+				}
+				
+				R_ = R_ * Q2;
+				
+				Q2.Identity();
+
+			}
+
+			bool flag_last = false;
+			for (int j = 0; j < n - 1; j++)
+			{
+				complex<T> sub_diag2 = R_(j + 1, j);
+				//precision = FLT_EPSILON;
+				if ((sub_diag2.real() > precision || sub_diag2.real() < -precision /*FLT_EPSILON*/) ||
+					(sub_diag2.imag() > precision || sub_diag2.imag() < -precision /*FLT_EPSILON*/))
+				{
+					complex<T> L1, L2;
+					R_.Eigenvalues_2x2(j, j, L1, L2);
+
+					T c1 = std::abs(eigen_values(j, 0) - L1);
+					T c2 = std::abs(eigen_values(j, 0) - L2);
+
+					// pyrotechnical hackery
+					cout << "L1: " << L1 << ", c1: " << c1 << ", eigen_values(j, 0): " << eigen_values(j, 0);
+					cout << "    L2: " << L2 << ", c2: " << c2 << ", eigen_values(j+1, 0): " << eigen_values(j + 1, 0) << endl;
+					
+					if (c2 <1.0 && c1 > c2)
+					{
+						// basically the question is whether this was set last time.
+						// and if so, was the value the correct L
+
+						/*if (c1 < c2)
+						{
+							eigen_values(j, 0) = L1;
+							eigen_values(j + 1, 0) = L2;
+						}
+						else*/
+						{
+							eigen_values(j, 0) = L2;
+							//eigen_values(j, 0) = L2;
+						}
+							
+							eigen_values(j + 1, 0) = L1;
+					}
+					else
+					{
+
+						eigen_values(j, 0) = L1;
+						eigen_values(j + 1, 0) = L2;
+					}
+
+					
+
+					flag_last = true;
+				}
+				else
+				{
+					if (!flag_last)
+						eigen_values(j, 0) = R_(j, j);
+
+					flag_last = false;
+				}
+			}
+
+			if (flag_last == false)
+			{
+				eigen_values(n - 1, 0) = R_(n - 1, n - 1);
+			}
+
+		/*	Q3 = Q1;
+			Q3.ConjugateTranspose();
+			R_2 = Q1 * R_2 * Q3;
+			R_2.print(3);
+			eigen_values = R_2.get_diag_vector();*/
+
+	
+
+		}
 
 		matrix_complex& get_column_vector(int col)
 		{
@@ -2178,13 +2351,26 @@ namespace LINALG_COMPLEX
 				matrix_complex A = (*this);
 				matrix_complex Q = A.complex_decomposition_qr_householder_shur(true);
 				A = A * Q;
+				//matrix_complex Q2 = Q;
 				for (int i = 0; i < 400; i++) // lazy ... need to test for convergence
 				{
 					Q = A.complex_decomposition_qr_householder_shur(true);
 					
+					
 					A = A * Q;
 				}
-				
+				//Q2 = Q;
+				//Q.ConjugateTranspose();
+
+				//A = (*this);
+				if (true)  // testing
+				{
+					
+					
+				//	Q2 = Q.Newtons_Iteration_for_Inverse(Q2, 10);
+					//Q = Q2.Newtons_Iteration_for_Inverse(Q, 10);
+				}
+				//A = Q * A * Q2;
 				eigen_values = A.get_diag_vector();
 				A.print(4);
 			}

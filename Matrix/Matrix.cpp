@@ -601,14 +601,14 @@ void Test_Complex_Matrix()
 	cout << endl;
 	
 	
-	//H_2.ClipToZero(0.000000001);
+	//H_2.ClipToZero(0.000000000000001);
 	cout << endl;
 	cout << endl;
 	
 	H_2.print(4);
 	cout << endl;
 	cout << endl;
-	H_2.QR_algorithm(eigen_values);
+	H_2.solve_eigen_values_shur_decomposition(eigen_values);
 
 	eigen_values.print(4);
 	cout << endl;
