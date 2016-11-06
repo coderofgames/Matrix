@@ -55,6 +55,9 @@ for completely explaining it<br>
 22) implemented QR factorisation and tested here - the output produces the same R matrix<br>
 23) Reduction to Hessenburg is *exactly* the same as the python version, the solution was to use CSGN instead of SGN<br> 
 24) Eigenvalues for the Hermitian matrix are *exactly* the same as the python version<br> 
-
+25) Eigenvalues for general complex matrix are working (recognizing the fact that the Hermitian is its own conjugate transpose)
+    this is work in progress, because I need to test
+    for convergence and it is possible to over-converge.
+    I am using a QR method with Shur decomposition.
 <img src="Untitled.jpg"></img><br>
 

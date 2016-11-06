@@ -378,7 +378,7 @@ void Test_Complex_Matrix()
 
 		cout << endl;
 		cout << "Householder test ..." << endl;
-		m9.Householder_Tridiagonalize_wiki(false);
+		m9.complex_decomposition_qr_householder_shur(false);
 		m9.print(3);
 
 
@@ -428,27 +428,53 @@ void Test_Complex_Matrix()
 	// still broken, check on here 
 	// http://matrix.reshish.com/inverse.php
 	//complex<double> __a[6][6]
-	/*	matrix_cd test_inv = {
+		matrix_cd test_inv = {
 		{ { 5, 4 }, { 3, -2 }, { 4, 4 }, {-6, 2},   {-2, 4}, {2, -8} },
 		{  {2, 2},	{ 3,  0 }, {-7, 2}, {12 ,-1 },	{3, 2},	 {1 ,1}  },
 		{ { 5, 4 }, { 0, 0 }, { 9, 2 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 		{ { 0, 0 }, { 0, 0 }, { 0, 0 }, {-4, -7}, {2, -1 }, {2,  2}  },
 		{ {17, 19.6},	{4, 3},{ -2, -1},	{1,1 }, {-14,  3},	{8 ,-4}},
 		{ { -5, -3 }, { 8, 2 }, { 4, -3 }, { -3, -5 }, { 15, 2 }, { 1, 0 } }
-	};*/
-
-		matrix_cd test_inv = {
+	};
+	// hermitian
+		/*matrix_cd test_inv = {
 			{ { 5, 0 }, { 3, -2 }, { 4, 4 }, { -6, 2 }, { 7, 9.6 }, { -5, -3 } },
 			{ { 3, 2 }, { 3, 0 }, { -7, 2 }, { 12, -1 }, { 3, 2 }, { 8, 2 } },
 			{ { 4, -4 }, { -7, -2 }, { 9, 0 }, { 0, 0 }, { -2, -1 }, { 4, -3 } },
 			{ { -6, -2 }, { 12, 1 }, { 0, 0 }, { -4, 0}, { 2, -1 }, { -3, -5 } },
 			{ { 7, -9.6 }, { 3, -2 }, { -2, 1 }, { 2, 1 }, { -14, 0 }, { 8, -4 } },
 			{ { -5, 3 }, { 8, -2 }, { 4, 3 }, { -3, 5 }, { 8, 4 }, { 4, 0 } }
-		};
+		};*/
+	/*matrix_cd test_inv = {
+	{ { 0, 5 }, { -3, 2 }, { -4, -4 }, { 6, -2 }, { -7, -9.6 }, { 5, 3 } },
+	{ { 3, 2 }, {  0, 3 }, { 7, -2 }, { -12, 1 }, { -3, -2 }, { -8, -2 } },
+	{ { 4, -4 }, { -7, -2 }, { 0, 9}, { 0, 0 }, { 2, 1 }, { -4, 3 } },
+	{ { -6, -2 }, { 12, 1 }, { 0, 0 }, { 0,-4}, { -2, 1 }, { 3, 5 } },
+	{ { 7, -9.6 }, { 3, -2 }, { -2, 1 }, { 2, 1 }, { 0, -14 }, { -8, 4 } },
+	{ { -5, 3 }, { 8, -2 }, { 4, 3 }, { -3, 5 }, { 8, 4 }, { 0, 4 } }
+	};*/
+	// symmetric
+	/*matrix_cd test_inv = {
+	{ { 5, 0 }, { 3, 2 }, { 4,-4 }, { -6, -2 }, { 7, -9.6 }, { -5, 3 } },
+	{ { 3, 2 }, { 3, 0 }, { -7, -2 }, { 12, 1 }, { 3, -2 }, { 8, -2 } },
+	{ { 4, -4 }, { -7, -2 }, { 9, 0 }, { 0, 0 }, { -2, 1 }, { 4, 3 } },
+	{ { -6, -2 }, { 12, 1 }, { 0, 0 }, { -4, 0}, { 2, 1 }, { -3, 5 } },
+	{ { 7, -9.6 }, { 3, -2 }, { -2, 1 }, { 2, 1 }, { -14, 0 }, { 8, 4 } },
+	{ { -5, 3 }, { 8, -2 }, { 4, 3 }, { -3, 5 }, { 8, 4 }, { 4, 0 } }
+	};*/
+	// arbitrary
+	/*	matrix_cd test_inv = {
+			{ { 5, 0 }, { 3, 2 }, { 4, 4 }, { -6, 2 }, { 7, 9.6 }, { -5, 3 } },
+			{ { 3, 2 }, { 3, 0 }, { -7, 2 }, { 12, -1 }, { 3, 2 }, { 8, 2 } },
+			{ { 4, -4 }, { -7, 2 }, { 9, 0 }, { 0, 0 }, { -2, 1 }, { 4, -3 } },
+			{ { -6, -2 }, { 12, -1 }, { 0, 0 }, { -4, 0 }, { 2, -1 }, { -3, -5 } },
+			{ { 7, 9.6 }, { 3, -2 }, { -2, 1 }, { 2, 1 }, { -14, 0 }, { 8, -4 } },
+			{ { -5, 3 }, { 8, -2 }, { 4, 3 }, { -3, -5 }, { 8, 4 }, { 4, 0 } }
+		};*/
 
-		if (test_inv.IsHermitian())
+		if (test_inv.IsSkewHermitian())
 		{
-			cout << endl << "matrix is hermitian" << endl;
+			cout << endl << "matrix is skew hermitian" << endl;
 			test_inv.print(3);
 			//return;
 		}
@@ -531,7 +557,7 @@ void Test_Complex_Matrix()
 
 	matrix_cd H_3 = H_2;
 	cout << endl << "Householder_Tridiagonalizen_wiki (current implementation of the Householder algorithm based on wikipedia math)" << endl;
-	H_2.Householder_Tridiagonalize_wiki(false);
+	H_2.complex_decomposition_qr_householder_shur(false);
 	H_2.print(4);
 	cout << endl;
 	cout << "Clearly there is an improvement here ... this version computes QRQ" << endl;
@@ -574,7 +600,7 @@ void Test_Complex_Matrix()
 	cout << endl;
 	cout << endl;
 	
-	H_2.print(4);
+	
 	//H_2.ClipToZero(0.000000001);
 	cout << endl;
 	cout << endl;
@@ -585,7 +611,10 @@ void Test_Complex_Matrix()
 	H_2.QR_algorithm(eigen_values);
 
 	eigen_values.print(4);
+	cout << endl;
+	cout << endl;
 
+	H_2.print(4);
 }
 
 

@@ -1962,7 +1962,7 @@ namespace LINALG_COMPLEX
 		// This produces a different result from the version above
 		// I am not sure which is "correct" however this version is much faster
 		// since there is no need to iterate.
-		matrix_complex& Householder_Tridiagonalize_wiki(bool useQR)
+		matrix_complex& complex_decomposition_qr_householder_shur(bool useQR)
 		{
 
 			int n = this->NumRows();
@@ -1980,6 +1980,7 @@ namespace LINALG_COMPLEX
 
 			matrix_complex R_ = (*this);
 			matrix_complex Q;
+			matrix_complex Q2;
 
 			out = Find_out(n, n);
 			out->Identity();
@@ -2036,14 +2037,33 @@ namespace LINALG_COMPLEX
 
 				Q = Inn - V*V_CT * (complex<T>(1.0, 0.0) + (X_CT * V)(0, 0) / (V_CT * X)(0, 0));
 				
+				//=======================================================================
+				// swapping the order of operations of storing Q by recognizing the fact
+				// that the algorithm solved for the case of the hermitian and the hermitian
+				// is exactly equal to its own conjugate transpose ... calculating the 
+				// conjugate transpose before the combined mulitplication is clearly correct
+				// and does not affect either the QR decomposition or the Hessenburg methods
+				//=======================================================================
+
+				// Effectively this is now a Shur Decomposition solver too .
+				// http://mathworld.wolfram.com/SchurDecomposition.html
+				/*if (true)  // testing
+				{
+					Q2 = Q;
+					Q2.ConjugateTranspose();
+					Q2 = Q.Newtons_Iteration_for_Inverse(Q2, 10);
+					Q = Q2.Newtons_Iteration_for_Inverse(Q, 10);
+				}*/
+				R_ = Q * R_;
+
+				Q.ConjugateTranspose();
+
 				(*out) = (*out) * Q;  // storing Q just in case it is needed
 				
 
-				R_ = Q * R_ ;
-
 				// then this should be the Householder tridiagonalization method, creating tridiagonal matrices
 				// this takes the example Hermitian matrix into a Tridiagonal form
-				Q.ConjugateTranspose();
+				
 
 				if (!useQR)  
 					R_ = R_ * Q; 
@@ -2154,14 +2174,17 @@ namespace LINALG_COMPLEX
 			//if (this->IsHermitian())
 			{
 				matrix_complex A = (*this);
-				matrix_complex Q = A.Householder_Tridiagonalize_wiki(true);
+				matrix_complex Q = A.complex_decomposition_qr_householder_shur(true);
 				A = A * Q;
-				for (int i = 0; i < 100; i++)
+				for (int i = 0; i < 400; i++) // lazy ... need to test for convergence
 				{
-					Q = A.Householder_Tridiagonalize_wiki(true);
+					Q = A.complex_decomposition_qr_householder_shur(true);
+					
 					A = A * Q;
 				}
+				
 				eigen_values = A.get_diag_vector();
+				A.print(4);
 			}
 		/*	else
 			{
