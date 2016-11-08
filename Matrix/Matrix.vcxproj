@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base_mattrix.h" />
+    <ClInclude Include="matrix_solver.h" />
     <ClInclude Include="my_complex_matrix.h" />
     <ClInclude Include="my_matrix.h" />
     <ClInclude Include="stdafx.h" />

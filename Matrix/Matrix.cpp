@@ -2,8 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "my_matrix.h"
-#include "my_complex_matrix.h"
+#include "matrix_solver.h"
 
 #include <iostream>
 
@@ -12,7 +11,7 @@ using std::endl;
 
 typedef LINALG::matrixf matrixf;
 typedef LINALG::matrixd matrixd;
-typedef LINALG_COMPLEX::matrix_cd matrix_cd;
+typedef LINALG::matrix_cd matrix_cd;
 
 
 
@@ -255,7 +254,7 @@ void Test_Complex_Matrix()
 	{
 		for (int c = 0; c < 4; c++)
 		{
-			m(r, c) = complex<float>( LINALG_COMPLEX::RandomFloat(0.0, 10.0) ,  LINALG_COMPLEX::RandomFloat(0.0, 10.0) );
+			m(r, c) = complex<float>(LINALG::RandomFloat(0.0, 10.0), LINALG::RandomFloat(0.0, 10.0));
 		}
 	}
 
@@ -269,7 +268,7 @@ void Test_Complex_Matrix()
 	{
 		for (int c = 0; c < 4; c++)
 		{
-			m2(r, c) = complex<float>(LINALG_COMPLEX::RandomFloat(0.0, 10.0), LINALG_COMPLEX::RandomFloat(0.0, 10.0));
+			m2(r, c) = complex<float>(LINALG::RandomFloat(0.0, 10.0), LINALG::RandomFloat(0.0, 10.0));
 		}
 	}
 
@@ -393,7 +392,7 @@ void Test_Complex_Matrix()
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			A(i, j) = complex<float>(dat_M_LU(i, j), LINALG_COMPLEX::RandomFloat(-4, 5));
+			A(i, j) = complex<float>(dat_M_LU(i, j), LINALG::RandomFloat(-4, 5));
 		}
 	}
 	

@@ -2,144 +2,10 @@
 #define MY_CPMPLEX_MATRIX
 
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <iostream>
-//#include "Utils.h"
-#include <complex>
-#include <limits>
+#include "base_mattrix.h"
 
-using std::complex;
-
-using std::cout;
-using std::endl;
-
-using namespace std;
-
-//============================================================================
-//
-//============================================================================
-namespace LINALG_COMPLEX
+namespace LINALG
 {
-	template<class T>
-	bool almost_equal(T a, T b)
-	{
-		return (std::abs(a - b) < numeric_limits<T>.epsilon());
-	}
-
-
-
-	// stack overflow
-	template<class T>
-	bool almost_equal(T a, T b, int ulps)
-	{
-		return (std::abs(a - b) < numeric_limits<T>.epsilon() * std::abs(a+b) * ulps) 
-			|| std::abs(x - y) < std::numeric_limits<T>::min();
-	}
-
-	//============================================================================
-	//
-	//============================================================================
-	template< class T >
-	static inline void SWAP(T &a, T &b)
-	{
-		T temp = a;
-		a = b;
-		b = temp;
-	}
-
-
-
-	//============================================================================
-	//
-	//============================================================================
-	static inline float RandomFloat(float min, float max)
-	{
-		float r = (float)rand() / (float)RAND_MAX;
-		return min + r * (max - min);
-	}
-
-	//============================================================================
-	//
-	//============================================================================
-	template<class Scalar>
-	static inline Scalar RandomScalar(Scalar min, Scalar max)
-	{
-		Scalar r = (Scalar)rand() / (Scalar)RAND_MAX;
-		return min + r * (max - min);
-	}
-
-	//============================================================================
-	//
-	//============================================================================
-	template< class Scalar >
-	static inline complex<Scalar> RandomComplex(Scalar min, Scalar max)
-	{ 
-		return complex<Scalar>(RandomScalar(min, max), RandomScalar(min, max));
-	}
-
-	//============================================================================
-	//
-	//============================================================================
-	static inline float RandomInt(int min, int max)
-	{
-		float r = (float)rand() / (float)RAND_MAX;
-		return (int)((float)min + r * float(max - min));
-	}
-
-	//============================================================================
-	// https://en.wikipedia.org/wiki/Sign_function
-	//============================================================================
-	template< class T >
-	static inline complex <T> sgn(complex <T> z)
-	{
-		if (z.real() == 0.0 && z.imag() == 0.0)
-			return z;
-
-		T abs_z_inv = 1 / std::abs(z);
-		
-		return z * abs_z_inv;
-	}
-
-	template<class T>
-	static T CSGN(complex<T> x)
-	{
-		if (x.real() > 0.0)
-		{
-			return 1.0;
-
-		}
-		else if (x.real() < 0.0)
-		{
-			return -1.0;
-		}
-		else if (x.real() == 0.0)
-		{
-			if (x.imag() > 0.0)
-			{
-				return 1.0;
-			}
-			else if (x.imag() < 0.0)
-			{
-				return -1.0;
-			}
-		}
-		return 0.0;
-	}
-
-	//============================================================================
-	//
-	//============================================================================
-	static inline double round_to_n_digits(double x, int n)
-	{
-		double scale = pow(10.0, ceil(log10(fabs(x))) + n);
-
-		return round(x * scale) / scale;
-	}
-
-	
-
-
 
 
 	//============================================================================
@@ -377,6 +243,14 @@ namespace LINALG_COMPLEX
 
 	public:
 
+		// operators that must be defined outside the class
+		matrix_complex& operator = (matrix<T> &b);
+		matrix_complex& operator | (matrix<T> &b);
+		matrix_complex& operator*(matrix<T> &b);
+		matrix_complex& operator+(matrix<T> &b);
+		matrix_complex& operator-(matrix<T> &b);
+
+
 		//============================================================================
 		// Hadamard element wise product
 		//============================================================================
@@ -523,6 +397,7 @@ namespace LINALG_COMPLEX
 			}
 			return *out;
 		}
+		
 
 		//============================================================================
 		//complex<T>(1.0, 0.0) 
@@ -585,6 +460,8 @@ namespace LINALG_COMPLEX
 			}
 			return matrix_complex(0, 0);
 		}
+
+		
 
 		//============================================================================
 		// may need to override this for different matrix types
@@ -2223,7 +2100,15 @@ namespace LINALG_COMPLEX
 					cout << "L1: " << L1 << ", c1: " << c1 << ", eigen_values(j, 0): " << eigen_values(j, 0);
 					cout << "    L2: " << L2 << ", c2: " << c2 << ", eigen_values(j+1, 0): " << eigen_values(j + 1, 0) << endl;
 					
-					if (c2 <1.0 && c1 > c2)
+					if (eigen_values(j, 0).real() == 0.0 && eigen_values(j, 0).imag() == 0.0)
+					{
+						eigen_values(j, 0) = L1;
+						eigen_values(j + 1, 0) = L2;
+					}
+					else if ( c2 < 1.0 && 
+						     (std::abs(L2.real() - eigen_values(j, 0).real()) < std::abs(L1.real() - eigen_values(j, 0).real()) &&
+							  std::abs(L2.imag() - eigen_values(j, 0).imag()) < std::abs(L1.imag() - eigen_values(j, 0).imag())))
+						//(c2 < 1.0 && c1 > c2)
 					{
 						// basically the question is whether this was set last time.
 						// and if so, was the value the correct L
@@ -2277,6 +2162,9 @@ namespace LINALG_COMPLEX
 
 		}
 
+		//============================================================================
+		//
+		//============================================================================
 		matrix_complex& get_column_vector(int col)
 		{
 			if (col < this->NumCols())
@@ -2295,6 +2183,9 @@ namespace LINALG_COMPLEX
 			return *out;
 		}
 		
+		//============================================================================
+		//
+		//============================================================================
 		matrix_complex& get_row_vector(int row)
 		{
 			if (row < this->NumRows())
@@ -2313,7 +2204,9 @@ namespace LINALG_COMPLEX
 			return *out;
 		}
 
-
+		//============================================================================
+		//
+		//============================================================================
 		matrix_complex& get_diag_vector()
 		{
 			if (!this->IsSquare())
@@ -2831,9 +2724,7 @@ namespace LINALG_COMPLEX
 
 
 
-	typedef matrix_complex < float >  matrix_cf;
-	typedef  matrix_complex < double > matrix_cd;
-	//typedef  matrix_complex < long double > matrix_cd;
+
 
 
 
@@ -2841,21 +2732,5 @@ namespace LINALG_COMPLEX
 };
 
 
-//============================================================================
-//
-//============================================================================
-template<class T>
-inline LINALG_COMPLEX::matrix_cf operator*(T s, LINALG_COMPLEX::matrix_cf &a)
-{
-	return a * s;
-}
 
-//============================================================================
-//
-//============================================================================
-template <class T >
-inline LINALG_COMPLEX::matrix_cd operator*(T s, LINALG_COMPLEX::matrix_cd &a)
-{
-	return a * s;
-}
 #endif

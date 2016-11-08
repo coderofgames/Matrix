@@ -36,6 +36,9 @@
     <ClInclude Include="base_mattrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="matrix_solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

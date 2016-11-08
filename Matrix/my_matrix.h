@@ -1,15 +1,7 @@
 #ifndef MY_MATRIX_H
 #define MY_MATRIX_H
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <iostream>
-#include "Utils.h"
-#include <complex>
 
-using std::complex;
-
-using std::cout;
-using std::endl;
+#include "base_mattrix.h"
 
 
 
@@ -18,74 +10,6 @@ using std::endl;
 //============================================================================
 namespace LINALG
 {
-
-
-
-	//============================================================================
-	//
-	//============================================================================
-	 template< class T >
-	static inline void SWAP(T &a, T &b)
-	{
-		T temp = a;
-		a = b;
-		b = temp;
-	}
-
-
-
-	//============================================================================
-	//
-	//============================================================================
-	static inline float RandomFloat(float min, float max)
-	{
-		float r = (float)rand() / (float)RAND_MAX;
-		return min + r * (max - min);
-	}
-
-	 //============================================================================
-	 //
-	 //============================================================================
-	static inline float RandomInt(int min, int max)
-	{
-		float r = (float)rand() / (float)RAND_MAX;
-		return (int)((float)min + r * float(max - min));
-	}
-
-	 //============================================================================
-	 //
-	 //============================================================================
-	template<class T>
-	static inline T sgn(T x)
-	{
-		if (x > 0.0 + DBL_EPSILON)
-			return 1.0;
-		if (x < 0.0 - DBL_EPSILON)
-			return -1.0;
-
-		return x;
-	}
-
-	//============================================================================
-	//
-	//============================================================================
-	static inline double round_to_n_digits(double x, int n)
-	{
-		double scale = pow(10.0, ceil(log10(fabs(x))) + n);
-
-		return round(x * scale) / scale;
-	}
-
-	class vector2d
-	{
-	public:
-
-		float v[2];
-
-		float operator[](unsigned int idx) { return (idx < 2 ? v[idx] : 0.0f); }
-		void operator=(vector2d b){ v[0] = b.v[0]; v[1] = b.v[1]; }
-	};
-
 
 
 //============================================================================
@@ -343,6 +267,13 @@ private:
 	}
 
 public:
+
+	// operators that must be defined outside the class
+	matrix& operator = (matrix_complex<T> &b);
+	matrix& operator | (matrix_complex<T> &b);
+	matrix& operator*(matrix_complex<T> &b);
+	matrix& operator+(matrix_complex<T> &b);
+	matrix& operator-(matrix_complex<T> &b);
 
 	//============================================================================
 	// Hadamard element wise product
@@ -2291,7 +2222,85 @@ public:
 
 	}
 
+	//============================================================================
+	//
+	//============================================================================
+	matrix& get_column_vector(int col)
+	{
+		if (col < this->NumCols())
+		{
+			out = Find_out(this->NumRows(), 1);
+			for (int r = 0; r < this->NumRows(); r++)
+			{
+				(*out)(r, 0) = get(r, col);
+			}
+		}
+		else
+		{
+			cout << "error (get_column_vector): column range out of bounds"
+		}
 
+		return *out;
+	}
+
+	//============================================================================
+	//
+	//============================================================================
+	matrix& get_row_vector(int row)
+	{
+		if (row < this->NumRows())
+		{
+			out = Find_out(1, this->NumCols());
+			for (int c = 0; c < this->NumCols(); c++)
+			{
+				(*out)(0, c) = get(row, c);
+			}
+		}
+		else
+		{
+			cout << "error (get_row_vector): row range out of bounds"
+		}
+
+		return *out;
+	}
+
+	//============================================================================
+	//
+	//============================================================================
+	matrix& get_diag_vector()
+	{
+		if (!this->IsSquare())
+		{
+			cout << endl << "warning (get_diag_vector): Usually you get the diagonal of a Square matrix" << endl;
+		}
+
+		if (this->NumRows() > this->NumCols())
+		{
+			out = Find_out(this->NumCols(), 1);
+		}
+		else if (this->NumRows() < this->NumCols())
+		{
+			out = Find_out(this->NumRows(), 1);
+		}
+		else
+		{
+			out = Find_out(this->NumRows(), 1);
+		}
+
+		for (int r = 0; r < this->NumRows(); r++)
+		{
+			for (int c = 0; c < this->NumCols(); c++)
+			{
+				if (r == c)
+				{
+					(*out)(r, 0) = get(r, c);
+				}
+			}
+		}
+
+
+		return *out;
+	}
 
 	//============================================================================
 	//
@@ -2528,7 +2537,7 @@ public:
 
 //	virtual void Set_Zero_Epsilon() = 0;
 
-	T precision = FLT_EPSILON; // defaults to float eps
+	T precision = numeric_limits<T>::epsilon();; // defaults to float eps
 private:
 
 	//============================================================================
@@ -2555,9 +2564,6 @@ private:
 
 
 
-	typedef matrix < float >  matrixf;
-	typedef  matrix < double > matrixd;
-
 
 
 
@@ -2565,23 +2571,5 @@ private:
 };
 
 
-//============================================================================
-//
-//============================================================================
-template< class T >
-inline LINALG::matrixf operator*(T s, LINALG::matrixf a)
-{
-	return a * s;
-}
-
-
-//============================================================================
-//
-//============================================================================
-template< class T >
-inline LINALG::matrixd operator*(T s, LINALG::matrixd a)
-{
-	return a * s;
-}
 
 #endif
